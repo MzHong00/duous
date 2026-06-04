@@ -1,3 +1,25 @@
 {
-  "extends": ["next/core-web-vitals", "next/typescript"]
+  "extends": ["next/core-web-vitals", "next/typescript"],
+  "plugins": ["import"],
+  "rules": {
+    "import/no-restricted-paths": [
+      "error",
+      {
+        "zones": [
+          {
+            "target": "./src/features",
+            "from": "./src/shared",
+            "except": [],
+            "message": "shared/ → features/ 참조 금지 (단방향 의존성 위반)"
+          },
+          {
+            "target": "./src/shared",
+            "from": "./src/features",
+            "message": "shared/ → features/ 참조 금지 (단방향 의존성 위반)"
+          }
+        ]
+      }
+    ]
+  }
 }
+
