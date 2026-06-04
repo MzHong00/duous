@@ -1,8 +1,8 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/stores/useAuthStore";
-import { useWorkspaceStore } from "@/stores/useWorkspaceStore";
+import { useAuthStore } from "@/features/auth/stores/useAuthStore";
+import { useWorkspaceStore } from "@/features/workspace/stores/useWorkspaceStore";
 
 const RootPage = () => {
   const router = useRouter();

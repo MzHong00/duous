@@ -1,0 +1,63 @@
+@use "styles/mixins" as *;
+
+.feed {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 16px 96px;
+}
+
+.emptyState {
+  @include flex-col-center;
+  gap: 12px;
+  padding: 80px 32px 40px;
+  text-align: center;
+}
+
+.emptyIcon {
+  color: var(--grey-300);
+  opacity: 0.6;
+}
+
+.emptyTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--grey-700);
+}
+
+.emptySub {
+  font-size: 13px;
+  color: var(--grey-400);
+  line-height: 1.6;
+}
+
+.emptyCta {
+  margin-top: 8px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.fab {
+  position: fixed;
+  bottom: 76px;
+  right: max(20px, calc(50vw - 240px + 20px));
+  width: 52px;
+  height: 52px;
+  background: var(--primary);
+  border-radius: 50%;
+  @include flex-center;
+  color: white;
+  font-size: 26px;
+  font-weight: 300;
+  box-shadow: var(--shadow-primary);
+  border: none;
+  cursor: pointer;
+  z-index: 10;
+}

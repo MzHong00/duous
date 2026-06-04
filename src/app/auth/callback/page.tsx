@@ -2,48 +2,42 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { authActions } from "@/stores/useAuthStore";
-import { workspaceActions } from "@/stores/useWorkspaceStore";
-import type { User } from "@/types";
-
-interface GoogleUserInfo {
-  sub: string;
-  name: string;
-  email: string;
-  picture?: string;
-}
+import { authApi } from "@/features/auth/api/auth";
+import { authActions } from "@/features/auth/stores/useAuthStore";
+import { workspaceActions } from "@/features/workspace/stores/useWorkspaceStore";
+import { workspacesApi } from "@/features/workspace/api/workspaces";
 
 const AuthCallbackPage = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const hash = window.location.hash.substring(1);
-    const params = new URLSearchParams(hash);
-    const accessToken = params.get("access_token");
-
-    if (!accessToken) {
-      router.replace("/login");
-      return;
-    }
-
-    fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    })
-      .then((res) => res.json())
-      .then((profile: GoogleUserInfo) => {
-        const user: User = {
-          id: profile.sub,
-          name: profile.name,
-          email: profile.email,
-          profileImage: profile.picture,
-        };
-        authActions.setAuth(user, accessToken);
-        workspaceActions.initMockData();
-        router.replace("/home");
-      })
-      .catch(() => {
+    const handleCallback = async () => {
+      // 세션 확보 (OAuth 리다이렉트 후 URL 해시 파싱)
+      const session = await authApi.getSession();
+      if (!session) {
         router.replace("/login");
-      });
+        return;
+      }
+
+      // 토큰 저장 — 유저 데이터는 SessionProvider의 onAuthStateChange가 React Query로 패칭
+      authActions.setAuth(session.access_token, session.refresh_token ?? undefined);
+
+      // 워크스페이스 조회 후 분기
+      try {
+        const workspaces = await workspacesApi.listMine();
+        if (workspaces.length > 0) {
+          workspaceActions.setWorkspaces(workspaces);
+          workspaceActions.setCurrentWorkspace(workspaces[0]);
+          router.replace("/home");
+        } else {
+          router.replace("/workspace/landing");
+        }
+      } catch {
+        router.replace("/workspace/landing");
+      }
+    };
+
+    handleCallback();
   }, [router]);
 
   return (
@@ -68,9 +62,7 @@ const AuthCallbackPage = () => {
           animation: "spin 0.8s linear infinite",
         }}
       />
-      <p style={{ fontSize: 14, color: "var(--grey-500)", fontWeight: 500 }}>
-        로그인 중입니다...
-      </p>
+      <p style={{ fontSize: 14, color: "var(--grey-500)", fontWeight: 500 }}>로그인 중입니다...</p>
     </div>
   );
 };
