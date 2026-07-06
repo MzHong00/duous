@@ -1,203 +1,43 @@
 "use client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Workspace, WorkspaceInvitation } from "@/features/workspace/types/workspace";
-import { MOCK_DATA } from "@/shared/constants/mockData";
+import { COOKIE_KEYS } from "@/constants/config";
 
 interface WorkspaceState {
-  currentWorkspace: Workspace | null;
-  workspaces: Workspace[];
-  invitations: WorkspaceInvitation[];
+  currentWorkspaceId: string | null; // 현재 선택된 워크스페이스 ID (유일한 클라이언트 상태)
 }
 
 const workspaceStore = create<WorkspaceState>()(
   persist(
     (): WorkspaceState => ({
-      currentWorkspace: null,
-      workspaces: [],
-      invitations: [],
+      currentWorkspaceId: null,
     }),
     {
       name: "workspace-storage",
-      version: 1,
-      migrate: () => ({
-        currentWorkspace: null,
-        workspaces: [],
-        invitations: [],
-      }),
+      version: 2,
+      migrate: () => ({ currentWorkspaceId: null }),
     }
   )
 );
+
+const WORKSPACE_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365; // 워크스페이스 쿠키 유지 기간 (1년)
+
+// currentWorkspaceId 변경 시 쿠키 동기화 — 서버 컴포넌트의 SSR prefetch가 이 쿠키로 워크스페이스를 식별
+workspaceStore.subscribe((state, prev) => {
+  const id = state.currentWorkspaceId;
+  if (id === prev.currentWorkspaceId) return;
+  document.cookie = id
+    ? `${COOKIE_KEYS.WORKSPACE_ID}=${id}; path=/; max-age=${WORKSPACE_COOKIE_MAX_AGE_SECONDS}; samesite=lax`
+    : `${COOKIE_KEYS.WORKSPACE_ID}=; path=/; max-age=0`;
+});
 
 export const useWorkspaceStore = <T = WorkspaceState>(
   selector: (state: WorkspaceState) => T = (state) => state as unknown as T
 ) => workspaceStore(selector);
 
 export const workspaceActions = {
-  setCurrentWorkspace: (workspace: Workspace | null) =>
-    workspaceStore.setState({ currentWorkspace: workspace }),
+  setCurrentWorkspaceId: (id: string | null) =>
+    workspaceStore.setState({ currentWorkspaceId: id }),
 
-  setWorkspaces: (workspaces: Workspace[]) => workspaceStore.setState({ workspaces }),
-
-  createNewWorkspace: (
-    name: string,
-    type: "couple" | "group",
-    isMain: boolean,
-    startDate?: string
-  ): string => {
-    const id = `ws-${Date.now()}`;
-    const newWorkspace: Workspace = {
-      id,
-      name,
-      type,
-      startDate,
-      members: [
-        { id: "user-1", name: "민수", email: "minsu@example.com" },
-        { id: "user-2", name: "영희", email: "yonghee@example.com" },
-      ],
-    };
-    workspaceStore.setState((state) => {
-      const nextWorkspaces = [...state.workspaces, newWorkspace];
-      return {
-        workspaces: nextWorkspaces,
-        currentWorkspace:
-          state.workspaces.length === 0 || isMain ? newWorkspace : state.currentWorkspace,
-      };
-    });
-    return id;
-  },
-
-  sendInvitation: (
-    workspaceId: string,
-    workspaceName: string,
-    inviterEmail: string,
-    inviteeEmail: string
-  ) => {
-    const newInvitation: WorkspaceInvitation = {
-      id: `inv-${Date.now()}`,
-      workspaceId,
-      workspaceName,
-      inviterEmail,
-      inviteeEmail,
-      status: "pending",
-      createdAt: new Date().toISOString(),
-    };
-    workspaceStore.setState((state) => ({
-      invitations: [...state.invitations, newInvitation],
-    }));
-  },
-
-  respondToInvitation: (invitationId: string, status: "accepted" | "declined") => {
-    const state = workspaceStore.getState();
-    const invitation = state.invitations.find((i) => i.id === invitationId);
-    if (!invitation) return;
-
-    workspaceStore.setState((s) => ({
-      invitations: s.invitations.map((i) => (i.id === invitationId ? { ...i, status } : i)),
-    }));
-
-    if (status === "accepted") {
-      const newWorkspace: Workspace = {
-        id: invitation.workspaceId,
-        name: invitation.workspaceName,
-        type: "couple",
-      };
-      workspaceStore.setState((s) => ({
-        workspaces: [...s.workspaces, newWorkspace],
-        currentWorkspace: s.currentWorkspace || newWorkspace,
-      }));
-    }
-  },
-
-  removeWorkspace: (workspaceId: string) => {
-    workspaceStore.setState((state) => {
-      const nextWorkspaces = state.workspaces.filter((ws) => ws.id !== workspaceId);
-      const isRemovingCurrent = state.currentWorkspace?.id === workspaceId;
-      return {
-        workspaces: nextWorkspaces,
-        currentWorkspace: isRemovingCurrent ? nextWorkspaces[0] || null : state.currentWorkspace,
-      };
-    });
-  },
-
-  updateWorkspaceName: (workspaceId: string, name: string) => {
-    workspaceStore.setState((state) => {
-      const nextWorkspaces = state.workspaces.map((ws) =>
-        ws.id === workspaceId ? { ...ws, name } : ws
-      );
-      const isCurrent = state.currentWorkspace?.id === workspaceId;
-      return {
-        workspaces: nextWorkspaces,
-        currentWorkspace: isCurrent ? { ...state.currentWorkspace!, name } : state.currentWorkspace,
-      };
-    });
-  },
-
-  updateWorkspaceStartDate: (workspaceId: string, startDate: string) => {
-    workspaceStore.setState((state) => {
-      const nextWorkspaces = state.workspaces.map((ws) =>
-        ws.id === workspaceId ? { ...ws, startDate } : ws
-      );
-      const isCurrent = state.currentWorkspace?.id === workspaceId;
-      return {
-        workspaces: nextWorkspaces,
-        currentWorkspace: isCurrent
-          ? { ...state.currentWorkspace!, startDate }
-          : state.currentWorkspace,
-      };
-    });
-  },
-
-  updateWorkspaceBackground: (workspaceId: string, imageUrl: string) => {
-    workspaceStore.setState((state) => {
-      const nextWorkspaces = state.workspaces.map((ws) =>
-        ws.id === workspaceId ? { ...ws, backgroundImage: imageUrl } : ws
-      );
-      const isCurrent = state.currentWorkspace?.id === workspaceId;
-      return {
-        workspaces: nextWorkspaces,
-        currentWorkspace: isCurrent
-          ? { ...state.currentWorkspace!, backgroundImage: imageUrl }
-          : state.currentWorkspace,
-      };
-    });
-  },
-
-  updateMemberProfile: (
-    workspaceId: string,
-    memberId: string,
-    updates: { name?: string; avatar?: string }
-  ) => {
-    workspaceStore.setState((state) => {
-      const updateMembers = (members: Workspace["members"]) =>
-        members?.map((m) => (m.id === memberId ? { ...m, ...updates } : m));
-      const nextWorkspaces = state.workspaces.map((ws) =>
-        ws.id === workspaceId ? { ...ws, members: updateMembers(ws.members) } : ws
-      );
-      const isCurrent = state.currentWorkspace?.id === workspaceId;
-      return {
-        workspaces: nextWorkspaces,
-        currentWorkspace: isCurrent
-          ? { ...state.currentWorkspace!, members: updateMembers(state.currentWorkspace!.members) }
-          : state.currentWorkspace,
-      };
-    });
-  },
-
-  initMockData: () => {
-    const workspaceWithBg = { ...MOCK_DATA.workspace };
-    workspaceStore.setState({
-      currentWorkspace: workspaceWithBg,
-      workspaces: [workspaceWithBg, ...MOCK_DATA.extraWorkspaces],
-      invitations: [],
-    });
-  },
-
-  clearData: () => {
-    workspaceStore.setState({
-      currentWorkspace: null,
-      workspaces: [],
-      invitations: [],
-    });
-  },
+  clearData: () => workspaceStore.setState({ currentWorkspaceId: null }),
 };

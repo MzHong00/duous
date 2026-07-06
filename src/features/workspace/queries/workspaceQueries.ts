@@ -9,13 +9,6 @@ export const workspaceQueries = {
       queryFn: () => workspacesApi.listMine(),
     }),
 
-  invites: (email: string) =>
-    queryOptions({
-      queryKey: ["workspaces", "invites", email] as const,
-      queryFn: () => workspacesApi.getPendingInvites(email),
-      enabled: !!email,
-    }),
-
   byInviteCode: (code: string) =>
     queryOptions({
       queryKey: ["workspaces", "invite-code", code] as const,

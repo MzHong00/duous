@@ -1,10 +1,13 @@
-import { supabase } from "@/shared/lib/supabase";
-import type { Workspace, WorkspaceMember } from "@/features/workspace/types/workspace";
+import { supabase } from "@/lib/supabase/client";
+import type { RoomType, Workspace, WorkspaceMember } from "@/features/workspace/types/workspace";
+
+const INVITE_CODE_LENGTH = 8; // 초대 코드 길이
+const INVITE_CODE_TTL_MS = 1000 * 60 * 60 * 24 * 7; // 초대 코드 유효 기간 (7일)
 
 interface WorkspaceRow {
   id: string;
   name: string;
-  type: "couple" | "group";
+  type: RoomType;
   start_date?: string;
   background_image?: string;
   created_by: string;
@@ -69,7 +72,7 @@ export const workspacesApi = {
   // 워크스페이스 생성 + 생성자 멤버 추가
   create: async (
     name: string,
-    type: "couple" | "group",
+    type: RoomType,
     startDate: string | undefined,
     user: { id: string; name: string; email?: string; profileImage?: string }
   ): Promise<{ workspace: Workspace }> => {
@@ -192,70 +195,38 @@ export const workspacesApi = {
     if (error) throw error;
   },
 
-  // 이메일로 초대장 발송 (DB에 기록)
-  sendInvite: async (
-    workspaceId: string,
-    workspaceName: string,
-    inviteeEmail: string,
-    userId: string
-  ): Promise<void> => {
+  // 워크스페이스 배경 이미지 수정
+  updateBackground: async (workspaceId: string, imageUrl: string): Promise<void> => {
+    const { error } = await supabase
+      .from("workspaces")
+      .update({ background_image: imageUrl })
+      .eq("id", workspaceId);
+    if (error) throw error;
+  },
+
+  // 초대 코드 생성 (DB에 기록 후 코드 반환)
+  createInviteCode: async (workspaceId: string, userId: string): Promise<string> => {
+    const code = crypto.randomUUID().replace(/-/g, "").slice(0, INVITE_CODE_LENGTH);
+    const expiresAt = new Date(Date.now() + INVITE_CODE_TTL_MS).toISOString();
+
     const { error } = await supabase.from("workspace_invites").insert({
       workspace_id: workspaceId,
-      workspace_name: workspaceName,
-      invitee_email: inviteeEmail.toLowerCase().trim(),
+      invite_code: code,
       created_by: userId,
-      status: "pending",
+      expires_at: expiresAt,
     });
     if (error) throw error;
+    return code;
   },
 
-  // 내 이메일로 온 pending 초대 목록
-  getPendingInvites: async (
-    email: string
-  ): Promise<
-    {
-      id: string;
-      workspaceId: string;
-      workspaceName: string;
-    }[]
-  > => {
-    const { data, error } = await supabase
-      .from("workspace_invites")
-      .select("id, workspace_id, workspace_name")
-      .eq("invitee_email", email.toLowerCase().trim())
-      .eq("status", "pending");
-    if (error) throw error;
-    return (data ?? []).map((r) => ({
-      id: r.id,
-      workspaceId: r.workspace_id,
-      workspaceName: r.workspace_name ?? "",
-    }));
-  },
-
-  // 초대 거절
-  declineInvite: async (inviteId: string): Promise<void> => {
+  // 워크스페이스 나가기 (본인 멤버 row 삭제)
+  leave: async (workspaceId: string, userId: string): Promise<void> => {
     const { error } = await supabase
-      .from("workspace_invites")
-      .update({ status: "declined" })
-      .eq("id", inviteId);
+      .from("workspace_members")
+      .delete()
+      .eq("workspace_id", workspaceId)
+      .eq("user_id", userId);
     if (error) throw error;
-  },
-
-  // 초대 수락 → 워크스페이스 멤버로 추가
-  acceptInvite: async (
-    inviteId: string,
-    workspaceId: string,
-    user: { id: string; name: string; email?: string; profileImage?: string }
-  ): Promise<Workspace> => {
-    // 상태 업데이트
-    const { error: updateError } = await supabase
-      .from("workspace_invites")
-      .update({ status: "accepted" })
-      .eq("id", inviteId);
-    if (updateError) throw updateError;
-
-    // 워크스페이스 참여
-    return workspacesApi.join(workspaceId, user);
   },
 
   // 멤버 프로필 업데이트

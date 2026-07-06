@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { workspacesApi } from "@/features/workspace/api/workspaces";
-import type { User } from "@/shared/types/user";
+import type { User } from "@/types/user";
+import type { RoomType } from "@/features/workspace/types/workspace";
 import { workspaceQueries } from "./workspaceQueries";
 
 export const useCreateWorkspaceMutation = () => {
@@ -14,7 +15,7 @@ export const useCreateWorkspaceMutation = () => {
       user,
     }: {
       name: string;
-      type: "couple" | "group";
+      type: RoomType;
       startDate?: string;
       user: { id: string; name: string; email?: string; profileImage?: string };
     }) => workspacesApi.create(name, type, startDate, user),
@@ -65,48 +66,26 @@ export const useUpdateWorkspaceMemberMutation = () => {
   });
 };
 
-export const useSendInviteMutation = () =>
-  useMutation({
-    mutationFn: ({
-      workspaceId,
-      workspaceName,
-      inviteeEmail,
-      userId,
-    }: {
-      workspaceId: string;
-      workspaceName: string;
-      inviteeEmail: string;
-      userId: string;
-    }) => workspacesApi.sendInvite(workspaceId, workspaceName, inviteeEmail, userId),
-  });
-
-export const useAcceptInviteMutation = () => {
+export const useUpdateWorkspaceBackgroundMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      inviteId,
-      workspaceId,
-      user,
-    }: {
-      inviteId: string;
-      workspaceId: string;
-      user: User;
-    }) => workspacesApi.acceptInvite(inviteId, workspaceId, user),
-    onSuccess: (_, { user }) => {
-      queryClient.invalidateQueries({ queryKey: workspaceQueries.mine().queryKey });
-      if (user.email) {
-        queryClient.invalidateQueries({ queryKey: workspaceQueries.invites(user.email).queryKey });
-      }
-    },
+    mutationFn: ({ workspaceId, imageUrl }: { workspaceId: string; imageUrl: string }) =>
+      workspacesApi.updateBackground(workspaceId, imageUrl),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: workspaceQueries.mine().queryKey }),
   });
 };
 
-export const useDeclineInviteMutation = () => {
+export const useCreateInviteCodeMutation = () =>
+  useMutation({
+    mutationFn: ({ workspaceId, userId }: { workspaceId: string; userId: string }) =>
+      workspacesApi.createInviteCode(workspaceId, userId),
+  });
+
+export const useLeaveWorkspaceMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ inviteId }: { inviteId: string; email: string }) =>
-      workspacesApi.declineInvite(inviteId),
-    onSuccess: (_, { email }) =>
-      queryClient.invalidateQueries({ queryKey: workspaceQueries.invites(email).queryKey }),
+    mutationFn: ({ workspaceId, userId }: { workspaceId: string; userId: string }) =>
+      workspacesApi.leave(workspaceId, userId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: workspaceQueries.mine().queryKey }),
   });
 };
