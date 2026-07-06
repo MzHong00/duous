@@ -4,7 +4,7 @@
   min-height: 100vh;
   @include flex-col-center;
   justify-content: center;
-  background-color: #ffffff;
+  background-color: var(--white);
   padding: 0 32px 40px;
 }
 
@@ -22,7 +22,7 @@
   @include icon-box(80px, 24px);
   margin-bottom: 16px;
   background-color: #e8f3ff;
-  box-shadow: 0 8px 24px rgba(49, 130, 246, 0.15);
+  box-shadow: 0 8px 24px rgba(var(--primary-rgb), 0.15);
 }
 
 .appName {
@@ -62,8 +62,13 @@
 
 .googleButton {
   border: 1px solid var(--grey-200);
-  background-color: #ffffff;
+  background-color: var(--white);
   color: var(--grey-900);
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }
 
 .terms {

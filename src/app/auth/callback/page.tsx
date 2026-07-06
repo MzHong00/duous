@@ -1,9 +1,9 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { ROUTES } from "@/constants/routes";
 
 import { authApi } from "@/features/auth/api/auth";
-import { authActions } from "@/features/auth/stores/useAuthStore";
 import { workspaceActions } from "@/features/workspace/stores/useWorkspaceStore";
 import { workspacesApi } from "@/features/workspace/api/workspaces";
 
@@ -12,28 +12,24 @@ const AuthCallbackPage = () => {
 
   useEffect(() => {
     const handleCallback = async () => {
-      // 세션 확보 (OAuth 리다이렉트 후 URL 해시 파싱)
+      // 세션 확보 (OAuth 리다이렉트 후 URL 해시 파싱). 세션·유저는 Supabase가 자체 관리
       const session = await authApi.getSession();
       if (!session) {
-        router.replace("/login");
+        router.replace(ROUTES.LOGIN.path);
         return;
       }
-
-      // 토큰 저장 — 유저 데이터는 SessionProvider의 onAuthStateChange가 React Query로 패칭
-      authActions.setAuth(session.access_token, session.refresh_token ?? undefined);
 
       // 워크스페이스 조회 후 분기
       try {
         const workspaces = await workspacesApi.listMine();
         if (workspaces.length > 0) {
-          workspaceActions.setWorkspaces(workspaces);
-          workspaceActions.setCurrentWorkspace(workspaces[0]);
-          router.replace("/home");
+          workspaceActions.setCurrentWorkspaceId(workspaces[0].id);
+          router.replace(ROUTES.HOME.path);
         } else {
-          router.replace("/workspace/landing");
+          router.replace(ROUTES.WORKSPACE.LANDING.path);
         }
       } catch {
-        router.replace("/workspace/landing");
+        router.replace(ROUTES.WORKSPACE.LANDING.path);
       }
     };
 
