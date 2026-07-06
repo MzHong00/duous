@@ -1,112 +1,70 @@
 "use client";
 import { useRef } from "react";
-import { useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
-import { AppHeader } from "@/shared/components/AppHeader";
-import { Card } from "@/shared/components/Card";
 import { Bell, Lock, Smartphone, ChevronRight, LogOut, Camera, Pencil } from "lucide-react";
-import { useAuthStore, authActions } from "@/features/auth/stores/useAuthStore";
-import { useQuery } from "@tanstack/react-query";
-import { authQueries } from "@/features/auth/queries/authQueries";
-import { workspaceActions } from "@/features/workspace/stores/useWorkspaceStore";
-import { modalActions } from "@/shared/stores/useModalStore";
-import { toastActions } from "@/shared/stores/useToastStore";
-import type { User } from "@/shared/types/user";
-import { ProfileImage } from "@/shared/components/ProfileImage";
+
+import { AppHeader } from "@/components/AppHeader";
+import { Card } from "@/components/Card";
+import { ProfileImage } from "@/components/ProfileImage";
+import { cx } from "@/utils/cn";
+
+import { useProfileUser } from "@/features/profile/hooks/useProfileUser";
+import { useProfileSettings } from "@/features/profile/hooks/useProfileSettings";
 import styles from "./SettingsView.module.scss";
 
-export const SettingsView = () => {
-  const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const queryClient = useQueryClient();
-  const { data: user } = useQuery(authQueries.user());
-  const clearAuth = useAuthStore((s) => s.clearAuth);
+import type { ReactNode } from "react";
 
-  const updateUserCache = (updates: Partial<User>) => {
-    queryClient.setQueryData(authQueries.user().queryKey, (prev: User | null | undefined) =>
-      prev ? { ...prev, ...updates } : prev
+const SETTING_ICON_SIZE = 20; // 설정 행 아이콘 크기(px)
+
+interface SettingItem {
+  id: string; // 항목 고유 키
+  label: string; // 표시 라벨
+  description: string; // 보조 설명
+  icon: ReactNode; // 아이콘 노드
+}
+
+const SETTING_ITEMS: SettingItem[] = [
+  {
+    id: "notifications",
+    label: "알림 설정",
+    description: "푸시 알림 및 메시지 알림",
+    icon: <Bell size={SETTING_ICON_SIZE} color="var(--grey-900)" />,
+  },
+  {
+    id: "privacy",
+    label: "위치 공유 설정",
+    description: "파트너와 위치 공유 여부",
+    icon: <Lock size={SETTING_ICON_SIZE} color="var(--grey-900)" />,
+  },
+  {
+    id: "device",
+    label: "기기 관리",
+    description: "연결된 기기 목록",
+    icon: <Smartphone size={SETTING_ICON_SIZE} color="var(--grey-900)" />,
+  },
+];
+
+export const SettingsView = () => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const { user, email, displayName } = useProfileUser();
+  const { openEditNameModal, changePhoto, confirmLogout } = useProfileSettings();
+
+  /** 이름 수정 모달을 띄운다 (입력값은 ref로 확인 시점에 읽는다) */
+  const handleEditName = () => {
+    openEditNameModal(
+      displayName,
+      <div className={styles.nameInputWrap}>
+        <input
+          ref={nameInputRef}
+          defaultValue={displayName}
+          placeholder="새 이름을 입력하세요"
+          autoFocus
+          className={styles.nameInput}
+        />
+      </div>,
+      () => nameInputRef.current?.value ?? displayName
     );
   };
-
-  const userEmail = user?.email || "user@example.com";
-  const displayName = user?.name || userEmail.split("@")[0] || "사용자";
-
-  const handleEditName = () => {
-    let newName = displayName;
-    modalActions.showModal({
-      type: "confirm",
-      title: "이름 수정",
-      confirmText: "변경하기",
-      content: (
-        <div style={{ padding: "0 8px 8px" }}>
-          <input
-            defaultValue={displayName}
-            onChange={(e) => (newName = e.target.value)}
-            placeholder="새 이름을 입력하세요"
-            autoFocus
-            style={{
-              width: "100%",
-              height: 56,
-              backgroundColor: "var(--grey-100)",
-              borderRadius: 16,
-              padding: "0 16px",
-              fontSize: 16,
-              fontWeight: 600,
-              color: "var(--grey-900)",
-            }}
-          />
-        </div>
-      ),
-      onConfirm: () => {
-        if (newName.trim()) {
-          updateUserCache({ name: newName.trim() });
-          toastActions.showToast("이름이 성공적으로 변경되었습니다", "success");
-        }
-      },
-    });
-  };
-
-  const handleEditPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const url = URL.createObjectURL(file);
-    updateUserCache({ profileImage: url });
-    toastActions.showToast("프로필 사진이 변경되었습니다", "success");
-  };
-
-  const handleLogout = () => {
-    modalActions.showModal({
-      type: "confirm",
-      title: "로그아웃",
-      message: "정말 로그아웃 하시겠어요?",
-      onConfirm: () => {
-        clearAuth();
-        workspaceActions.clearData();
-        router.replace("/login");
-      },
-    });
-  };
-
-  const settings = [
-    {
-      id: "notifications",
-      label: "알림 설정",
-      description: "푸시 알림 및 메시지 알림",
-      icon: <Bell size={20} color="var(--grey-900)" />,
-    },
-    {
-      id: "privacy",
-      label: "위치 공유 설정",
-      description: "파트너와 위치 공유 여부",
-      icon: <Lock size={20} color="var(--grey-900)" />,
-    },
-    {
-      id: "device",
-      label: "기기 관리",
-      description: "연결된 기기 목록",
-      icon: <Smartphone size={20} color="var(--grey-900)" />,
-    },
-  ];
 
   return (
     <div className={styles.page}>
@@ -124,19 +82,19 @@ export const SettingsView = () => {
           type="file"
           accept="image/*"
           className={styles.fileInput}
-          onChange={handleEditPhoto}
+          onChange={changePhoto}
         />
 
         <button onClick={handleEditName} className={styles.nameButton}>
           <span className={styles.displayName}>{displayName}</span>
           <Pencil size={14} />
         </button>
-        <span className={styles.email}>{userEmail}</span>
+        <span className={styles.email}>{email}</span>
       </div>
 
       <div className={styles.content}>
         <Card className={styles.settingCard}>
-          {settings.map((item, index) => (
+          {SETTING_ITEMS.map((item) => (
             <div key={item.id}>
               <button className={styles.settingRow}>
                 <div className={styles.settingLeft}>
@@ -151,18 +109,13 @@ export const SettingsView = () => {
               <div className={styles.divider} />
             </div>
           ))}
-          <button onClick={handleLogout} className={styles.settingRow}>
+          <button onClick={confirmLogout} className={styles.settingRow}>
             <div className={styles.settingLeft}>
-              <div
-                className={styles.settingIcon}
-                style={{ backgroundColor: "rgba(240, 68, 82, 0.1)" }}
-              >
-                <LogOut size={20} color="var(--error)" />
+              <div className={cx(styles.settingIcon, styles.logoutIcon)}>
+                <LogOut size={SETTING_ICON_SIZE} color="var(--error)" />
               </div>
               <div className={styles.settingInfo}>
-                <p className={styles.settingLabel} style={{ color: "var(--error)" }}>
-                  로그아웃
-                </p>
+                <p className={cx(styles.settingLabel, styles.logoutLabel)}>로그아웃</p>
                 <p className={styles.settingDesc}>현재 기기에서 로그아웃합니다</p>
               </div>
             </div>

@@ -65,7 +65,7 @@
   border-radius: 20px;
 
   &.blue {
-    background-color: rgba(49, 130, 246, 0.12);
+    background-color: rgba(var(--primary-rgb), 0.12);
     color: var(--primary);
   }
 

@@ -1,0 +1,61 @@
+import { Card } from "@/components/Card";
+import { cx } from "@/utils/cn";
+
+import { CalendarDayCell } from "./CalendarDayCell";
+import styles from "./CalendarGrid.module.scss";
+
+const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
+const SUNDAY = 0; // 일요일 인덱스
+const SATURDAY = 6; // 토요일 인덱스
+
+interface CalendarGridProps {
+  days: Array<string | null>; // 달력 셀 날짜 배열 (빈칸은 null)
+  selectedDate: string; // 선택된 날짜
+  today: string; // 오늘 날짜
+  markedDates: Record<string, string[]>; // 날짜별 일정 색상 점
+  /** 날짜 선택 핸들러 */
+  onSelectDate: (date: string) => void;
+}
+
+export const CalendarGrid = ({
+  days,
+  selectedDate,
+  today,
+  markedDates,
+  onSelectDate,
+}: CalendarGridProps) => (
+  <Card className={styles.calendarCard}>
+    <div className={styles.weekdays}>
+      {WEEKDAYS.map((day, i) => (
+        <div
+          key={day}
+          className={cx(
+            styles.weekday,
+            i === SUNDAY && styles.weekdaySun,
+            i === SATURDAY && styles.weekdaySat,
+            i !== SUNDAY && i !== SATURDAY && styles.weekdayDefault
+          )}
+        >
+          {day}
+        </div>
+      ))}
+    </div>
+
+    <div className={styles.days}>
+      {days.map((date, idx) =>
+        date ? (
+          <CalendarDayCell
+            key={date}
+            date={date}
+            isSelected={date === selectedDate}
+            isToday={date === today}
+            dotColors={markedDates[date] || []}
+            onSelect={onSelectDate}
+          />
+        ) : (
+          <div key={`empty-${idx}`} />
+        )
+      )}
+    </div>
+  </Card>
+);

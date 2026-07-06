@@ -19,6 +19,10 @@
   color: var(--grey-400);
 }
 
+.searchIcon {
+  flex-shrink: 0;
+}
+
 .searchInput {
   flex: 1;
   background: transparent;
@@ -33,7 +37,7 @@
 .addButton {
   @include icon-box(48px);
   min-width: 48px;
-  background-color: rgba(49, 130, 246, 0.1);
+  background-color: rgba(var(--primary-rgb), 0.1);
   color: var(--primary);
 }
 

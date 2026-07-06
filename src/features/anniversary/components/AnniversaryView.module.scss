@@ -43,7 +43,7 @@
 }
 
 .heroTitle {
-  color: #ffffff;
+  color: var(--white);
   font-size: 20px;
   font-weight: 800;
   margin-top: 8px;
@@ -64,7 +64,7 @@
 }
 
 .heroDays {
-  color: #ffffff;
+  color: var(--white);
   font-size: 44px;
   font-weight: 800;
   letter-spacing: -0.025em;
@@ -95,50 +95,4 @@
 
 .list {
   @include flex-col(12px);
-}
-
-.annCard {
-  padding: 16px;
-  @include flex-row(16px);
-}
-
-.annIcon {
-  @include icon-box(48px, 16px);
-}
-
-.annInfo {
-  flex: 1;
-}
-
-.annTitle {
-  font-weight: 700;
-  font-size: 15px;
-  color: var(--grey-900);
-}
-
-.annTitlePast {
-  color: var(--grey-400);
-}
-
-.annDate {
-  font-size: 12px;
-  color: var(--grey-400);
-  margin-top: 2px;
-}
-
-.annStatus {
-  text-align: right;
-}
-
-.statusPast {
-  font-size: 12px;
-  color: var(--grey-400);
-  font-weight: 500;
-}
-
-.statusToday,
-.statusDday {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--primary);
 }

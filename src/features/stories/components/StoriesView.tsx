@@ -2,15 +2,22 @@
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Search, Plus } from "lucide-react";
-import { useStoryStore } from "@/features/stories/stores/useStoryStore";
-import { useQueryParams } from "@/shared/hooks/useQueryParams";
+import { useQuery } from "@tanstack/react-query";
+
+import { ROUTES } from "@/constants/routes";
+import { useQueryParams } from "@/hooks/useQueryParams";
+import { cx } from "@/utils/cn";
+import { storyQueries } from "@/features/stories/queries/storyQueries";
+import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
 import { StoryItem } from "@/features/stories/components/StoryItem";
+
 import styles from "./StoriesView.module.scss";
 
 export const StoriesView = () => {
   const router = useRouter();
   const [params, setParams] = useQueryParams();
-  const stories = useStoryStore((s) => s.stories);
+  const { currentWorkspace } = useCurrentWorkspace();
+  const { data: stories = [] } = useQuery(storyQueries.list(currentWorkspace?.id ?? ""));
 
   const searchQuery = params.get("q") || "";
 
@@ -35,7 +42,7 @@ export const StoriesView = () => {
     <div className={styles.page}>
       <div className={styles.searchRow}>
         <div className={styles.searchBox}>
-          <Search size={18} style={{ flexShrink: 0 }} />
+          <Search size={18} className={styles.searchIcon} />
           <input
             type="text"
             value={searchQuery}
@@ -44,7 +51,7 @@ export const StoriesView = () => {
             className={styles.searchInput}
           />
         </div>
-        <button onClick={() => router.push("/stories/edit")} className={styles.addButton}>
+        <button onClick={() => router.push(ROUTES.STORIES.EDIT.path)} className={styles.addButton}>
           <Plus size={22} strokeWidth={2.5} />
         </button>
       </div>
@@ -54,7 +61,10 @@ export const StoriesView = () => {
           <div className={styles.empty}>
             <p>{searchQuery ? "검색 결과가 없어요." : "아직 스토리가 없어요."}</p>
             {!searchQuery && (
-              <button onClick={() => router.push("/stories/edit")} className={styles.emptyLink}>
+              <button
+                onClick={() => router.push(ROUTES.STORIES.EDIT.path)}
+                className={styles.emptyLink}
+              >
                 첫 스토리 기록하기
               </button>
             )}
@@ -66,16 +76,16 @@ export const StoriesView = () => {
                 <StoryItem
                   key={story.id}
                   story={story}
-                  onPress={(id) => router.push(`/stories/${id}`)}
+                  onPress={(id) => router.push(ROUTES.STORIES.detail(id))}
                 />
               ))}
             </div>
-            <div className={`${styles.col} ${styles.colOffset}`}>
+            <div className={cx(styles.col, styles.colOffset)}>
               {rightCol.map((story) => (
                 <StoryItem
                   key={story.id}
                   story={story}
-                  onPress={(id) => router.push(`/stories/${id}`)}
+                  onPress={(id) => router.push(ROUTES.STORIES.detail(id))}
                 />
               ))}
             </div>

@@ -1,13 +1,22 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { todoActions } from "@/features/todo/stores/useTodoStore";
+
+import { ROUTES } from "@/constants/routes";
+import { cx } from "@/utils/cn";
+
+import { useFilteredTodos } from "@/features/todo/hooks/useFilteredTodos";
+import { TodoItem } from "@/features/todo/components/TodoItem";
+
+import type { Filter } from "@/features/todo/hooks/useFilteredTodos";
 import type { Todo } from "@/features/todo/types/todo";
 import type { Workspace } from "@/features/workspace/types/workspace";
-import { TodoItem } from "@/features/todo/components/TodoItem";
+
 import styles from "./TodoList.module.scss";
 
-// 할 일 목록 필터 타입. 페이지에서 URL 쿼리스트링으로 관리한다.
-export type Filter = "all" | "active" | "completed";
+// 캘린더 등 외부 소비자 호환을 위해 Filter 타입을 재노출한다.
+export type { Filter };
+
+const FILTERS: Filter[] = ["all", "active", "completed"];
 
 const FILTER_LABELS: Record<Filter, string> = {
   all: "전체",
@@ -22,7 +31,10 @@ interface TodoListProps {
   initialDate?: string;
   // 현재 활성 필터. 부모(페이지)에서 URL 쿼리스트링과 동기화해 관리한다.
   filter: Filter;
+  /** 필터 변경 핸들러 */
   onFilterChange: (filter: Filter) => void;
+  /** 완료 여부 토글 핸들러 */
+  onToggle: (id: string) => void;
 }
 
 export const TodoList = ({
@@ -31,26 +43,23 @@ export const TodoList = ({
   initialDate,
   filter,
   onFilterChange,
+  onToggle,
 }: TodoListProps) => {
   const router = useRouter();
 
-  const activeTodos = todos.filter((t) => !t.isCompleted);
-  const completedTodos = todos.filter((t) => t.isCompleted);
-  // 선택된 필터에 따라 표시할 목록을 결정한다.
-  const displayedTodos =
-    filter === "all" ? todos : filter === "active" ? activeTodos : completedTodos;
+  const displayedTodos = useFilteredTodos(todos, filter);
 
   // initialDate가 있으면 해당 날짜를 기본값으로 세팅한 채로 생성 화면으로 이동한다.
-  const addHref = initialDate ? `/todo/create?initialDate=${initialDate}` : "/todo/create";
+  const addHref = initialDate ? ROUTES.TODO.CREATE.query({ initialDate }) : ROUTES.TODO.CREATE.path;
 
   return (
     <div className={styles.container}>
       {/* 필터 탭: 전체 / 진행 중 / 완료 */}
       <div className={styles.filters}>
-        {(["all", "active", "completed"] as const).map((f) => (
+        {FILTERS.map((f) => (
           <button
             key={f}
-            className={[styles.filterButton, filter === f ? styles.filterActive : ""].join(" ")}
+            className={cx(styles.filterButton, filter === f && styles.filterActive)}
             onClick={() => onFilterChange(f)}
           >
             {FILTER_LABELS[f]}
@@ -77,8 +86,8 @@ export const TodoList = ({
               key={todo.id}
               item={todo}
               currentWorkspace={currentWorkspace}
-              onToggle={todoActions.toggleTodo}
-              onPress={(id) => router.push(`/todo/create?todoId=${id}`)}
+              onToggle={onToggle}
+              onPress={(id) => router.push(ROUTES.TODO.CREATE.query({ todoId: id }))}
             />
           ))
         )}

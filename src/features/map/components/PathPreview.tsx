@@ -3,7 +3,7 @@ import { MapPin, Pencil, Trash2 } from "lucide-react";
 import type { LocationPoint } from "@/features/stories/types/story";
 import styles from "./PathPreview.module.scss";
 
-interface Props {
+interface PathPreviewProps {
   path: LocationPoint[];
   pathColor: string;
   onEdit: () => void;
@@ -29,7 +29,7 @@ function getWaypointLabel(index: number, total: number) {
   return `경유 ${index}`;
 }
 
-export function PathPreview({ path, pathColor, onEdit, onClear }: Props) {
+export function PathPreview({ path, pathColor, onEdit, onClear }: PathPreviewProps) {
   const points = useMemo(() => {
     if (path.length === 0) return [];
     const lats = path.map((p) => p.latitude);

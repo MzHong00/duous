@@ -91,3 +91,26 @@
 .divider {
   @include divider;
 }
+
+.logoutIcon {
+  background-color: rgba(240, 68, 82, 0.1);
+}
+
+.logoutLabel {
+  color: var(--error);
+}
+
+.nameInputWrap {
+  padding: 0 8px 8px;
+}
+
+.nameInput {
+  width: 100%;
+  height: 56px;
+  background-color: var(--grey-100);
+  border-radius: 16px;
+  padding: 0 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--grey-900);
+}

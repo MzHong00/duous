@@ -2,35 +2,37 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Route, Square, Search } from "lucide-react";
-import { useWorkspaceStore } from "@/features/workspace/stores/useWorkspaceStore";
 import { useQuery } from "@tanstack/react-query";
+import { ROUTES } from "@/constants/routes";
+import { COLORS } from "@/constants/theme";
+import { cx } from "@/utils/cn";
+import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
 import { authQueries } from "@/features/auth/queries/authQueries";
 import { useStoryStore, storyActions } from "@/features/stories/stores/useStoryStore";
-import { toastActions } from "@/shared/stores/useToastStore";
+import { storyQueries } from "@/features/stories/queries/storyQueries";
+import { useCreateStoryMutation } from "@/features/stories/queries/storyMutations";
+import { toastActions } from "@/stores/useToastStore";
 import { GoogleMapView } from "@/features/map/components/GoogleMapView";
 import { MapEmptyState } from "@/features/map/components/MapEmptyState";
 import { MapPartnerInfo } from "@/features/map/components/MapPartnerInfo";
 import { MapStoryInfo } from "@/features/map/components/MapStoryInfo";
-import { ProfileImage } from "@/shared/components/ProfileImage";
+import { ProfileImage } from "@/components/ProfileImage";
+import { BottomDrawer } from "@/components/BottomDrawer";
+import { DEFAULT_CENTER } from "@/features/map/constants/mapConfig";
+
 import type { WorkspaceMember } from "@/features/workspace/types/workspace";
-import { BottomDrawer } from "@/shared/components/BottomDrawer";
 import styles from "./MapView.module.scss";
 
-const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 };
-const MOCK_MEMBER_LOCATION_MAP: Record<string, { lat: number; lng: number }> = {
-  "user-2": { lat: 37.5, lng: 127.03 },
-};
-const RECENT_PLACES = [
-  { id: "1", name: "명동 성당 카페", date: "어제 오후 2:00" },
-  { id: "2", name: "남산 타워", date: "3일 전" },
-  { id: "3", name: "강남구청 역 이자카야", date: "지난 주말" },
-];
+const GEO_WATCH_OPTIONS: PositionOptions = { enableHighAccuracy: true, maximumAge: 5000 };
+const DIRECTIONS_BASE_URL = "https://www.google.com/maps/dir/?api=1";
+const MIN_PATH_POINTS = 2; // 스토리로 저장 가능한 최소 정점 수
 
 export const MapView = () => {
   const router = useRouter();
-  const currentWorkspace = useWorkspaceStore((s) => s.currentWorkspace);
+  const { currentWorkspace } = useCurrentWorkspace();
   const { data: user } = useQuery(authQueries.user());
-  const stories = useStoryStore((s) => s.stories);
+  const { data: stories = [] } = useQuery(storyQueries.list(currentWorkspace?.id ?? ""));
+  const createStory = useCreateStoryMutation(currentWorkspace?.id ?? "");
   const selectedStoryId = useStoryStore((s) => s.selectedStoryId);
   const isRecording = useStoryStore((s) => s.isRecording);
   const recordingPath = useStoryStore((s) => s.recordingPath);
@@ -70,7 +72,7 @@ export const MapView = () => {
           storyActions.stopRecording();
         }
       },
-      { enableHighAccuracy: true, maximumAge: 5000 }
+      GEO_WATCH_OPTIONS
     );
   }, []);
 
@@ -87,50 +89,56 @@ export const MapView = () => {
     };
   }, [stopWatchPosition]);
 
-  const memberLocations = (currentWorkspace?.members ?? [])
-    .map((member) => {
-      if (member.id === myUserId) {
-        const loc = myLocation;
-        return { member, lat: loc.lat, lng: loc.lng };
-      }
-      const loc = MOCK_MEMBER_LOCATION_MAP[member.id];
-      if (!loc) return null;
-      return { member, lat: loc.lat, lng: loc.lng };
-    })
-    .filter(Boolean) as { member: WorkspaceMember; lat: number; lng: number }[];
+  const memberLocations = (currentWorkspace?.members ?? []).flatMap<{
+    member: WorkspaceMember;
+    lat: number;
+    lng: number;
+  }>((member) => {
+    // 실시간 위치 공유(presence) 연동 전까지는 본인 위치만 표시한다
+    if (member.id !== myUserId) return [];
+    return [{ member, lat: myLocation.lat, lng: myLocation.lng }];
+  });
 
   const mapCenter = myLocation;
   const selectedStory = stories.find((s) => s.id === selectedStoryId);
   const selectedUser = currentWorkspace?.members?.find((m) => m.id === selectedUserId);
 
-  const toggleRecording = () => {
+  const toggleRecording = async () => {
     if (!isRecording) {
       storyActions.startRecording();
       startWatchPosition();
       toastActions.showToast("실시간 위치 기록을 시작합니다.", "info");
-    } else {
-      stopWatchPosition();
-      if (recordingPath.length < 2) {
-        toastActions.showToast("기록된 경로가 너무 짧아 저장할 수 없습니다.", "error");
-        storyActions.stopRecording();
-        return;
-      }
-      const newStoryId = `story-${Date.now()}`;
-      storyActions.saveStory({
-        id: newStoryId,
+      return;
+    }
+
+    stopWatchPosition();
+    if (recordingPath.length < MIN_PATH_POINTS) {
+      toastActions.showToast("기록된 경로가 너무 짧아 저장할 수 없습니다.", "error");
+      storyActions.stopRecording();
+      return;
+    }
+
+    try {
+      const created = await createStory.mutateAsync({
+        date: new Date().toISOString(),
+        path: recordingPath,
+        pathColor: COLORS.primary,
         userId: myUserId,
-        workspaceId: currentWorkspace?.id || "",
-        pathColor: "#3182F6",
+        workspaceId: currentWorkspace?.id ?? "",
       });
+      storyActions.clearRecording();
       toastActions.showToast("새로운 스토리가 기록되었습니다!", "success");
-      router.push(`/stories/edit?storyId=${newStoryId}`);
+      router.push(ROUTES.STORIES.EDIT.query({ storyId: created.id }));
+    } catch {
+      storyActions.stopRecording();
+      toastActions.showToast("스토리 저장에 실패했습니다. 다시 시도해주세요.", "error");
     }
   };
 
   const openDirections = () => {
     const partner = memberLocations.find((m) => m.member.id !== myUserId);
     if (!partner) return;
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${partner.lat},${partner.lng}&travelmode=driving`;
+    const url = `${DIRECTIONS_BASE_URL}&destination=${partner.lat},${partner.lng}&travelmode=driving`;
     window.open(url, "_blank");
   };
 
@@ -149,25 +157,15 @@ export const MapView = () => {
                 setSelectedUserId(isSelected ? null : member.id);
                 storyActions.setSelectedStoryId(null);
               }}
-              className={[styles.memberButton, isSelected && styles.memberButtonActive]
-                .filter(Boolean)
-                .join(" ")}
+              className={cx(styles.memberButton, isSelected && styles.memberButtonActive)}
             >
-              <div
-                className={[styles.memberAvatarWrap, isSelected && styles.memberAvatarActive]
-                  .filter(Boolean)
-                  .join(" ")}
-              >
+              <div className={cx(styles.memberAvatarWrap, isSelected && styles.memberAvatarActive)}>
                 <ProfileImage uri={member.avatar} name={member.name} size={52} />
                 <span className={styles.focusBadge}>
                   <Search size={10} strokeWidth={2.5} />
                 </span>
               </div>
-              <span
-                className={[styles.memberName, isSelected && styles.memberNameActive]
-                  .filter(Boolean)
-                  .join(" ")}
-              >
+              <span className={cx(styles.memberName, isSelected && styles.memberNameActive)}>
                 {member.name}
               </span>
             </button>
@@ -198,12 +196,10 @@ export const MapView = () => {
         <button
           type="button"
           onClick={toggleRecording}
-          className={[
+          className={cx(
             styles.recordButton,
-            isRecording ? styles.recordButtonActive : styles.recordButtonIdle,
-          ]
-            .filter(Boolean)
-            .join(" ")}
+            isRecording ? styles.recordButtonActive : styles.recordButtonIdle
+          )}
         >
           {isRecording ? (
             <>
@@ -226,7 +222,7 @@ export const MapView = () => {
           <MapPartnerInfo
             member={selectedUser}
             onOpenDirections={openDirections}
-            recentPlaces={RECENT_PLACES}
+            recentPlaces={[]}
           />
         ) : (
           <MapEmptyState />

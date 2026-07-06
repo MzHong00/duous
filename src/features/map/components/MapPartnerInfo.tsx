@@ -1,5 +1,5 @@
 import { Battery, MapPin, Clock, Navigation, ChevronRight } from "lucide-react";
-import { ProfileImage } from "@/shared/components/ProfileImage";
+import { ProfileImage } from "@/components/ProfileImage";
 import type { WorkspaceMember } from "@/features/workspace/types/workspace";
 import styles from "./MapPartnerInfo.module.scss";
 
@@ -11,6 +11,7 @@ interface RecentPlace {
 
 interface MapPartnerInfoProps {
   member: WorkspaceMember;
+  /** 외부 지도 길찾기 열기 */
   onOpenDirections: () => void;
   recentPlaces: RecentPlace[];
 }
@@ -30,7 +31,7 @@ export const MapPartnerInfo = ({ member, onOpenDirections, recentPlaces }: MapPa
           </div>
         </div>
         <div className={styles.locationRow}>
-          <MapPin size={16} style={{ flexShrink: 0 }} />
+          <MapPin size={16} className={styles.locationIcon} />
           <span className={styles.locationText}>서울특별시 강남구 역삼동</span>
         </div>
         <div className={styles.timeRow}>
@@ -40,7 +41,7 @@ export const MapPartnerInfo = ({ member, onOpenDirections, recentPlaces }: MapPa
       </div>
 
       <div className={styles.directionsSection}>
-        <button onClick={onOpenDirections} className={styles.directionsButton}>
+        <button type="button" onClick={onOpenDirections} className={styles.directionsButton}>
           <Navigation size={18} />
           <span>경로 찾기</span>
         </button>
@@ -50,7 +51,7 @@ export const MapPartnerInfo = ({ member, onOpenDirections, recentPlaces }: MapPa
         <p className={styles.placesTitle}>최근 함께한 장소</p>
         <div className={styles.placesList}>
           {recentPlaces.map((place) => (
-            <button key={place.id} className={styles.placeButton}>
+            <button type="button" key={place.id} className={styles.placeButton}>
               <div className={styles.placeIcon}>
                 <MapPin size={18} />
               </div>

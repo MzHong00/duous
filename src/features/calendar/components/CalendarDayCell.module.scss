@@ -1,0 +1,48 @@
+@use "styles/mixins" as *;
+
+.dayButton {
+  @include flex-col-center;
+  padding: 4px 0;
+  border-radius: 12px;
+  transition: background-color 0.1s;
+}
+
+.dayNumber {
+  @include icon-box(32px);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--grey-800);
+}
+
+.dayNumberSelected {
+  background-color: var(--primary);
+  color: var(--white);
+  font-weight: 700;
+}
+
+.dayNumberToday {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.dayNumberSun {
+  color: var(--error);
+}
+.dayNumberSat {
+  color: var(--primary);
+}
+
+.dots {
+  @include flex-row(2px);
+  margin-top: 2px;
+}
+
+.dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+}
+
+.dotSelected {
+  background-color: var(--white);
+}

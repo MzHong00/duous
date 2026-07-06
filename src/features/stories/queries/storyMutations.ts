@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { storiesApi } from "@/features/stories/api/stories";
+import { storyQueries } from "@/features/stories/queries/storyQueries";
+
 import type { Story } from "@/features/stories/types/story";
-import { storyQueries } from "./storyQueries";
 
 export const useCreateStoryMutation = (workspaceId: string) => {
   const queryClient = useQueryClient();

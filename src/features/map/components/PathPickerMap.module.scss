@@ -15,30 +15,6 @@
   inset: 0;
 }
 
-.stateBox {
-  height: 100%;
-  @include flex-col-center(10px);
-  background-color: var(--grey-100);
-}
-
-.stateEmoji {
-  font-size: 40px;
-}
-
-.stateText {
-  font-size: 14px;
-  color: var(--grey-500);
-}
-
-.spinner {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: 2.5px solid var(--primary);
-  border-top-color: transparent;
-  animation: spin 0.8s linear infinite;
-}
-
 // ─── X 닫기 버튼 (좌상단) ────────────────────────────────────────────────────
 
 .closeBtn {

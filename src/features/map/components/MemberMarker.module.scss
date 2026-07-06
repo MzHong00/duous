@@ -1,0 +1,34 @@
+@use "styles/mixins" as *;
+
+.marker {
+  @include flex-col-center;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  background-color: #ffffff;
+  @include flex-center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.avatarMe {
+  border-color: var(--primary);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.initial {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 16px;
+}

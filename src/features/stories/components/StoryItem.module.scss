@@ -18,6 +18,14 @@
   @include flex-center;
 }
 
+.thumbnailTall {
+  height: 160px;
+}
+
+.thumbnailShort {
+  height: 120px;
+}
+
 .thumbnailImage {
   width: 100%;
   height: 100%;

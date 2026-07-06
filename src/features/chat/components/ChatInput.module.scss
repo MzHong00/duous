@@ -12,9 +12,9 @@
   width: 100%;
   @include flex-row(8px);
   padding: 10px 10px 10px 12px;
-  background-color: #ffffff;
+  background-color: var(--white);
   border-radius: 9999px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-card);
 }
 
 .plusButton {
@@ -29,7 +29,7 @@
 // 도구함 열렸을 때 플러스 버튼 강조
 .plusButtonActive {
   background-color: var(--primary);
-  color: #ffffff;
+  color: var(--white);
   transform: rotate(45deg);
 }
 
@@ -54,9 +54,16 @@
 
 .sendButtonActive {
   background-color: var(--primary);
+  color: var(--white);
 }
 .sendButtonInactive {
   background-color: var(--grey-100);
+  color: var(--grey-400);
+}
+
+// 버튼의 color를 상속해 활성/비활성 색을 따른다 (lucide는 currentColor 사용)
+.sendIcon {
+  color: currentColor;
 }
 
 // 도구함 — 인풋 바 위에 표시

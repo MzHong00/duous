@@ -1,4 +1,7 @@
-import { supabase } from "@/shared/lib/supabase";
+import { supabase } from "@/lib/supabase/client";
+import { PATH_COLORS } from "@/constants/theme";
+
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Story, LocationPoint } from "@/features/stories/types/story";
 
 interface StoryRow {
@@ -20,14 +23,15 @@ const rowToStory = (row: StoryRow): Story => ({
   date: row.date,
   thumbnailUrl: row.thumbnail_url,
   path: row.path ?? [],
-  pathColor: row.path_color ?? "#3182F6",
+  pathColor: row.path_color ?? PATH_COLORS[0],
   userId: row.user_id,
   workspaceId: row.workspace_id,
 });
 
 export const storiesApi = {
-  list: async (workspaceId: string): Promise<Story[]> => {
-    const { data, error } = await supabase
+  // client 미지정 시 브라우저 클라이언트 사용 — 서버 prefetch에서는 서버 클라이언트 주입
+  list: async (workspaceId: string, client: SupabaseClient = supabase): Promise<Story[]> => {
+    const { data, error } = await client
       .from("stories")
       .select("*")
       .eq("workspace_id", workspaceId)

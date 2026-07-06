@@ -1,6 +1,10 @@
 import { MapPin } from "lucide-react";
+
+import { formatDate } from "@/utils/date";
+import { cx } from "@/utils/cn";
+
 import type { Story } from "@/features/stories/types/story";
-import { formatDate } from "@/shared/utils/date";
+
 import styles from "./StoryItem.module.scss";
 
 interface StoryItemProps {
@@ -9,22 +13,19 @@ interface StoryItemProps {
 }
 
 export const StoryItem = ({ story, onPress }: StoryItemProps) => {
+  const hasThumbnail = !!story.thumbnailUrl; // 썸네일 이미지 존재 여부
+
   return (
     <button onClick={() => onPress(story.id)} className={styles.item}>
       <div
-        className={styles.thumbnail}
-        style={{
-          backgroundColor: story.pathColor + "20",
-          height: story.thumbnailUrl ? 160 : 120,
-        }}
+        className={cx(
+          styles.thumbnail,
+          hasThumbnail ? styles.thumbnailTall : styles.thumbnailShort
+        )}
+        style={{ backgroundColor: `${story.pathColor}20` }}
       >
-        {story.thumbnailUrl ? (
-          <img
-            src={story.thumbnailUrl}
-            alt={story.title}
-            className={styles.thumbnailImage}
-            style={{ height: story.thumbnailUrl ? 160 : 120 }}
-          />
+        {hasThumbnail ? (
+          <img src={story.thumbnailUrl} alt={story.title} className={styles.thumbnailImage} />
         ) : (
           <MapPin size={32} style={{ color: story.pathColor }} />
         )}

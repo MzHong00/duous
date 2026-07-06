@@ -1,14 +1,14 @@
 "use client";
-import { useState, useMemo } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Users, Check, Trash2 } from "lucide-react";
-import { useTodoStore, todoActions } from "@/features/todo/stores/useTodoStore";
-import { useWorkspaceStore } from "@/features/workspace/stores/useWorkspaceStore";
-import { modalActions } from "@/shared/stores/useModalStore";
-import { getTodayDateString, getDateWithOffset } from "@/shared/utils/date";
-import { AppHeader } from "@/shared/components/AppHeader";
-import { ProfileImage } from "@/shared/components/ProfileImage";
-import { TODO_COLORS, COLORS } from "@/shared/constants/theme";
+import { useSearchParams } from "next/navigation";
+import { Trash2 } from "lucide-react";
+
+import { AppHeader } from "@/components/AppHeader";
+import { getDateWithOffset } from "@/utils/date";
+
+import { useTodoForm } from "@/features/todo/hooks/useTodoForm";
+import { ColorPicker } from "@/features/todo/components/ColorPicker";
+import { AssigneePicker } from "@/features/todo/components/AssigneePicker";
+
 import styles from "./TodoCreateView.module.scss";
 
 const QUICK_DATES = [
@@ -18,94 +18,34 @@ const QUICK_DATES = [
 ];
 
 export const TodoCreateView = () => {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const todoId = searchParams.get("todoId");
   const initialDate = searchParams.get("initialDate");
 
-  const currentWorkspace = useWorkspaceStore((s) => s.currentWorkspace);
-  const todos = useTodoStore((s) => s.todos);
-
-  const existingTodo = useMemo(
-    () => (todoId ? todos.find((t) => t.id === todoId) : null),
-    [todoId, todos]
-  );
-
-  const [title, setTitle] = useState(existingTodo?.title || "");
-  const [description, setDescription] = useState(existingTodo?.description || "");
-  const [assigneeId, setAssigneeId] = useState<string | undefined>(existingTodo?.assigneeId);
-  const [startDate, setStartDate] = useState(
-    existingTodo?.startDate || initialDate || getTodayDateString()
-  );
-  const [endDate, setEndDate] = useState(
-    existingTodo?.endDate || initialDate || getTodayDateString()
-  );
-  const [selectedColor, setSelectedColor] = useState(
-    () => existingTodo?.color || TODO_COLORS[Math.floor(Math.random() * TODO_COLORS.length)]
-  );
-
-  const members = currentWorkspace?.members || [];
-
-  const handleDelete = () => {
-    if (!todoId) return;
-    modalActions.showModal({
-      type: "confirm",
-      title: "삭제",
-      message: "이 항목을 삭제하시겠습니까?",
-      onConfirm: () => {
-        todoActions.removeTodo(todoId);
-        router.back();
-      },
-    });
-  };
-
-  const handleSave = () => {
-    if (!title.trim()) {
-      modalActions.showModal({ type: "alert", title: "알림", message: "제목을 입력해주세요." });
-      return;
-    }
-    if (!currentWorkspace) return;
-
-    const todoData = {
-      workspaceId: currentWorkspace.id,
-      title: title.trim(),
-      description: description.trim(),
-      isCompleted: false,
-      assigneeId,
-      startDate,
-      endDate,
-      color: selectedColor,
-    };
-
-    if (todoId) {
-      todoActions.updateTodo(todoId, todoData);
-      modalActions.showModal({
-        type: "alert",
-        title: "알림",
-        message: "항목이 수정되었습니다.",
-        onConfirm: () => router.back(),
-      });
-    } else {
-      todoActions.addTodo(todoData);
-      router.back();
-    }
-  };
+  const {
+    title,
+    setTitle,
+    description,
+    setDescription,
+    assigneeId,
+    setAssigneeId,
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
+    selectedColor,
+    setSelectedColor,
+    members,
+    handleSave,
+    handleDelete,
+  } = useTodoForm(todoId, initialDate);
 
   return (
     <div className={styles.page}>
       <AppHeader
         rightElement={
           todoId ? (
-            <button
-              onClick={handleDelete}
-              style={{
-                width: 36,
-                height: 36,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
+            <button onClick={handleDelete} className={styles.deleteButton}>
               <Trash2 size={20} color="var(--error)" />
             </button>
           ) : undefined
@@ -180,96 +120,12 @@ export const TodoCreateView = () => {
 
         <div className={styles.field}>
           <label className={styles.label}>색상 선택</label>
-          <div className={styles.colorPicker}>
-            {TODO_COLORS.map((color) => (
-              <button
-                key={color}
-                onClick={() => setSelectedColor(color)}
-                className={styles.colorButton}
-                style={{
-                  backgroundColor: color,
-                  boxShadow:
-                    selectedColor === color ? `0 0 0 3px white, 0 0 0 5px ${color}` : "none",
-                }}
-              />
-            ))}
-          </div>
+          <ColorPicker selectedColor={selectedColor} onSelect={setSelectedColor} />
         </div>
 
         <div className={styles.field}>
           <label className={styles.label}>담당자 지정</label>
-          <div className={styles.assigneeRow}>
-            <button onClick={() => setAssigneeId(undefined)} className={styles.assigneeOption}>
-              <div
-                className={[
-                  styles.assigneeIcon,
-                  assigneeId === undefined
-                    ? styles.assigneeIconActive
-                    : styles.assigneeIconInactive,
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-              >
-                <Users size={22} color={assigneeId === undefined ? "white" : COLORS.textTertiary} />
-              </div>
-              <span
-                className={[
-                  styles.assigneeLabel,
-                  assigneeId === undefined
-                    ? styles.assigneeLabelActive
-                    : styles.assigneeLabelInactive,
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-              >
-                공통
-              </span>
-            </button>
-
-            {members.map((member) => {
-              const isActive = assigneeId === member.id;
-              return (
-                <button
-                  key={member.id}
-                  onClick={() => setAssigneeId(member.id)}
-                  className={styles.assigneeOption}
-                >
-                  <div
-                    className={[styles.memberWrap, isActive && "ring-2"].filter(Boolean).join(" ")}
-                  >
-                    <div
-                      style={
-                        isActive
-                          ? {
-                              outline: "2px solid var(--primary)",
-                              outlineOffset: 1,
-                              borderRadius: 9999,
-                            }
-                          : {}
-                      }
-                    >
-                      <ProfileImage uri={member.avatar} name={member.name} size={56} />
-                    </div>
-                    {isActive && (
-                      <div className={styles.checkBadge}>
-                        <Check size={10} strokeWidth={3} />
-                      </div>
-                    )}
-                  </div>
-                  <span
-                    className={[
-                      styles.assigneeLabel,
-                      isActive ? styles.assigneeLabelActive : styles.assigneeLabelInactive,
-                    ]
-                      .filter(Boolean)
-                      .join(" ")}
-                  >
-                    {member.name}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+          <AssigneePicker members={members} assigneeId={assigneeId} onSelect={setAssigneeId} />
         </div>
       </div>
 

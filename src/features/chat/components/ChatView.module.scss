@@ -17,49 +17,6 @@
   overflow: hidden;
 }
 
-.header {
-  flex-shrink: 0;
-  @include flex-between;
-  align-items: center;
-  padding: 0 8px 0 4px;
-  height: 60px;
-  background-color: #ffffff;
-  border-bottom: 1px solid var(--grey-100);
-}
-
-.backButton {
-  @include icon-box(40px);
-  color: var(--grey-900);
-
-  &:active {
-    background-color: var(--grey-100);
-  }
-}
-
-.headerInfo {
-  @include flex-row(10px);
-  align-items: center;
-  flex: 1;
-  padding-left: 4px;
-}
-
-.headerRight {
-  width: 40px;
-}
-
-.partnerName {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--grey-900);
-  line-height: 1.2;
-}
-
-.onlineStatus {
-  font-size: 11px;
-  color: var(--success);
-  line-height: 1.2;
-}
-
 // flex: 1로 남은 공간 전부 차지하며 자체 스크롤
 .messages {
   flex: 1;

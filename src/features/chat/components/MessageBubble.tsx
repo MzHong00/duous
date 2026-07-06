@@ -1,9 +1,14 @@
-import { ProfileImage } from "@/shared/components/ProfileImage";
+import { ProfileImage } from "@/components/ProfileImage";
+import { cx } from "@/utils/cn";
+import { AVATAR_FALLBACK_NAME, BUBBLE_AVATAR_SIZE } from "@/features/chat/constants/chat";
+
+import type { ChatMessage } from "@/features/chat/types/chat";
+
 import styles from "./MessageBubble.module.scss";
 
 interface MessageBubbleProps {
   text: string;
-  sender: "me" | "partner";
+  sender: ChatMessage["sender"];
   time: string;
   avatar?: string;
   name?: string;
@@ -27,10 +32,15 @@ export const MessageBubble = ({ text, sender, time, avatar, name }: MessageBubbl
 
   return (
     <div className={styles.rowPartner}>
-      <ProfileImage uri={avatar} name={name || "?"} size={32} className={styles.partnerAvatar} />
+      <ProfileImage
+        uri={avatar}
+        name={name || AVATAR_FALLBACK_NAME}
+        size={BUBBLE_AVATAR_SIZE}
+        className={styles.partnerAvatar}
+      />
       <div className={styles.innerPartner}>
         <div className={styles.bubblePartner}>
-          <p className={`${styles.text} ${styles.textPartner}`}>{text}</p>
+          <p className={cx(styles.text, styles.textPartner)}>{text}</p>
         </div>
         <span className={styles.time}>{time}</span>
       </div>

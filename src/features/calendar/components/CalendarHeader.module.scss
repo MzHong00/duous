@@ -1,0 +1,22 @@
+@use "styles/mixins" as *;
+
+.calendarHeader {
+  @include flex-between;
+  padding: 12px 20px 8px;
+}
+
+.monthTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--grey-900);
+}
+
+.controls {
+  @include flex-row(4px);
+}
+
+.controlButton {
+  @include icon-box(36px, 12px);
+  border: 1px solid var(--grey-200);
+  color: var(--grey-700);
+}

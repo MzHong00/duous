@@ -1,4 +1,4 @@
-import { AppHeader } from "@/shared/components/AppHeader";
+import { AppHeader } from "@/components/AppHeader";
 import styles from "./PrivacyView.module.scss";
 
 export const PrivacyView = () => {

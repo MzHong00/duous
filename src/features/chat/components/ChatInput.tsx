@@ -1,40 +1,43 @@
 "use client";
 import { useState, useRef } from "react";
-import { Send, Plus, Image, Camera, MapPin, Gift } from "lucide-react";
+import { Send, Plus } from "lucide-react";
+
+import { cx } from "@/utils/cn";
+import { CHAT_ACTION_ITEMS } from "@/features/chat/constants/chat";
+
 import styles from "./ChatInput.module.scss";
 
 interface ChatInputProps {
   value: string;
+  /** 입력값 변경 콜백 */
   onChange: (value: string) => void;
+  /** 메시지 전송 콜백 */
   onSend: () => void;
 }
 
-// 도구함 아이템 목록
-const ACTION_ITEMS = [
-  { id: "gallery", Icon: Image, label: "갤러리" },
-  { id: "camera", Icon: Camera, label: "카메라" },
-  { id: "location", Icon: MapPin, label: "위치" },
-  { id: "gift", Icon: Gift, label: "선물" },
-];
-
 export const ChatInput = ({ value, onChange, onSend }: ChatInputProps) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false); // 도구함 펼침 여부
 
+  const isSendable = Boolean(value.trim()); // 전송 가능(공백 외 입력) 여부
+
+  /** Enter(Shift 제외) 입력 시 전송하고 포커스를 유지한다 · IME 조합 중에는 무시(한글 중복 전송 방지) */
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
       e.preventDefault();
       onSend();
       inputRef.current?.focus();
     }
   };
 
+  /** 전송 후 도구함을 닫고 포커스를 유지한다 */
   const handleSend = () => {
     onSend();
     setIsMenuOpen(false);
     inputRef.current?.focus();
   };
 
+  /** 도구함 펼침을 토글하고 포커스를 유지한다 */
   const handlePlusClick = () => {
     setIsMenuOpen((prev) => !prev);
     inputRef.current?.focus();
@@ -42,10 +45,9 @@ export const ChatInput = ({ value, onChange, onSend }: ChatInputProps) => {
 
   return (
     <div className={styles.wrapper}>
-      {/* 도구함 */}
       {isMenuOpen && (
         <div className={styles.actionMenu}>
-          {ACTION_ITEMS.map(({ id, Icon, label }) => (
+          {CHAT_ACTION_ITEMS.map(({ id, Icon, label }) => (
             <button key={id} className={styles.actionItem} onClick={() => setIsMenuOpen(false)}>
               <div className={styles.actionIcon}>
                 <Icon size={20} />
@@ -56,12 +58,11 @@ export const ChatInput = ({ value, onChange, onSend }: ChatInputProps) => {
         </div>
       )}
 
-      {/* 인풋 바 */}
       <div className={styles.container}>
         <button
           type="button"
           onClick={handlePlusClick}
-          className={[styles.plusButton, isMenuOpen ? styles.plusButtonActive : ""].join(" ")}
+          className={cx(styles.plusButton, isMenuOpen && styles.plusButtonActive)}
         >
           <Plus size={18} />
         </button>
@@ -79,13 +80,13 @@ export const ChatInput = ({ value, onChange, onSend }: ChatInputProps) => {
         <button
           type="button"
           onClick={handleSend}
-          disabled={!value.trim()}
-          className={[
+          disabled={!isSendable}
+          className={cx(
             styles.sendButton,
-            value.trim() ? styles.sendButtonActive : styles.sendButtonInactive,
-          ].join(" ")}
+            isSendable ? styles.sendButtonActive : styles.sendButtonInactive
+          )}
         >
-          <Send size={14} color={value.trim() ? "#ffffff" : "var(--grey-400)"} />
+          <Send size={14} className={styles.sendIcon} />
         </button>
       </div>
     </div>

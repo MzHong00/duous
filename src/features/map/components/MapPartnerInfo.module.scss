@@ -30,6 +30,9 @@
   @include flex-row(8px);
   margin-bottom: 4px;
   color: var(--primary);
+}
+
+.locationIcon {
   flex-shrink: 0;
 }
 

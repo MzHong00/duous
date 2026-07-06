@@ -1,50 +1,58 @@
 "use client";
-import { useState, useCallback, useRef } from "react";
-import { GoogleMap, useJsApiLoader, Polyline, OverlayView } from "@react-google-maps/api";
+import { useState, useCallback } from "react";
+import { GoogleMap, Polyline, OverlayView } from "@react-google-maps/api";
 import { X, RotateCcw, Trash2, Navigation } from "lucide-react";
-import { ENV } from "@/shared/constants/config";
-import { PATH_COLORS } from "@/shared/constants/theme";
+import { cx } from "@/utils/cn";
+import { PATH_COLORS } from "@/constants/theme";
+import { useGoogleMap } from "@/features/map/hooks/useGoogleMap";
+import {
+  MAP_CONTAINER_STYLE,
+  MAP_OPTIONS,
+  DEFAULT_CENTER,
+  DEFAULT_ZOOM,
+  toLatLngPath,
+} from "@/features/map/constants/mapConfig";
+import { MapLoadState } from "@/features/map/components/MapLoadState";
+
 import type { LocationPoint } from "@/features/stories/types/story";
 import styles from "./PathPickerMap.module.scss";
 
-const MAP_CONTAINER_STYLE = { width: "100%", height: "100%" };
-const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 };
-const MAP_OPTIONS: google.maps.MapOptions = {
-  disableDefaultUI: true,
-  gestureHandling: "greedy",
-  styles: [
-    { featureType: "transit.line", stylers: [{ visibility: "off" }] },
-    { featureType: "transit.station", stylers: [{ visibility: "off" }] },
-    { featureType: "poi", stylers: [{ visibility: "off" }] },
-  ],
-};
+const ENDPOINT_DOT_SIZE = 18;
+const WAYPOINT_DOT_SIZE = 12;
+const ENDPOINT_BORDER = 3;
+const WAYPOINT_BORDER = 2;
 
-interface Props {
+interface PathPickerMapProps {
   initialPath?: LocationPoint[];
   initialColor?: string;
   onConfirm: (path: LocationPoint[], color: string) => void;
   onClose: () => void;
 }
 
-export function PathPickerMap({ initialPath = [], initialColor, onConfirm, onClose }: Props) {
+export function PathPickerMap({
+  initialPath = [],
+  initialColor,
+  onConfirm,
+  onClose,
+}: PathPickerMapProps) {
   const [path, setPath] = useState<LocationPoint[]>(initialPath);
   const [color, setColor] = useState(initialColor ?? PATH_COLORS[0]);
 
-  const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: ENV.GOOGLE_MAPS_API_KEY,
-  });
+  const { status, mapRef, onMapLoad } = useGoogleMap();
 
-  const mapRef = useRef<google.maps.Map | null>(null);
-
-  const onLoad = useCallback((map: google.maps.Map) => {
-    mapRef.current = map;
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => map.panTo({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-        () => {}
-      );
-    }
-  }, []);
+  /** 지도 로드 시 현재 위치로 이동 */
+  const handleLoad = useCallback(
+    (map: google.maps.Map) => {
+      onMapLoad(map);
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => map.panTo({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+          () => {}
+        );
+      }
+    },
+    [onMapLoad]
+  );
 
   const handleMapClick = useCallback((e: google.maps.MapMouseEvent) => {
     if (!e.latLng) return;
@@ -65,36 +73,27 @@ export function PathPickerMap({ initialPath = [], initialColor, onConfirm, onClo
     <div className={styles.overlay}>
       {/* 지도 — 전체 */}
       <div className={styles.mapArea}>
-        {!ENV.GOOGLE_MAPS_API_KEY || ENV.GOOGLE_MAPS_API_KEY === "your_google_maps_api_key_here" ? (
-          <div className={styles.stateBox}>
-            <span className={styles.stateEmoji}>🗺️</span>
-            <p className={styles.stateText}>Google Maps API 키가 없습니다</p>
-          </div>
-        ) : loadError ? (
-          <div className={styles.stateBox}>
-            <p style={{ color: "var(--error)", fontSize: 14 }}>지도를 불러오지 못했습니다</p>
-          </div>
-        ) : !isLoaded ? (
-          <div className={styles.stateBox}>
-            <div className={styles.spinner} />
-          </div>
+        {status !== "ready" ? (
+          <MapLoadState status={status} />
         ) : (
           <GoogleMap
             mapContainerStyle={MAP_CONTAINER_STYLE}
             center={DEFAULT_CENTER}
-            zoom={14}
+            zoom={DEFAULT_ZOOM}
             options={MAP_OPTIONS}
-            onLoad={onLoad}
+            onLoad={handleLoad}
             onClick={handleMapClick}
           >
             {path.length > 1 && (
               <Polyline
-                path={path.map((p) => ({ lat: p.latitude, lng: p.longitude }))}
+                path={toLatLngPath(path)}
                 options={{ strokeColor: color, strokeOpacity: 1, strokeWeight: 5 }}
               />
             )}
             {path.map((point, i) => {
               const isEndpoint = i === 0 || i === path.length - 1;
+              const isStart = i === 0;
+              const size = isEndpoint ? ENDPOINT_DOT_SIZE : WAYPOINT_DOT_SIZE;
               return (
                 <OverlayView
                   key={point.timestamp}
@@ -102,13 +101,14 @@ export function PathPickerMap({ initialPath = [], initialColor, onConfirm, onClo
                   mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
                 >
                   <div style={{ transform: "translate(-50%, -50%)", pointerEvents: "none" }}>
+                    {/* 정점 마커 — 색상이 선택값에 따라 동적이라 지도 캔버스 인라인 스타일 유지 */}
                     <div
                       style={{
-                        width: isEndpoint ? 18 : 12,
-                        height: isEndpoint ? 18 : 12,
+                        width: size,
+                        height: size,
                         borderRadius: "50%",
-                        backgroundColor: i === 0 ? "#ffffff" : color,
-                        border: `${isEndpoint ? 3 : 2}px solid ${i === 0 ? color : "white"}`,
+                        backgroundColor: isStart ? "#ffffff" : color,
+                        border: `${isEndpoint ? ENDPOINT_BORDER : WAYPOINT_BORDER}px solid ${isStart ? color : "#ffffff"}`,
                         boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
                       }}
                     />
@@ -185,9 +185,7 @@ export function PathPickerMap({ initialPath = [], initialColor, onConfirm, onClo
               key={c}
               type="button"
               onClick={() => setColor(c)}
-              className={[styles.colorDot, color === c && styles.colorDotActive]
-                .filter(Boolean)
-                .join(" ")}
+              className={cx(styles.colorDot, color === c && styles.colorDotActive)}
               style={{ backgroundColor: c }}
               aria-label={c}
             />

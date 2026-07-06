@@ -2,18 +2,29 @@
 import { useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Map, Edit3, Trash2 } from "lucide-react";
-import { useStoryStore, storyActions } from "@/features/stories/stores/useStoryStore";
-import { modalActions } from "@/shared/stores/useModalStore";
-import type { Story } from "@/features/stories/types/story";
-import { AppHeader } from "@/shared/components/AppHeader";
+import { useQuery } from "@tanstack/react-query";
+
+import { ROUTES } from "@/constants/routes";
+import { modalActions } from "@/stores/useModalStore";
+import { toastActions } from "@/stores/useToastStore";
+import { AppHeader } from "@/components/AppHeader";
+import { storyActions } from "@/features/stories/stores/useStoryStore";
+import { storyQueries } from "@/features/stories/queries/storyQueries";
+import { useDeleteStoryMutation } from "@/features/stories/queries/storyMutations";
+import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
 import { StoryBriefInfo } from "@/features/stories/components/StoryBriefInfo";
+
+import type { Story } from "@/features/stories/types/story";
+
 import styles from "./StoryDetailView.module.scss";
 
 export const StoryDetailView = () => {
   const router = useRouter();
   const params = useParams();
   const storyId = params.id as string;
-  const stories = useStoryStore((s) => s.stories);
+  const { currentWorkspace } = useCurrentWorkspace();
+  const { data: stories = [] } = useQuery(storyQueries.list(currentWorkspace?.id ?? ""));
+  const deleteStory = useDeleteStoryMutation(currentWorkspace?.id ?? "");
   const story = useMemo<Story | null>(
     () => stories.find((s) => s.id === storyId) ?? null,
     [stories, storyId]
@@ -26,17 +37,21 @@ export const StoryDetailView = () => {
       message: "정말로 이 스토리를 삭제하시겠습니까? 삭제된 스토리는 복구할 수 없습니다.",
       confirmText: "삭제",
       cancelText: "취소",
-      onConfirm: () => {
-        storyActions.deleteStory(storyId);
-        storyActions.setSelectedStoryId(null);
-        router.replace("/stories");
+      onConfirm: async () => {
+        try {
+          await deleteStory.mutateAsync(storyId);
+          storyActions.setSelectedStoryId(null);
+          router.replace(ROUTES.STORIES.path);
+        } catch {
+          toastActions.showToast("스토리 삭제에 실패했습니다. 다시 시도해주세요.", "error");
+        }
       },
     });
   };
 
   const handleShowOnMap = () => {
     storyActions.setSelectedStoryId(storyId);
-    router.push("/map");
+    router.push(ROUTES.MAP.path);
   };
 
   if (!story) {
@@ -56,7 +71,7 @@ export const StoryDetailView = () => {
               <Trash2 size={20} color="var(--error)" />
             </button>
             <button
-              onClick={() => router.push(`/stories/edit?storyId=${storyId}`)}
+              onClick={() => router.push(ROUTES.STORIES.EDIT.query({ storyId }))}
               className={styles.headerButton}
             >
               <Edit3 size={20} color="var(--grey-900)" />

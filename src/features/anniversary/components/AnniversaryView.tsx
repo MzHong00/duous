@@ -1,50 +1,20 @@
 "use client";
-import { useMemo } from "react";
+
 import { Heart } from "lucide-react";
-import { useWorkspaceStore } from "@/features/workspace/stores/useWorkspaceStore";
-import { AppHeader } from "@/shared/components/AppHeader";
-import { Card } from "@/shared/components/Card";
-import { calculateDDay, formatDate, getDateWithOffset, getDaysUntil, addYears } from "@/shared/utils/date";
-import { COLORS } from "@/shared/constants/theme";
+
+import { AppHeader } from "@/components/AppHeader";
+import { formatDate } from "@/utils/date";
+import { useAnniversaries } from "@/features/anniversary/hooks/useAnniversaries";
+import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
+import { AnniversaryItem } from "./AnniversaryItem";
+
 import styles from "./AnniversaryView.module.scss";
 
-const generateAnniversaries = (startDate: string) => {
-  const anniversaries = [];
-
-  const milestones = [100, 200, 365, 500, 700, 1000, 1100, 1200, 1300, 1500, 2000];
-  for (const days of milestones) {
-    const date = getDateWithOffset(days - 1, startDate);
-    anniversaries.push({
-      id: `d-${days}`,
-      title: `${days}일`,
-      date,
-      daysLeft: getDaysUntil(date),
-      type: "dday",
-    });
-  }
-
-  for (let year = 1; year <= 5; year++) {
-    const date = addYears(startDate, year);
-    anniversaries.push({
-      id: `y-${year}`,
-      title: `${year}주년 기념일`,
-      date,
-      daysLeft: getDaysUntil(date),
-      type: "yearly",
-    });
-  }
-
-  return anniversaries.sort((a, b) => a.daysLeft - b.daysLeft).slice(0, 12);
-};
-
 export const AnniversaryView = () => {
-  const currentWorkspace = useWorkspaceStore((s) => s.currentWorkspace);
-  const days = currentWorkspace?.startDate ? calculateDDay(currentWorkspace.startDate) : 0;
+  const { startDate, days, anniversaries } = useAnniversaries();
+  const { currentWorkspace } = useCurrentWorkspace();
 
-  const anniversaries = useMemo(() => {
-    if (!currentWorkspace?.startDate) return [];
-    return generateAnniversaries(currentWorkspace.startDate);
-  }, [currentWorkspace]);
+  const heroImage = currentWorkspace?.backgroundImage; // 워크스페이스 배경 이미지 (없으면 그라데이션)
 
   return (
     <div className={styles.page}>
@@ -52,11 +22,9 @@ export const AnniversaryView = () => {
 
       <div className={styles.heroSection}>
         <div className={styles.heroCard}>
-          <img
-            src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800"
-            alt="anniversary hero"
-            className={styles.heroBgImage}
-          />
+          {heroImage && (
+            <img src={heroImage} alt="anniversary hero" className={styles.heroBgImage} />
+          )}
           <div className={styles.heroBgOverlay} />
           <div className={styles.heroContent}>
             <div className={styles.heroTopText}>
@@ -66,9 +34,7 @@ export const AnniversaryView = () => {
             </div>
             <div className={styles.heroDaysBadge}>
               <p className={styles.heroStartDate}>
-                {currentWorkspace?.startDate
-                  ? formatDate(currentWorkspace.startDate) + " 시작"
-                  : "시작일 미설정"}
+                {startDate ? formatDate(startDate) + " 시작" : "시작일 미설정"}
               </p>
               <p className={styles.heroDays}>
                 {days}
@@ -83,49 +49,9 @@ export const AnniversaryView = () => {
       <div className={styles.listSection}>
         <h2 className={styles.listTitle}>다가오는 기념일</h2>
         <div className={styles.list}>
-          {anniversaries.map((ann) => {
-            const isPast = ann.daysLeft < 0;
-            const isToday = ann.daysLeft === 0;
-            return (
-              <Card key={ann.id} className={styles.annCard}>
-                <div
-                  className={styles.annIcon}
-                  style={{
-                    backgroundColor: isPast
-                      ? COLORS.grey200
-                      : isToday
-                        ? COLORS.primary
-                        : COLORS.primaryLight,
-                  }}
-                >
-                  <Heart
-                    size={20}
-                    color={isPast ? COLORS.grey400 : isToday ? "white" : COLORS.primary}
-                    fill={isToday ? "white" : "transparent"}
-                  />
-                </div>
-                <div className={styles.annInfo}>
-                  <p
-                    className={[styles.annTitle, isPast && styles.annTitlePast]
-                      .filter(Boolean)
-                      .join(" ")}
-                  >
-                    {ann.title}
-                  </p>
-                  <p className={styles.annDate}>{formatDate(ann.date)}</p>
-                </div>
-                <div className={styles.annStatus}>
-                  {isPast ? (
-                    <span className={styles.statusPast}>지남</span>
-                  ) : isToday ? (
-                    <span className={styles.statusToday}>오늘!</span>
-                  ) : (
-                    <span className={styles.statusDday}>D-{ann.daysLeft}</span>
-                  )}
-                </div>
-              </Card>
-            );
-          })}
+          {anniversaries.map((anniversary) => (
+            <AnniversaryItem key={anniversary.id} anniversary={anniversary} />
+          ))}
         </div>
       </div>
     </div>
