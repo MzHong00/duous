@@ -1,37 +1,49 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { ROUTES } from "@/constants/routes";
 import { Plus, Users, Heart, Check, Trash2, Edit3 } from "lucide-react";
-import { useWorkspaceStore, workspaceActions } from "@/features/workspace/stores/useWorkspaceStore";
-import { modalActions } from "@/shared/stores/useModalStore";
-import { toastActions } from "@/shared/stores/useToastStore";
-import { AppHeader } from "@/shared/components/AppHeader";
-import { Card } from "@/shared/components/Card";
-import { formatDate, calculateDDay } from "@/shared/utils/date";
-import { APP_WORKSPACE } from "@/shared/constants/config";
+import { workspaceActions } from "@/features/workspace/stores/useWorkspaceStore";
+import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
+import { useLeaveWorkspaceMutation } from "@/features/workspace/queries/workspaceMutations";
+import { authQueries } from "@/features/auth/queries/authQueries";
+import { modalActions } from "@/stores/useModalStore";
+import { toastActions } from "@/stores/useToastStore";
+import { AppHeader } from "@/components/AppHeader";
+import { Card } from "@/components/Card";
+import { formatDate, calculateDDay } from "@/utils/date";
+import { APP_WORKSPACE } from "@/constants/config";
 import styles from "./WorkspaceListView.module.scss";
 
 export const WorkspaceListView = () => {
   const router = useRouter();
-  const workspaces = useWorkspaceStore((s) => s.workspaces);
-  const currentWorkspace = useWorkspaceStore((s) => s.currentWorkspace);
+  const { workspaces, currentWorkspace } = useCurrentWorkspace();
+  const { data: user } = useQuery(authQueries.user());
+  const leaveWorkspace = useLeaveWorkspaceMutation();
 
   const handleSetMain = (id: string) => {
     const workspace = workspaces.find((w) => w.id === id);
     if (workspace) {
-      workspaceActions.setCurrentWorkspace(workspace);
+      workspaceActions.setCurrentWorkspaceId(id);
       toastActions.showToast(`'${workspace.name}'이 메인 라이프룸으로 설정되었습니다`, "success");
     }
   };
 
-  const handleDelete = (id: string, name: string) => {
+  const handleLeave = (id: string, name: string) => {
     modalActions.showModal({
       type: "confirm",
-      title: `${APP_WORKSPACE.KR} 삭제`,
-      message: `'${name}'을(를) 삭제하시겠습니까?`,
-      confirmText: "삭제",
-      onConfirm: () => {
-        workspaceActions.removeWorkspace(id);
-        toastActions.showToast("라이프룸이 삭제되었습니다", "success");
+      title: `${APP_WORKSPACE.KR}에서 나가기`,
+      message: `'${name}'에서 나가시겠습니까?`,
+      confirmText: "나가기",
+      onConfirm: async () => {
+        if (!user) return;
+        try {
+          await leaveWorkspace.mutateAsync({ workspaceId: id, userId: user.id });
+          if (currentWorkspace?.id === id) workspaceActions.setCurrentWorkspaceId(null);
+          toastActions.showToast("라이프룸에서 나갔습니다", "success");
+        } catch {
+          toastActions.showToast("나가기에 실패했습니다", "error");
+        }
       },
     });
   };
@@ -78,14 +90,14 @@ export const WorkspaceListView = () => {
                   </button>
                 )}
                 <button
-                  onClick={() => router.push(`/workspace/edit?workspaceId=${ws.id}`)}
+                  onClick={() => router.push(ROUTES.WORKSPACE.EDIT.query({ workspaceId: ws.id }))}
                   className={styles.settingsButton}
                 >
                   <Edit3 size={14} />
                   설정
                 </button>
                 <button
-                  onClick={() => handleDelete(ws.id, ws.name)}
+                  onClick={() => handleLeave(ws.id, ws.name)}
                   className={styles.deleteButton}
                 >
                   <Trash2 size={16} />
@@ -95,7 +107,10 @@ export const WorkspaceListView = () => {
           );
         })}
 
-        <button onClick={() => router.push("/workspace/setup")} className={styles.addButton}>
+        <button
+          onClick={() => router.push(ROUTES.WORKSPACE.SETUP.path)}
+          className={styles.addButton}
+        >
           <Plus size={18} />새 {APP_WORKSPACE.KR} 만들기
         </button>
       </div>

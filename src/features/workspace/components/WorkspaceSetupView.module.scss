@@ -2,7 +2,7 @@
 
 .page {
   min-height: 100vh;
-  background-color: #ffffff;
+  background-color: var(--white);
   @include flex-col;
 }
 
@@ -25,7 +25,7 @@
 
 .iconWrap {
   @include icon-box(60px, 20px);
-  background-color: rgba(49, 130, 246, 0.1);
+  background-color: rgba(var(--primary-rgb), 0.1);
   margin-bottom: 20px;
   color: var(--primary);
 }
@@ -61,12 +61,12 @@
 }
 
 .typeButtonActive {
-  background-color: rgba(49, 130, 246, 0.05);
+  background-color: rgba(var(--primary-rgb), 0.05);
   border-color: var(--primary);
 }
 
 .typeButtonInactive {
-  background-color: #ffffff;
+  background-color: var(--white);
   border-color: var(--grey-200);
 }
 
@@ -110,25 +110,26 @@
   }
 }
 
-.emailInputWrap {
+.inviteCodeBox {
   @include flex-row(12px);
+  justify-content: space-between;
+  margin-top: 40px;
   background-color: var(--grey-100);
   border-radius: 16px;
-  padding: 0 16px;
+  padding: 0 20px;
   height: 60px;
   color: var(--grey-400);
+
+  svg {
+    flex-shrink: 0;
+  }
 }
 
-.emailInput {
-  flex: 1;
-  background: transparent;
-  font-size: 17px;
-  font-weight: 500;
+.inviteCodeText {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 4px;
   color: var(--grey-900);
-
-  &::placeholder {
-    color: var(--grey-400);
-  }
 }
 
 .bottomSection {

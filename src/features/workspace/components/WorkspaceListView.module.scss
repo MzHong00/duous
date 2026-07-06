@@ -39,7 +39,7 @@
 
 .wsIcon {
   @include icon-box(48px, 16px);
-  background-color: rgba(49, 130, 246, 0.1);
+  background-color: rgba(var(--primary-rgb), 0.1);
   color: var(--primary);
 }
 
@@ -58,7 +58,7 @@
 
 .mainBadge {
   font-size: 10px;
-  background-color: rgba(49, 130, 246, 0.1);
+  background-color: rgba(var(--primary-rgb), 0.1);
   color: var(--primary);
   font-weight: 700;
   padding: 2px 8px;
@@ -90,7 +90,7 @@
   gap: 6px;
   height: 36px;
   border-radius: 12px;
-  background-color: rgba(49, 130, 246, 0.1);
+  background-color: rgba(var(--primary-rgb), 0.1);
   color: var(--primary);
   font-size: 14px;
   font-weight: 600;

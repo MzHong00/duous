@@ -13,13 +13,13 @@
 
 .profileButton {
   @include icon-box(48px);
-  background-color: #ffffff;
+  background-color: var(--white);
   box-shadow: var(--shadow-card);
 }
 
 .profileInner {
   @include icon-box(40px);
-  background-color: rgba(49, 130, 246, 0.1);
+  background-color: rgba(var(--primary-rgb), 0.1);
   color: var(--primary);
 }
 
@@ -32,8 +32,8 @@
 .logoWrap {
   @include icon-box(80px, 24px);
   margin-bottom: 40px;
-  background-color: #e8f3ff;
-  box-shadow: 0 8px 24px rgba(49, 130, 246, 0.15);
+  background-color: var(--primary-light);
+  box-shadow: 0 8px 24px rgba(var(--primary-rgb), 0.15);
 }
 
 .textCenter {
@@ -60,6 +60,43 @@
   height: 58px;
   border-radius: 18px;
   box-shadow: var(--shadow-primary);
+}
+
+.codeJoin {
+  margin-top: 20px;
+  width: 100%;
+  @include flex-row(8px);
+}
+
+.codeInput {
+  flex: 1;
+  height: 52px;
+  padding: 0 16px;
+  border-radius: 14px;
+  background: white;
+  box-shadow: var(--shadow-card);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--grey-900);
+
+  &::placeholder {
+    color: var(--grey-400);
+  }
+}
+
+.codeButton {
+  height: 52px;
+  padding: 0 20px;
+  border-radius: 14px;
+  background: var(--grey-900);
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  flex-shrink: 0;
+
+  &:disabled {
+    opacity: 0.4;
+  }
 }
 
 .inboxButton {

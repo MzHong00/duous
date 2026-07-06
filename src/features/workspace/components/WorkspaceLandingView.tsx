@@ -1,60 +1,40 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Heart, User, Mail, Check, X, ChevronDown, ChevronUp } from "lucide-react";
+import { Heart, User } from "lucide-react";
 
-import { useQuery } from "@tanstack/react-query";
-import { authQueries } from "@/features/auth/queries/authQueries";
-import { workspaceActions } from "@/features/workspace/stores/useWorkspaceStore";
-import { workspacesApi } from "@/features/workspace/api/workspaces";
-import { APP_WORKSPACE } from "@/shared/constants/config";
+import { ROUTES } from "@/constants/routes";
+import { APP_WORKSPACE } from "@/constants/config";
+import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
 import styles from "./WorkspaceLandingView.module.scss";
-
-interface PendingInvite {
-  id: string;
-  workspaceId: string;
-  workspaceName: string;
-}
 
 export const WorkspaceLandingView = () => {
   const router = useRouter();
-  const { data: user } = useQuery(authQueries.user());
-  const [pendingInvites, setPendingInvites] = useState<PendingInvite[]>([]);
-  const [showInvites, setShowInvites] = useState(false);
-  const [acceptingId, setAcceptingId] = useState<string | null>(null);
+  const { workspaces, isPending } = useCurrentWorkspace();
 
+  const [inviteCode, setInviteCode] = useState(""); // 입력한 초대 코드
+
+  // 이미 참여 중인 라이프룸이 있으면 홈으로 되돌린다 (빈 상태 오노출 방지)
   useEffect(() => {
-    if (!user?.email) return;
-    workspacesApi
-      .getPendingInvites(user.email)
-      .then(setPendingInvites)
-      .catch(() => {});
-  }, [user?.email]);
-
-  const handleAccept = async (invite: PendingInvite) => {
-    if (!user) return;
-    setAcceptingId(invite.id);
-    try {
-      const workspace = await workspacesApi.acceptInvite(invite.id, invite.workspaceId, user);
-      workspaceActions.setCurrentWorkspace(workspace);
-      workspaceActions.setWorkspaces([workspace]);
-      router.replace("/home");
-    } catch {
-      setAcceptingId(null);
+    if (!isPending && workspaces.length > 0) {
+      router.replace(ROUTES.HOME.path);
     }
+  }, [isPending, workspaces.length, router]);
+
+  /** 입력한 초대 코드로 참여 화면으로 이동한다 */
+  const handleJoinByCode = () => {
+    const code = inviteCode.trim();
+    if (!code) return;
+    router.push(ROUTES.WORKSPACE.join(code));
   };
 
-  const handleDecline = async (invite: PendingInvite) => {
-    try {
-      await workspacesApi.declineInvite(invite.id);
-      setPendingInvites((prev) => prev.filter((i) => i.id !== invite.id));
-    } catch {}
-  };
+  // 로딩 중이거나 워크스페이스가 있으면 빈 상태를 노출하지 않는다
+  if (isPending || workspaces.length > 0) return null;
 
   return (
     <main className={styles.main}>
       <div className={styles.header}>
-        <button onClick={() => router.push("/profile")} className={styles.profileButton}>
+        <button onClick={() => router.push(ROUTES.PROFILE.path)} className={styles.profileButton}>
           <div className={styles.profileInner}>
             <User size={22} />
           </div>
@@ -63,7 +43,7 @@ export const WorkspaceLandingView = () => {
 
       <div className={styles.content}>
         <div className={styles.logoWrap}>
-          <Heart size={40} fill="#3182F6" color="#3182F6" />
+          <Heart size={40} fill="var(--primary)" color="var(--primary)" />
         </div>
 
         <div className={styles.textCenter}>
@@ -75,56 +55,29 @@ export const WorkspaceLandingView = () => {
           </p>
         </div>
 
-        <button onClick={() => router.push("/workspace/setup")} className={styles.ctaButton}>
+        <button
+          onClick={() => router.push(ROUTES.WORKSPACE.SETUP.path)}
+          className={styles.ctaButton}
+        >
           새로운 {APP_WORKSPACE.KR} 만들기
         </button>
 
-        <button onClick={() => setShowInvites((prev) => !prev)} className={styles.inboxButton}>
-          <Mail size={16} />
-          초대함
-          {pendingInvites.length > 0 && (
-            <span className={styles.inboxBadge}>{pendingInvites.length}</span>
-          )}
-          {showInvites ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-        </button>
-
-        {showInvites && (
-          <div className={styles.inviteList}>
-            {pendingInvites.length === 0 ? (
-              <p className={styles.emptyInvite}>받은 초대가 없습니다.</p>
-            ) : (
-              pendingInvites.map((invite) => (
-                <div key={invite.id} className={styles.inviteCard}>
-                  <div className={styles.inviteIcon}>
-                    <Mail size={18} />
-                  </div>
-                  <div className={styles.inviteInfo}>
-                    <p className={styles.inviteName}>{invite.workspaceName}</p>
-                    <p className={styles.inviteLabel}>라이프룸 초대</p>
-                  </div>
-                  <div className={styles.inviteActions}>
-                    <button
-                      onClick={() => handleAccept(invite)}
-                      className={styles.acceptButton}
-                      disabled={acceptingId === invite.id}
-                    >
-                      <Check size={14} />
-                      수락
-                    </button>
-                    <button
-                      onClick={() => handleDecline(invite)}
-                      className={styles.declineButton}
-                      disabled={acceptingId === invite.id}
-                    >
-                      <X size={14} />
-                      거절
-                    </button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        )}
+        <div className={styles.codeJoin}>
+          <input
+            type="text"
+            value={inviteCode}
+            onChange={(e) => setInviteCode(e.target.value)}
+            placeholder="초대 코드 입력"
+            className={styles.codeInput}
+          />
+          <button
+            onClick={handleJoinByCode}
+            className={styles.codeButton}
+            disabled={!inviteCode.trim()}
+          >
+            참여하기
+          </button>
+        </div>
       </div>
     </main>
   );
