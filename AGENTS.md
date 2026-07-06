@@ -63,31 +63,31 @@
 
 ## 코드 작성 공통 규칙
 
-**규칙 학습:** 사용자가 새로운 규칙을 제시하면 제안 후 승인받아 AGENTS.md의 프로젝트 코드 작성 규칙 섹션에 추가
-**코드 품질:** 코드 작성 시 UX · 성능 · 보안 · 접근성 · 확장성 · 유지보수성 항상 고려
-**간결성:** 최소한의 코드로 작성 · 불필요한 추상화·중간 변수·반복 제거 · 읽는 사람이 한눈에 의도를 파악할 수 있어야 함
-**네이밍:** `camelCase` 변수·함수·폴더 · `PascalCase` 컴포넌트·타입·파일(.tsx·.scss) · `UPPER_SNAKE_CASE` 상수
-**Import 순서:** 외부 → 내부(`@/`) → 타입(`import type`) → 스타일(`import styles`) 각 섹션은 빈 줄로 구분
-**Export:** 컴포넌트 named · 배럴 index는 공개 API만
+## [중요] 코드 작성 공통 규칙
+
+**참조 검토:** 코드 생성, 수정, 삭제 시 AGENTS.md에서 적용한 규칙들 항목을 모두 출력해서 사용자에게 규칙 문서를 잘 지켰는지 알림
+**규칙 학습:** 사용자가 새로운 규칙을 제시하면 즉시 AGENTS.md 규칙 섹션에 추가 · 추가 시 토큰 사용량 고려해 최대한 간결하게 작성(중복 항목엔 합치고 신규 항목만 생성)
+**코드 품질:** 코드 작성 시 UX · 성능 · 보안 · 접근성 · 유지보수성 항상 고려 · 클린코드 + React식 SOLID 준수 — 단일책임(컴포넌트=UI / 훅=상태·로직 / 서비스=비즈니스 로직·API 조합) · ISP(props는 실제 쓰는 것만, 비대하면 분할) · DIP(컴포넌트는 구체 API 직접 호출 금지, 훅 경유) · OCP(수정보다 props·합성으로 확장, 단 변형이 실제 생길 때만) · LSP 미적용 · 간결성(최소 코드 · 불필요한 추상화·중간 변수·반복 제거 · 한눈에 의도 파악)
+**선언형 UI:** 컴포넌트화를 통해 선언형 UI로 구축 · 명령형 DOM 조작 금지 → 상태 기반 렌더링 · UI의 각 관심사는 독립 컴포넌트로 분리 · `renderXxx` 헬퍼 함수 금지 → JSX에 직접 인라인(`&&`·1depth 삼항), 커지면 독립 컴포넌트로 추출
+**기존 자원 우선:** 구현·수정 전 기존 의존성·컴포넌트·훅·유틸 확인 필수 → 활용 가능하면 반드시 재사용(동일 로직 중복 구현 금지) · 없을 때만 신규 생성
 **타입:** `any` 금지 → `unknown` + 타입 가드 · Props는 파일 상단 `interface [Name]Props`
-**문법:** ES2020+ 최신 문법 우선 사용
-**함수:** 단일 책임 · 20줄 초과 시 분리 · 매직값 금지 → 상수 추출
-**기존 자원 우선:** 구현 전 `package.json` 설치된 라이브러리 · `components/` · `hooks/` · `utils/` 기존 자원 확인 필수 → 활용 가능한 것이 있으면 반드시 사용 · 없을 때만 신규 생성
-**하드코딩 금지:** 라우트·문자열 상수는 반드시 상수로 분리 · 색상·간격은 디자인 토큰 규칙 따름
-**환경변수:** `process.env.NEXT_PUBLIC_*` 등의 환경변수는 반드시 `constants/config.ts`에서 래핑 후 사용 · 미설정 시 앱 시작 전 명시적 에러를 던져 조기 실패 유도
-**UI 동작:** `window.alert/confirm` 금지 → Dialog/Toast 사용
-**비동기:** async/await 우선(Promise chain 금지) · loading·error·empty 3상태 필수 처리
-**훅 분리:** 컴포넌트 내 로직 30줄+ 또는 재사용 가능 로직 → Hooks로 추출
+**네이밍:** `camelCase` 변수·함수·폴더·타입·파일 · `PascalCase` 컴포넌트(.tsx) · `UPPER_SNAKE_CASE` 상수 · boolean 변수·Props는 의미에 맞는 접두어 필수 `is`/`has`/`can`/`should`(`isOpen` `hasError` `canEdit` `shouldRender`) · API 타입은 요청 `XxxRequest`·응답 `XxxResponse` 접미어(`Dto`·`Req`·`Res` 혼용 금지)
+**주석 작성:** 값/상태/ref 변수, interface 데이터 프로퍼티(string·number 등) → 선언 오른쪽 인라인(`const x = 1; // 설명`) · 함수·컴포넌트·훅·useEffect·useMemo·useCallback, interface 함수 프로퍼티(콜백·메서드) → 선언 위 JSDoc(`/** 설명 */`) · 커스텀 훅은 선언부 JSDoc + 내부 로직 주석 필수 · 코드를 생성·수정할 때 해당 주석도 함께 추가/갱신할 것
+**하드코딩 금지:** 라우트·문자열·매직값(숫자 등)은 반드시 상수로 분리 · 색상·간격은 디자인 토큰 규칙 따름
 **상태 관리:** Props 2depth 초과 → Context/상태관리로 격상
 **조건부:** 3항 연산자 1depth 제한 · 복잡하면 변수 추출 · &&는 boolean 조건만(`0 &&` 금지)
-**레이어:** Component → Hook → Store / Constants / Types 단방향 · 컴포넌트는 UI만(비즈니스 로직 금지)
-**에러 처리:** Api에서 네트워크·HTTP 에러를 도메인 에러로 변환 후 throw · Error Boundary는 페이지 단위 필수 적용 · 에러 타입은 `unknown` + 타입 가드로 좁힘
-**디자인 토큰:** 색상은 반드시 `globals.scss`에 정의된 CSS 변수 사용 — 브랜드/기본(`--primary` `--primary-light`) · 그레이스케일(`--grey-50` ~ `--grey-900`) · 상태/피드백(`--success` `--error` `--warning`) · 그림자(`--shadow-card` `--shadow-card-lg` `--shadow-primary`). 하드코딩된 색상 값 금지 → 토큰 우선
+**비동기:** async/await 우선(Promise chain 금지) · loading·error·empty 3상태 필수 처리
+**에러 처리:** Api에서 네트워크·HTTP 에러를 도메인 에러로 변환 후 throw · Error Boundary는 페이지 단위 필수 적용
+**UI 동작:** `window.alert/confirm` 금지 → Dialog/Toast 사용
+**환경변수:** `process.env.*` 직접 참조 금지 → 반드시 환경변수 래핑 모듈에서 래핑 후 사용 · `NEXT_PUBLIC_*`은 클라이언트 노출 여부 주석 명시
+**Import 순서:** 외부 → 내부(`@/`) → 타입(`import type`) 각 섹션은 빈 줄로 구분
+**Export:** 컴포넌트 named · 배럴 index(index.ts re-export) 금지 — 직접 경로로 import
+**문법:** ES2020+ 최신 문법 우선 사용 · 단순 변환·필터·집계는 `forEach` `map` `reduce` `filter` 등 배열 내장 메서드 우선 · `break`/`continue`/`await` 순회가 필요하면 `for...of` 허용(`forEach` 안 `await` 금지)
 **컴포넌트 선언 순서:** 상수 → `useRef` → `useState` → 커스텀 훅 → `useMemo`/`useCallback` → `useEffect` → 핸들러 함수 → `return JSX`
 
 ## 코드 작성 프로젝트 규칙
 
-**[TanStack Query] 쿼리 정의:** 도메인별 `server/[feature]/[feature].queries.ts`에 키(`keys`)와 `queryOptions` · mutation 함께 정의 · `useQuery(userQueries.detail(id))` 형태로 사용 · 키 문자열 직접 사용 금지 · 계층 구조(`all→lists→detail(id)`)로 범위 무효화 가능하게 유지
+**[TanStack Query] 쿼리 정의:** 도메인별 `src/features/[feature]/queries/`에 쿼리는 `[feature]Queries.ts`(키 `keys` + `queryOptions`), 뮤테이션은 `[feature]Mutations.ts`로 분리 정의 · `useQuery(todoQueries.detail(id))` 형태로 사용 · 키 문자열 직접 사용 금지 · 계층 구조(`all→lists→detail(id)`)로 범위 무효화 가능하게 유지
 **[Zustand] 셀렉터·useShallow:** `Store`는 내부에 `useShallow`가 내장되어 있도록 작성했으므로 외부에서 별도로 감쌀 필요 없음 · 셀렉터 없이 스토어 전체 구독 금지
 **스타일:** 컴포넌트 파일(`.tsx`)과 반드시 동일 폴더에 `[ComponentName].module.scss` 쌍으로 생성 · 인라인 `style={{}}` 금지 → CSS Modules 사용 · 전역 스타일은 `main.scss`에만 작성
 
@@ -95,7 +95,6 @@
 
 작업 완료 후 변경 내용과 관련된 문서를 반드시 업데이트한다. 자동으로 업데이트하지 말고, 작업 완료 후 사용자에게 "마크다운에 반영할까요?"라고 물어본 뒤 승인받고 업데이트한다.
 
-| 문서        | 경로                        | 업데이트 시점                               |
-| ----------- | --------------------------- | ------------------------------------------- |
-| 프로젝트 개요| `README.md`                 | 주요 기능 추가 및 변경 시                   |
-
+| 문서          | 경로        | 업데이트 시점             |
+| ------------- | ----------- | ------------------------- |
+| 프로젝트 개요 | `README.md` | 주요 기능 추가 및 변경 시 |

@@ -33,10 +33,10 @@
 | 스타일 | SCSS Modules + CSS Variables |
 | 상태관리 | Zustand 5 |
 | 서버 상태 | TanStack React Query 5 |
-| HTTP | Axios |
+| HTTP | fetch 기반 커스텀 API 클라이언트 |
 | 아이콘 | Lucide React |
 | 지도 | Google Maps API |
-| 인증 | Google OAuth 2.0 |
+| 인증 | Supabase Auth(SSR, 쿠키 세션) + Google OAuth 2.0 |
 | 배포 | Vercel (GitHub Actions CI/CD) |
 
 <br />
@@ -81,29 +81,47 @@ NEXT_PUBLIC_GOOGLE_API_KEY=
 
 ## 프로젝트 구조
 
+Bulletproof React 스타일(공용 자원 최상위 평탄화) + `features/` 도메인 슬라이스로 구성됩니다.
+
 ```
 src/
-├── app/                  # Next.js App Router
-│   ├── (auth)/           # 로그인
+├── app/                  # Next.js App Router (라우트만, SSR prefetch 담당)
+│   ├── (auth)/login/     # 로그인
 │   ├── (main)/           # 메인 (BottomNav 공유)
-│   │   ├── home/
-│   │   ├── calendar/
+│   │   ├── home/         # SSR: 유저·스토리·캘린더·할일 prefetch
+│   │   ├── calendar/     # SSR: 캘린더·할일 prefetch
 │   │   ├── anniversary/
-│   │   ├── stories/
-│   │   ├── chat/
-│   │   ├── map/
+│   │   ├── stories/      # SSR: 스토리 목록·상세 prefetch
+│   │   ├── map/          # CSR (Google Maps)
+│   │   ├── todo/         # SSR: 할일 prefetch
 │   │   └── profile/
-│   └── workspace/        # 워크스페이스 관리
+│   ├── auth/callback/    # OAuth 콜백
+│   ├── chat/             # 채팅 (CSR)
+│   └── workspace/        # 워크스페이스 (landing·setup·list·join·edit)
+├── features/             # 도메인별 슬라이스
+│   └── [feature]/        # api · components · hooks · queries · stores · types
+├── api/                  # 스토리지 등 공용 API
 ├── components/           # 재사용 컴포넌트
-├── stores/               # Zustand 스토어
-├── hooks/                # 커스텀 훅
-├── api/                  # API 호출 함수
-├── types/                # 공유 타입 정의
-├── utils/                # 유틸리티 함수
 ├── constants/            # 상수 및 설정
-├── assets/               # 아이콘 등 에셋
-└── styles/               # 전역 스타일, 믹스인
+├── hooks/                # 커스텀 훅
+├── lib/                  # 외부 연동
+│   ├── supabase/         # client·server(SSR)·middleware
+│   ├── api.ts            # fetch 클라이언트
+│   ├── getQueryClient.ts # 서버 컴포넌트용 QueryClient (React cache)
+│   └── QueryProvider.tsx / SessionProvider.tsx
+├── stores/               # 전역 Zustand 스토어
+├── styles/               # 전역 스타일, 믹스인
+├── types/                # 공유 타입
+├── utils/                # 유틸리티 함수
+└── assets/               # 아이콘 등 에셋
+middleware.ts             # 쿠키 세션 갱신 + 비로그인 라우트 보호
 ```
+
+### 데이터 패칭 전략
+
+- `features/[feature]/queries`에 정의된 `queryOptions`는 서버(prefetch)·클라이언트(useQuery) 양쪽에서 공유됩니다.
+- 서버 컴포넌트가 워크스페이스 쿠키 기준으로 `prefetchQuery` 후 `HydrationBoundary`로 감싸면, 클라이언트의 `useQuery`가 이어받아 첫 페인트부터 데이터가 채워집니다.
+- 지도(`map`)·채팅(`chat`)처럼 실시간·상호작용 중심 화면은 SSR 대상에서 제외하고 CSR로 유지합니다.
 
 <br />
 

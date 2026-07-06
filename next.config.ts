@@ -3,7 +3,7 @@ import path from "path";
 
 const nextConfig: NextConfig = {
   sassOptions: {
-    loadPaths: [path.join(__dirname, "src"), path.join(__dirname, "src/shared")],
+    loadPaths: [path.join(__dirname, "src")],
   },
   allowedDevOrigins: ["192.168.1.116"],
   images: {

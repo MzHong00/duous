@@ -1,35 +1,25 @@
 "use client";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Camera } from "lucide-react";
-
-import { useStoryStore, storyActions } from "@/features/stories/stores/useStoryStore";
-import { useWorkspaceStore } from "@/features/workspace/stores/useWorkspaceStore";
 import { useQuery } from "@tanstack/react-query";
+import { Camera } from "lucide-react";
+import { useRouter } from "next/navigation";
+
 import { authQueries } from "@/features/auth/queries/authQueries";
-import { storiesApi } from "@/features/stories/api/stories";
+import { storyQueries } from "@/features/stories/queries/storyQueries";
+import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
+import { ROUTES } from "@/constants/routes";
+
 import { MemoryCard } from "./MemoryCard";
+
 import styles from "./MemoryFeed.module.scss";
 
 export const MemoryFeed = () => {
   const router = useRouter();
-  const stories = useStoryStore((s) => s.stories);
-  const currentWorkspace = useWorkspaceStore((s) => s.currentWorkspace);
+  const { currentWorkspace } = useCurrentWorkspace();
   const { data: user } = useQuery(authQueries.user());
-
-  // 워크스페이스 기억 불러오기
-  useEffect(() => {
-    if (!currentWorkspace?.id) return;
-    storiesApi
-      .list(currentWorkspace.id)
-      .then((data) => storyActions.setStories(data))
-      .catch(() => {
-        // Supabase 미연결 — 로컬 스토어 유지
-      });
-  }, [currentWorkspace?.id]);
+  const { data: stories = [] } = useQuery(storyQueries.list(currentWorkspace?.id ?? ""));
 
   const handleFabClick = () => {
-    router.push("/stories/edit");
+    router.push(ROUTES.STORIES.EDIT.path);
   };
 
   if (stories.length === 0) {

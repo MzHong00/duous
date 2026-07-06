@@ -1,30 +1,44 @@
 "use client";
-import { useRef } from "react";
-import { useRouter } from "next/navigation";
-import { Image as ImageIcon } from "lucide-react";
-import { useWorkspaceStore, workspaceActions } from "@/features/workspace/stores/useWorkspaceStore";
 import { useQuery } from "@tanstack/react-query";
+import { Image as ImageIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useRef } from "react";
+
 import { authQueries } from "@/features/auth/queries/authQueries";
-import { modalActions } from "@/shared/stores/useModalStore";
-import { calculateDDay, formatDate } from "@/shared/utils/date";
-import { joinValuesWithDot } from "@/shared/utils/format";
-import { ProfileImage } from "@/shared/components/ProfileImage";
-import { MOCK_DATA } from "@/shared/constants/mockData";
+import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
+import { useUpdateWorkspaceBackgroundMutation } from "@/features/workspace/queries/workspaceMutations";
+import { useAnniversaries } from "@/features/anniversary/hooks/useAnniversaries";
+import { storageApi } from "@/api/storage";
+import { ProfileImage } from "@/components/ProfileImage";
+import { ROUTES } from "@/constants/routes";
+import { modalActions } from "@/stores/useModalStore";
+import { toastActions } from "@/stores/useToastStore";
+import { cx } from "@/utils/cn";
+import { calculateDDay } from "@/utils/date";
+import { joinValuesWithDot } from "@/utils/format";
+
+import { MemberListContent } from "./MemberListContent";
+
 import styles from "./DDayHero.module.scss";
+
+const FIRST_AVATAR_OFFSET = 0; // 첫 아바타는 겹치지 않는다
+const AVATAR_OVERLAP = -10; // 이후 아바타는 왼쪽으로 겹쳐 쌓는다
+const AVATAR_BASE_Z = 10; // 앞쪽 아바타가 위에 오도록 z-index 기준값
 
 export const DDayHero = () => {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const currentWorkspace = useWorkspaceStore((s) => s.currentWorkspace);
+  const { currentWorkspace } = useCurrentWorkspace();
   const { data: user } = useQuery(authQueries.user());
+  const updateBackground = useUpdateWorkspaceBackgroundMutation();
+  const { anniversaries } = useAnniversaries();
 
   if (!currentWorkspace || !user) return null;
 
   const days = currentWorkspace.startDate ? calculateDDay(currentWorkspace.startDate) : 0;
   const backgroundImage = currentWorkspace.backgroundImage;
-  const nextEventTitle = MOCK_DATA.workspace.nextEvent.title;
-  const nextDDay = MOCK_DATA.workspace.nextEvent.remainingDays;
-
+  const hasBackground = !!backgroundImage;
+  const nextEvent = anniversaries[0]; // 가장 임박한 기념일
   const memberNamesString = joinValuesWithDot(currentWorkspace.members, "name", user.name);
 
   const handleBackgroundChange = () => {
@@ -37,11 +51,15 @@ export const DDayHero = () => {
     });
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const url = URL.createObjectURL(file);
-    workspaceActions.updateWorkspaceBackground(currentWorkspace.id, url);
+    try {
+      const url = await storageApi.uploadImage(file, user.id);
+      await updateBackground.mutateAsync({ workspaceId: currentWorkspace.id, imageUrl: url });
+    } catch {
+      toastActions.showToast("배경 변경에 실패했어요.", "error");
+    }
   };
 
   const handleMembersClick = () => {
@@ -50,116 +68,72 @@ export const DDayHero = () => {
     modalActions.showModal({
       type: "alert",
       title: "참여자 목록",
-      content: (
-        <div style={{ paddingTop: 16, display: "flex", flexDirection: "column", gap: 16 }}>
-          {members.map((member) => (
-            <div key={member.id} style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <ProfileImage uri={member.avatar} name={member.name} size={44} />
-              <div>
-                <p style={{ fontWeight: 700, color: "var(--grey-900)" }}>{member.name}</p>
-                <p style={{ fontSize: 14, color: "var(--grey-500)" }}>{member.email}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      ),
+      content: <MemberListContent members={members} />,
       confirmText: "닫기",
     });
   };
 
-  const textColor = backgroundImage ? "white" : "var(--grey-900)";
-  const subColor = backgroundImage ? "rgba(255,255,255,0.85)" : "var(--grey-700)";
+  return (
+    <div className={cx(styles.wrapper, hasBackground && styles.hasBackground)}>
+      {hasBackground && (
+        <>
+          <img src={backgroundImage} alt="배경" className={styles.bgImage} />
+          <div className={styles.bgOverlay} />
+        </>
+      )}
 
-  const content = (
-    <div className={styles.content}>
-      <div className={styles.topSection}>
-        <div className={styles.headerRow}>
-          <h1 className={styles.workspaceName} style={{ color: textColor }}>
-            {currentWorkspace.name}
-          </h1>
-          <p className={styles.memberNames} style={{ color: subColor }}>
-            {memberNamesString}
-          </p>
-        </div>
-        <button onClick={handleMembersClick} className={styles.membersStack}>
-          {currentWorkspace.members?.map((member, index) => (
-            <div
-              key={member.id}
-              className={styles.memberAvatar}
-              style={{ marginLeft: index === 0 ? 0 : -10, zIndex: 10 - index }}
-            >
-              <ProfileImage uri={member.avatar} name={member.name} size={32} />
-            </div>
-          ))}
-        </button>
-      </div>
-
-      <div className={styles.bottomSection}>
-        <div className={styles.dDayRow}>
-          <div className={styles.dDayNumber}>
-            <span className={styles.dDayValue} style={{ color: textColor }}>
-              {days}
-            </span>
-            <span className={styles.dDayUnit} style={{ color: textColor }}>
-              일
-            </span>
+      <div className={styles.content}>
+        <div className={styles.topSection}>
+          <div className={styles.headerRow}>
+            <h1 className={styles.workspaceName}>{currentWorkspace.name}</h1>
+            <p className={styles.memberNames}>{memberNamesString}</p>
           </div>
-          <button
-            onClick={handleBackgroundChange}
-            className={styles.bgButton}
-            style={{
-              backgroundColor: backgroundImage ? "rgba(255,255,255,0.25)" : "white",
-              boxShadow: backgroundImage ? "none" : "0 2px 4px rgba(0,0,0,0.1)",
-            }}
-          >
-            <ImageIcon size={16} color={backgroundImage ? "white" : "var(--grey-500)"} />
+          <button onClick={handleMembersClick} className={styles.membersStack}>
+            {currentWorkspace.members?.map((member, index) => (
+              <div
+                key={member.id}
+                className={styles.memberAvatar}
+                style={{
+                  marginLeft: index === 0 ? FIRST_AVATAR_OFFSET : AVATAR_OVERLAP,
+                  zIndex: AVATAR_BASE_Z - index,
+                }}
+              >
+                <ProfileImage uri={member.avatar} name={member.name} size={32} />
+              </div>
+            ))}
           </button>
         </div>
 
-        <button
-          onClick={() => router.push("/anniversary")}
-          className={styles.eventBadge}
-          style={{
-            backgroundColor: backgroundImage ? "rgba(255,255,255,0.25)" : "white",
-            boxShadow: backgroundImage ? "none" : "0 2px 4px rgba(0,0,0,0.05)",
-          }}
-        >
-          <span
-            className={styles.eventTitle}
-            style={{ color: backgroundImage ? "white" : "var(--grey-700)" }}
-          >
-            {nextEventTitle}{" "}
-          </span>
-          <span
-            className={styles.eventDDay}
-            style={{ color: backgroundImage ? "white" : "var(--primary)" }}
-          >
-            D-{nextDDay}
-          </span>
-        </button>
-      </div>
+        <div className={styles.bottomSection}>
+          <div className={styles.dDayRow}>
+            <div className={styles.dDayNumber}>
+              <span className={styles.dDayValue}>{days}</span>
+              <span className={styles.dDayUnit}>일</span>
+            </div>
+            <button onClick={handleBackgroundChange} className={styles.bgButton}>
+              <ImageIcon size={16} />
+            </button>
+          </div>
 
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        className={styles.fileInput}
-        onChange={handleFileChange}
-      />
-    </div>
-  );
-
-  return (
-    <div className={styles.wrapper}>
-      {backgroundImage ? (
-        <div className={styles.bgRelative}>
-          <img src={backgroundImage} alt="background" className={styles.bgImage} />
-          <div className={styles.bgOverlay} />
-          <div className={styles.bgRelative}>{content}</div>
+          {nextEvent && (
+            <button
+              onClick={() => router.push(ROUTES.ANNIVERSARY.path)}
+              className={styles.eventBadge}
+            >
+              <span className={styles.eventTitle}>{nextEvent.title} </span>
+              <span className={styles.eventDDay}>D-{nextEvent.daysLeft}</span>
+            </button>
+          )}
         </div>
-      ) : (
-        <div style={{ backgroundColor: "#F2F4F6" }}>{content}</div>
-      )}
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className={styles.fileInput}
+          onChange={handleFileChange}
+        />
+      </div>
     </div>
   );
 };
