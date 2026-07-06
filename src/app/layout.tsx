@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import "../shared/styles/globals.scss";
-import { QueryProvider } from "@/shared/lib/QueryProvider";
-import { SessionProvider } from "@/shared/lib/SessionProvider";
-import { Modal } from "@/shared/components/Modal";
-import { Toast } from "@/shared/components/Toast";
+import "../styles/globals.scss";
+import { QueryProvider } from "@/lib/QueryProvider";
+import { SessionProvider } from "@/lib/SessionProvider";
+import { Modal } from "@/components/Modal";
+import { Toast } from "@/components/Toast";
 
 export const metadata: Metadata = {
   title: "LifeShare",
