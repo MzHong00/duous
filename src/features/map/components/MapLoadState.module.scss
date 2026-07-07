@@ -1,0 +1,36 @@
+@use "styles/mixins" as *;
+
+.container {
+  flex: 1;
+  height: 100%;
+  @include flex-col-center(8px);
+  background-color: var(--grey-100);
+}
+
+.emoji {
+  font-size: 36px;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--grey-500);
+}
+
+.titleError {
+  color: var(--error);
+}
+
+.desc {
+  font-size: 12px;
+  color: var(--grey-400);
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--primary);
+  border-top-color: transparent;
+  animation: spin 0.8s linear infinite;
+}

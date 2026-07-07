@@ -1,0 +1,109 @@
+"use client";
+
+import { AppHeader } from "@/components/AppHeader";
+import { PathPickerMap } from "@/features/map/components/PathPickerMap";
+import { useStoryForm } from "@/features/stories/hooks/useStoryForm";
+import { StoryImagePicker } from "@/features/stories/components/StoryImagePicker";
+import { StoryPathField } from "@/features/stories/components/StoryPathField";
+
+import styles from "./StoryEditView.module.scss";
+
+export const StoryEditView = () => {
+  const {
+    isEditMode,
+    fileInputRef,
+    title,
+    setTitle,
+    description,
+    setDescription,
+    date,
+    setDate,
+    previewUrl,
+    pathColor,
+    path,
+    setPath,
+    isPathPickerOpen,
+    setIsPathPickerOpen,
+    isSaving,
+    handleImageSelect,
+    handleRemoveImage,
+    handlePathConfirm,
+    handleSave,
+  } = useStoryForm();
+
+  return (
+    <>
+      <div className={styles.page}>
+        <AppHeader />
+
+        <div className={styles.scrollArea}>
+          <StoryImagePicker
+            previewUrl={previewUrl}
+            fileInputRef={fileInputRef}
+            onSelect={handleImageSelect}
+            onRemove={handleRemoveImage}
+          />
+
+          <div className={styles.fields}>
+            <div className={styles.field}>
+              <label className={styles.label}>제목</label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="어떤 기억인가요? (선택)"
+                className={styles.input}
+              />
+            </div>
+
+            <div className={styles.field}>
+              <label className={styles.label}>내용</label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="그날의 이야기를 들려주세요 (선택)"
+                rows={4}
+                className={styles.textarea}
+              />
+            </div>
+
+            <div className={styles.field}>
+              <label className={styles.label}>날짜</label>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className={styles.input}
+              />
+            </div>
+
+            <div className={styles.field}>
+              <label className={styles.label}>경로</label>
+              <StoryPathField
+                path={path}
+                pathColor={pathColor}
+                onEdit={() => setIsPathPickerOpen(true)}
+                onClear={() => setPath([])}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.footer}>
+          <button onClick={handleSave} className={styles.saveButton} disabled={isSaving}>
+            {isSaving ? "저장 중..." : isEditMode ? "수정하기" : "기록하기"}
+          </button>
+        </div>
+      </div>
+
+      {isPathPickerOpen && (
+        <PathPickerMap
+          initialPath={path}
+          initialColor={pathColor}
+          onConfirm={handlePathConfirm}
+          onClose={() => setIsPathPickerOpen(false)}
+        />
+      )}
+    </>
+  );
+};

@@ -1,0 +1,59 @@
+@use "styles/mixins" as *;
+
+.annCard {
+  padding: 16px;
+  @include flex-row(16px);
+}
+
+.annIcon {
+  @include icon-box(48px, 16px);
+  background-color: var(--primary-light);
+  color: var(--primary);
+}
+
+.annIconPast {
+  background-color: var(--grey-200);
+  color: var(--grey-400);
+}
+
+.annIconToday {
+  background-color: var(--primary);
+  color: var(--white);
+}
+
+.annInfo {
+  flex: 1;
+}
+
+.annTitle {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--grey-900);
+}
+
+.annTitlePast {
+  color: var(--grey-400);
+}
+
+.annDate {
+  font-size: 12px;
+  color: var(--grey-400);
+  margin-top: 2px;
+}
+
+.annStatus {
+  text-align: right;
+}
+
+.statusPast {
+  font-size: 12px;
+  color: var(--grey-400);
+  font-weight: 500;
+}
+
+.statusToday,
+.statusDday {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+}

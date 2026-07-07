@@ -1,0 +1,21 @@
+@use "styles/mixins" as *;
+
+.list {
+  @include flex-col(16px);
+  padding-top: 16px;
+}
+
+.row {
+  @include flex-row(12px);
+  align-items: center;
+}
+
+.name {
+  font-weight: 700;
+  color: var(--grey-900);
+}
+
+.email {
+  font-size: 14px;
+  color: var(--grey-500);
+}

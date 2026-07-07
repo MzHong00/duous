@@ -1,0 +1,63 @@
+"use client";
+import { Heart } from "lucide-react";
+
+import { useGoogleLoginMutation } from "@/features/auth/queries/authMutations";
+import { toastActions } from "@/stores/useToastStore";
+import { KakaoIcon } from "@/assets/icons/KakaoIcon";
+import { GoogleIcon } from "@/assets/icons/GoogleIcon";
+import styles from "./LoginView.module.scss";
+
+const LOGO_ICON_SIZE = 40; // 로고 하트 아이콘 크기(px)
+const GOOGLE_LOGIN_ERROR_MESSAGE = "구글 로그인에 실패했어요. 잠시 후 다시 시도해주세요.";
+const KAKAO_LOGIN_PENDING_MESSAGE = "카카오 로그인은 준비 중이에요.";
+
+export const LoginView = () => {
+  const googleLoginMutation = useGoogleLoginMutation();
+
+  const isGoogleLoginPending = googleLoginMutation.isPending; // 구글 로그인 진행 여부
+
+  /** 카카오 로그인 (준비 중) */
+  const handleKakaoLogin = () => {
+    toastActions.showToast(KAKAO_LOGIN_PENDING_MESSAGE, "info");
+  };
+
+  /** 구글 OAuth 로그인 처리 */
+  const handleGoogleLogin = () => {
+    googleLoginMutation.mutate(undefined, {
+      onError: () => toastActions.showToast(GOOGLE_LOGIN_ERROR_MESSAGE, "error"),
+    });
+  };
+
+  return (
+    <main className={styles.main}>
+      <div className={styles.inner}>
+        <div className={styles.logoSection}>
+          <div className={styles.logoWrap}>
+            <Heart size={LOGO_ICON_SIZE} fill="var(--primary)" color="var(--primary)" />
+          </div>
+          <h1 className={styles.appName}>라이프쉐어</h1>
+          <p className={styles.appDesc}>우리의 소중한 일상을 함께 나누는 공간</p>
+        </div>
+
+        <div className={styles.buttons}>
+          <button onClick={handleKakaoLogin} className={styles.kakaoButton}>
+            <KakaoIcon />
+            카카오톡으로 시작하기
+          </button>
+          <button
+            onClick={handleGoogleLogin}
+            disabled={isGoogleLoginPending}
+            className={styles.googleButton}
+          >
+            <GoogleIcon />
+            Google로 시작하기
+          </button>
+        </div>
+
+        <p className={styles.terms}>
+          로그인 시 라이프쉐어의 이용약관 및{"\n"}개인정보 처리방침에 동의하게 됩니다.
+        </p>
+      </div>
+    </main>
+  );
+};

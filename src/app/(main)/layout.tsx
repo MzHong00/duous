@@ -1,4 +1,4 @@
-import { BottomNav } from "@/components/common/BottomNav";
+import { BottomNav } from "@/components/BottomNav";
 import styles from "./layout.module.scss";
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {

@@ -29,10 +29,7 @@ export function useQueryParams() {
 
   // searchParams가 바뀔 때마다 새 인스턴스를 생성해 최신 상태를 반영한다.
   // useRef를 쓰면 searchParams 변화를 감지하지 못하므로 useMemo를 사용한다.
-  const params = useMemo(
-    () => new URLSearchParams(searchParams.toString()),
-    [searchParams]
-  );
+  const params = useMemo(() => new URLSearchParams(searchParams.toString()), [searchParams]);
 
   // params 변경을 URL에 반영한다. replace를 사용해 히스토리 스택을 오염시키지 않는다.
   // scroll: false로 스크롤 위치를 유지한다.

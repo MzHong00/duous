@@ -1,0 +1,16 @@
+@use "styles/mixins" as *;
+
+.page {
+  @include page-base;
+}
+
+.todoSection {
+  padding: 16px 0 0;
+}
+
+.todoTitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--grey-900);
+  padding: 0 20px;
+}

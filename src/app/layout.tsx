@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import "../styles/globals.scss";
 import { QueryProvider } from "@/lib/QueryProvider";
-import { Modal } from "@/components/common/Modal";
-import { Toast } from "@/components/common/Toast";
+import { SessionProvider } from "@/lib/SessionProvider";
+import { Modal } from "@/components/Modal";
+import { Toast } from "@/components/Toast";
 
 export const metadata: Metadata = {
   title: "LifeShare",
@@ -22,7 +23,7 @@ const RootLayout = ({
     <html lang="ko">
       <body>
         <QueryProvider>
-          {children}
+          <SessionProvider>{children}</SessionProvider>
           <Modal />
           <Toast />
         </QueryProvider>

@@ -1,25 +1,18 @@
-"use client";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/stores/useAuthStore";
-import { useWorkspaceStore } from "@/stores/useWorkspaceStore";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
-const RootPage = () => {
-  const router = useRouter();
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const currentWorkspace = useWorkspaceStore((s) => s.currentWorkspace);
+import { COOKIE_KEYS } from "@/constants/config";
+import { ROUTES } from "@/constants/routes";
+import { createServerSupabase } from "@/lib/supabase/server";
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.replace("/login");
-    } else if (!currentWorkspace) {
-      router.replace("/workspace/landing");
-    } else {
-      router.replace("/home");
-    }
-  }, [isAuthenticated, currentWorkspace, router]);
+export default async function RootPage() {
+  const supabase = await createServerSupabase();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  return null;
-};
+  if (!user) redirect(ROUTES.LOGIN.path);
 
-export default RootPage;
+  const workspaceId = (await cookies()).get(COOKIE_KEYS.WORKSPACE_ID)?.value;
+  redirect(workspaceId ? ROUTES.HOME.path : ROUTES.WORKSPACE.LANDING.path);
+}

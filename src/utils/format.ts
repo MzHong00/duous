@@ -5,8 +5,11 @@ export const joinValuesWithDot = <T extends object>(
 ): string => {
   if (!arr) return "";
   return arr
-    .map((item) => item[key] as string)
-    .filter((val) => val !== excludeValue)
+    .map((item) => {
+      const value = item[key];
+      return typeof value === "string" ? value : "";
+    })
+    .filter((val) => val && val !== excludeValue)
     .join(" · ");
 };
 

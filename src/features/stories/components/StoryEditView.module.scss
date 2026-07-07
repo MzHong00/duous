@@ -1,0 +1,53 @@
+@use "styles/mixins" as *;
+
+.page {
+  @include page-base;
+  @include flex-col;
+  overflow: hidden;
+  padding-bottom: 0;
+}
+
+.scrollArea {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.fields {
+  padding: 20px;
+  @include flex-col(20px);
+}
+
+.field {
+  @include flex-col;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--grey-900);
+  margin-bottom: 8px;
+  margin-left: 4px;
+}
+
+.required {
+  color: var(--error);
+}
+
+.input {
+  @include form-input;
+}
+
+.textarea {
+  @include form-input;
+  resize: none;
+}
+
+.footer {
+  padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
+  background-color: #ffffff;
+  border-top: 1px solid var(--grey-100);
+}
+
+.saveButton {
+  @include btn-primary;
+}

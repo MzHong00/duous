@@ -1,0 +1,19 @@
+@use "styles/mixins" as *;
+
+.colorPicker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.colorButton {
+  @include icon-box(36px);
+  background-color: var(--color-button-bg);
+  transition: transform 0.1s;
+}
+
+.colorButtonSelected {
+  box-shadow:
+    0 0 0 3px var(--white),
+    0 0 0 5px var(--color-button-bg);
+}

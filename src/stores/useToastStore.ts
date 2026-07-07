@@ -1,6 +1,6 @@
 "use client";
 import { create } from "zustand";
-import type { ToastType } from "@/types";
+import type { ToastType } from "@/types/toast";
 
 interface ToastItem {
   id: string;
@@ -12,15 +12,19 @@ interface ToastState {
   toasts: ToastItem[];
 }
 
+const TOAST_DURATION_MS = 3000; // 토스트 자동 제거까지의 시간(ms)
+
 const toastStore = create<ToastState>()(() => ({ toasts: [] }));
 
+/** 토스트 상태 셀렉터 훅. selector 생략 시 전체 상태를 반환한다 */
 export const useToastStore = <T = ToastState>(
   selector: (state: ToastState) => T = (state) => state as unknown as T
 ) => toastStore(selector);
 
 export const toastActions = {
+  /** 토스트를 추가하고 TOAST_DURATION_MS 후 자동 제거한다 */
   showToast: (message: string, type: ToastType = "info") => {
-    const id = `toast-${Date.now()}`;
+    const id = `toast-${crypto.randomUUID()}`;
     toastStore.setState((state) => ({
       toasts: [...state.toasts, { id, message, type }],
     }));
@@ -28,8 +32,9 @@ export const toastActions = {
       toastStore.setState((state) => ({
         toasts: state.toasts.filter((t) => t.id !== id),
       }));
-    }, 3000);
+    }, TOAST_DURATION_MS);
   },
+  /** id로 토스트를 즉시 제거한다 */
   removeToast: (id: string) => {
     toastStore.setState((state) => ({
       toasts: state.toasts.filter((t) => t.id !== id),

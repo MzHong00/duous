@@ -1,0 +1,41 @@
+@use "styles/mixins" as *;
+
+.imagePlaceholder {
+  width: 100%;
+  min-height: 200px;
+  background-color: var(--grey-100);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--grey-400);
+  font-size: 14px;
+
+  &:hover {
+    filter: brightness(0.97);
+  }
+}
+
+.thumbnailWrap {
+  position: relative;
+}
+
+.thumbnail {
+  width: 100%;
+  height: 224px;
+  object-fit: cover;
+}
+
+.removeButton {
+  @include icon-box(32px);
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #ffffff;
+}
+
+.fileInput {
+  display: none;
+}

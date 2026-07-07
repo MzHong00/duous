@@ -1,0 +1,164 @@
+@use "styles/mixins" as *;
+
+// 배경 이미지 위에 얹는 반투명 화이트 계열 (토큰에 없어 모듈 스코프로 정의)
+$on-image-text: #ffffff;
+$on-image-sub: rgba(255, 255, 255, 0.85);
+$on-image-surface: rgba(255, 255, 255, 0.25);
+
+.wrapper {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  border-bottom-left-radius: 36px;
+  border-bottom-right-radius: 36px;
+  background-color: var(--grey-100);
+}
+
+.bgImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bgOverlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.content {
+  position: relative;
+  padding: 16px 20px;
+  @include flex-col;
+  justify-content: space-between;
+  min-height: 168px;
+  gap: 32px;
+}
+
+.topSection {
+  @include flex-row;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.headerRow {
+  @include flex-col;
+  gap: 2px;
+  min-width: 0;
+}
+
+.workspaceName {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--grey-900);
+  @include text-ellipsis;
+}
+
+.memberNames {
+  font-size: 13px;
+  color: var(--grey-700);
+  @include text-ellipsis;
+}
+
+.bottomSection {
+  @include flex-col;
+}
+
+.membersStack {
+  @include flex-row;
+}
+
+.memberAvatar {
+  border: 2px solid #ffffff;
+  border-radius: 9999px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dDayRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.dDayNumber {
+  @include flex-row(4px);
+  align-items: baseline;
+}
+
+.dDayValue {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--grey-900);
+}
+
+.dDayUnit {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--grey-900);
+}
+
+.bgButton {
+  @include icon-box(36px);
+  background-color: var(--white);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: var(--grey-500);
+}
+
+.eventBadge {
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 14px;
+  @include flex-center;
+  gap: 6px;
+  margin-top: 4px;
+  background-color: var(--white);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.eventTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--grey-700);
+}
+
+.eventDDay {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.fileInput {
+  display: none;
+}
+
+// 배경 이미지가 있을 때는 이미지 위에서 읽히도록 화이트 계열로 전환한다
+.hasBackground {
+  .workspaceName,
+  .dDayValue,
+  .dDayUnit,
+  .eventDDay {
+    color: $on-image-text;
+  }
+
+  .memberNames {
+    color: $on-image-sub;
+  }
+
+  .eventTitle {
+    color: $on-image-text;
+  }
+
+  .bgButton {
+    background-color: $on-image-surface;
+    box-shadow: none;
+    color: $on-image-text;
+  }
+
+  .eventBadge {
+    background-color: $on-image-surface;
+    box-shadow: none;
+  }
+}

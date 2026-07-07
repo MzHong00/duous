@@ -1,72 +1,28 @@
-"use client";
-import { useMemo, Suspense } from "react";
-import { useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
-import { useTodoStore } from "@/stores/useTodoStore";
-import { useWorkspaceStore } from "@/stores/useWorkspaceStore";
-import { useQueryParams } from "@/hooks/useQueryParams";
-import { AppHeader } from "@/components/common/AppHeader";
-import { TodoList } from "@/components/todo/TodoList";
-import type { Filter } from "@/components/todo/TodoList";
-import styles from "./todo.module.scss";
+import { Suspense } from "react";
+import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
+import { cookies } from "next/headers";
 
-// URL에 허용되는 filter 값 목록. 외부 입력 검증에 사용한다.
-const VALID_FILTERS: Filter[] = ["all", "active", "completed"];
+import { COOKIE_KEYS } from "@/constants/config";
+import { getQueryClient } from "@/lib/getQueryClient";
+import { createServerSupabase } from "@/lib/supabase/server";
+import { todoQueries } from "@/features/todo/queries/todoQueries";
+import { TodoView } from "@/features/todo/components/TodoView";
 
-// useSearchParams를 사용하므로 Suspense 경계 안에서 렌더링해야 한다.
-const TodoContent = () => {
-  const router = useRouter();
-  const [params, setParams] = useQueryParams();
-  const todos = useTodoStore((s) => s.todos);
-  const currentWorkspace = useWorkspaceStore((s) => s.currentWorkspace);
+export default async function Page() {
+  const queryClient = getQueryClient();
+  const workspaceId = (await cookies()).get(COOKIE_KEYS.WORKSPACE_ID)?.value ?? "";
 
-  // URL의 ?filter= 값을 읽어 현재 필터를 결정한다.
-  // 유효하지 않은 값이 들어오면 기본값 "all"로 폴백한다.
-  const rawFilter = params.get("filter");
-  const filter: Filter = VALID_FILTERS.includes(rawFilter as Filter) ? (rawFilter as Filter) : "all";
-
-  // 현재 워크스페이스에 속한 할 일만 표시한다.
-  const workspaceTodos = useMemo(
-    () => todos.filter((t) => t.workspaceId === currentWorkspace?.id),
-    [todos, currentWorkspace?.id]
-  );
-
-  // 필터 변경 시 URL을 업데이트한다.
-  // "all"은 기본값이므로 파라미터를 제거해 URL을 깔끔하게 유지한다.
-  const handleFilterChange = (f: Filter) => {
-    if (f === "all") {
-      setParams.delete("filter");
-    } else {
-      setParams.set("filter", f);
-    }
-  };
+  // 첫 페인트에 데이터가 실리도록 서버에서 prefetch → 클라이언트 useQuery가 이어받음
+  if (workspaceId) {
+    const supabase = await createServerSupabase();
+    await queryClient.prefetchQuery(todoQueries.list(workspaceId, supabase));
+  }
 
   return (
-    <div className={styles.page}>
-      <AppHeader
-        rightElement={
-          <button onClick={() => router.push("/todo/create")} className={styles.addButton}>
-            <Plus size={22} />
-          </button>
-        }
-      />
-      <TodoList
-        todos={workspaceTodos}
-        currentWorkspace={currentWorkspace}
-        filter={filter}
-        onFilterChange={handleFilterChange}
-      />
-    </div>
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <Suspense>
+        <TodoView />
+      </Suspense>
+    </HydrationBoundary>
   );
 }
-
-const TodoPage = () => {
-  // useSearchParams 사용 시 Next.js App Router에서 Suspense 래핑이 필요하다.
-  return (
-    <Suspense>
-      <TodoContent />
-    </Suspense>
-  );
-};
-
-export default TodoPage;

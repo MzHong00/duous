@@ -1,0 +1,55 @@
+@use "styles/mixins" as *;
+
+.assigneeRow {
+  @include flex-row(16px);
+  overflow-x: auto;
+  @include scrollbar-hide;
+}
+
+.assigneeOption {
+  @include flex-col-center(8px);
+  flex-shrink: 0;
+}
+
+.assigneeIcon {
+  @include icon-box(56px, 16px);
+}
+
+.assigneeIconActive {
+  background-color: var(--primary);
+}
+.assigneeIconInactive {
+  background-color: var(--grey-100);
+}
+
+.assigneeLabel {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.assigneeLabelActive {
+  color: var(--primary);
+}
+.assigneeLabelInactive {
+  color: var(--grey-500);
+}
+
+.memberWrap {
+  position: relative;
+}
+
+.memberAvatarActive {
+  border-radius: 9999px;
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+.checkBadge {
+  @include icon-box(20px);
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: var(--primary);
+  border: 2px solid var(--white);
+  color: var(--white);
+}

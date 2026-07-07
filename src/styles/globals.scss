@@ -1,6 +1,8 @@
 :root {
   --primary: #3182f6;
+  --primary-rgb: 49, 130, 246; /* --primary 알파 변형용 RGB 채널 */
   --primary-light: #e8f3ff;
+  --white: #ffffff;
   --grey-50: #f9fafb;
   --grey-100: #f2f4f6;
   --grey-200: #e5e8eb;
@@ -16,7 +18,7 @@
   --warning: #ffad13;
   --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
   --shadow-card-lg: 0 4px 16px rgba(0, 0, 0, 0.1);
-  --shadow-primary: 0 4px 12px rgba(49, 130, 246, 0.25);
+  --shadow-primary: 0 4px 12px rgba(var(--primary-rgb), 0.25);
 }
 
 * {
@@ -34,7 +36,7 @@
 }
 
 html {
-  background: #e5e8eb;
+  background: var(--grey-200);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -45,10 +47,10 @@ html {
 
 body {
   color: var(--grey-900);
-  background: #ffffff;
+  background: var(--white);
   font-family:
-    -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard",
-    "Noto Sans KR", "Segoe UI", sans-serif;
+    -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR",
+    "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   max-width: 480px;
