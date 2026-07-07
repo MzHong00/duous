@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { authQueries } from "@/features/auth/queries/authQueries";
-import { authApi } from "@/features/auth/api/auth";
+import { useSignOutMutation } from "@/features/auth/queries/authMutations";
 import { workspaceActions } from "@/features/workspace/stores/useWorkspaceStore";
 
 import { modalActions } from "@/stores/useModalStore";
@@ -30,6 +30,7 @@ interface UseProfileSettingsResult {
 export const useProfileSettings = (): UseProfileSettingsResult => {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { mutateAsync: signOutMutationAsync } = useSignOutMutation();
 
   /** 사용자 쿼리 캐시를 부분 갱신한다 */
   const updateUserCache = useCallback(
@@ -77,13 +78,17 @@ export const useProfileSettings = (): UseProfileSettingsResult => {
       title: "로그아웃",
       message: "정말 로그아웃 하시겠어요?",
       onConfirm: async () => {
-        await authApi.signOut();
-        workspaceActions.clearData();
-        queryClient.clear();
-        router.replace(ROUTES.LOGIN.path);
+        try {
+          await signOutMutationAsync();
+          workspaceActions.clearData();
+          queryClient.clear();
+          router.replace(ROUTES.LOGIN.path);
+        } catch {
+          toastActions.showToast("로그아웃에 실패했습니다. 다시 시도해주세요.", "error");
+        }
       },
     });
-  }, [queryClient, router]);
+  }, [queryClient, router, signOutMutationAsync]);
 
   return { openEditNameModal, changePhoto, confirmLogout };
 };
