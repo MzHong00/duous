@@ -7,3 +7,9 @@ export const useGoogleLoginMutation = () =>
   useMutation({
     mutationFn: () => authApi.signInWithGoogle(),
   });
+
+/** 로그아웃 뮤테이션. 실패 시 세션·캐시를 정리하지 않도록 호출부에서 에러를 처리해야 한다 */
+export const useSignOutMutation = () =>
+  useMutation({
+    mutationFn: () => authApi.signOut(),
+  });

@@ -24,8 +24,7 @@ export const useProfileUser = (): UseProfileUserResult => {
 
   // 로딩 중에는 폴백값을 노출하지 않는다 (새로고침 시 "user" 등 대체값 깜빡임 방지)
   const email = user?.email || (isLoading ? "" : FALLBACK_EMAIL);
-  const displayName =
-    user?.name || user?.email?.split("@")[0] || (isLoading ? "" : FALLBACK_NAME);
+  const displayName = user?.name || user?.email?.split("@")[0] || (isLoading ? "" : FALLBACK_NAME);
 
   return { user, email, displayName, isLoading, isError };
 };

@@ -1,3 +1,5 @@
+import { memo } from "react";
+
 import { cx } from "@/utils/cn";
 import { getDayNumber, getDayOfWeek } from "@/utils/date";
 
@@ -16,7 +18,7 @@ interface CalendarDayCellProps {
   onSelect: (date: string) => void;
 }
 
-export const CalendarDayCell = ({
+const CalendarDayCellComponent = ({
   date,
   isSelected,
   isToday,
@@ -50,3 +52,6 @@ export const CalendarDayCell = ({
     </button>
   );
 };
+
+export const CalendarDayCell = memo(CalendarDayCellComponent);
+CalendarDayCell.displayName = "CalendarDayCell";

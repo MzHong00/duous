@@ -1,5 +1,7 @@
 "use client";
 
+import { useCallback } from "react";
+
 import { useRouter } from "next/navigation";
 
 import { CalendarGrid } from "@/features/calendar/components/CalendarGrid";
@@ -30,7 +32,10 @@ export const CalendarView = () => {
   } = useCalendar();
 
   /** 선택일을 초기값으로 할 일 생성 화면으로 이동한다 */
-  const handleAddEvent = () => router.push(ROUTES.TODO.CREATE.query({ initialDate: selectedDate }));
+  const handleAddEvent = useCallback(
+    () => router.push(ROUTES.TODO.CREATE.query({ initialDate: selectedDate })),
+    [router, selectedDate]
+  );
 
   return (
     <div className={styles.page}>

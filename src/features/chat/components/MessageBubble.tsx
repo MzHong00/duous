@@ -1,3 +1,5 @@
+import { memo } from "react";
+
 import { ProfileImage } from "@/components/ProfileImage";
 import { cx } from "@/utils/cn";
 import { AVATAR_FALLBACK_NAME, BUBBLE_AVATAR_SIZE } from "@/features/chat/constants/chat";
@@ -14,7 +16,8 @@ interface MessageBubbleProps {
   name?: string;
 }
 
-export const MessageBubble = ({ text, sender, time, avatar, name }: MessageBubbleProps) => {
+// 새 메시지 도착 시 목록 배열 참조가 바뀌어도 기존 버블은 props 동일 시 리렌더를 건너뛴다
+const MessageBubbleComponent = ({ text, sender, time, avatar, name }: MessageBubbleProps) => {
   const isMe = sender === "me";
 
   if (isMe) {
@@ -47,3 +50,6 @@ export const MessageBubble = ({ text, sender, time, avatar, name }: MessageBubbl
     </div>
   );
 };
+
+export const MessageBubble = memo(MessageBubbleComponent);
+MessageBubble.displayName = "MessageBubble";

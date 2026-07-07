@@ -1,5 +1,8 @@
 import { useMemo } from "react";
 import { MapPin, Pencil, Trash2 } from "lucide-react";
+
+import { normalize, fmtCoord, getWaypointLabel } from "@/features/map/utils/pathPreviewUtils";
+
 import type { LocationPoint } from "@/features/stories/types/story";
 import styles from "./PathPreview.module.scss";
 
@@ -13,21 +16,6 @@ interface PathPreviewProps {
 const PAD = 14;
 const VIEW_W = 200;
 const VIEW_H = 80;
-
-function normalize(val: number, min: number, max: number, size: number) {
-  if (max === min) return size / 2;
-  return ((val - min) / (max - min)) * size;
-}
-
-function fmtCoord(n: number) {
-  return n.toFixed(5);
-}
-
-function getWaypointLabel(index: number, total: number) {
-  if (index === 0) return "시작";
-  if (index === total - 1) return "도착";
-  return `경유 ${index}`;
-}
 
 export function PathPreview({ path, pathColor, onEdit, onClear }: PathPreviewProps) {
   const points = useMemo(() => {

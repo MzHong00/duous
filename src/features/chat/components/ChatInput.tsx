@@ -63,6 +63,7 @@ export const ChatInput = ({ value, onChange, onSend }: ChatInputProps) => {
           type="button"
           onClick={handlePlusClick}
           className={cx(styles.plusButton, isMenuOpen && styles.plusButtonActive)}
+          aria-label={isMenuOpen ? "도구함 닫기" : "도구함 열기"}
         >
           <Plus size={18} />
         </button>
@@ -85,6 +86,7 @@ export const ChatInput = ({ value, onChange, onSend }: ChatInputProps) => {
             styles.sendButton,
             isSendable ? styles.sendButtonActive : styles.sendButtonInactive
           )}
+          aria-label="메시지 전송"
         >
           <Send size={14} className={styles.sendIcon} />
         </button>

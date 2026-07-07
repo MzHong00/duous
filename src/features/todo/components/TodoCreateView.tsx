@@ -45,7 +45,7 @@ export const TodoCreateView = () => {
       <AppHeader
         rightElement={
           todoId ? (
-            <button onClick={handleDelete} className={styles.deleteButton}>
+            <button onClick={handleDelete} className={styles.deleteButton} aria-label="할 일 삭제">
               <Trash2 size={20} color="var(--error)" />
             </button>
           ) : undefined

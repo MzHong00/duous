@@ -2,10 +2,11 @@
 import { Copy } from "lucide-react";
 
 import { AppHeader } from "@/components/AppHeader";
+import { useWorkspaceSetupWizard } from "@/features/workspace/hooks/useWorkspaceSetupWizard";
+
 import { SetupInitialStep } from "./SetupInitialStep";
 import { SetupCreateStep } from "./SetupCreateStep";
 import { SetupInviteStep } from "./SetupInviteStep";
-import { useWorkspaceSetupWizard } from "./useWorkspaceSetupWizard";
 import styles from "./WorkspaceSetupView.module.scss";
 
 export const WorkspaceSetupView = () => {

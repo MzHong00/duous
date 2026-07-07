@@ -27,7 +27,11 @@ export const TodoItem = ({ item, currentWorkspace, onToggle, onPress }: TodoItem
 
   return (
     <div className={cx(styles.item, item.isCompleted && styles.itemDone)}>
-      <button onClick={() => onToggle(item.id)} className={styles.toggleButton}>
+      <button
+        onClick={() => onToggle(item.id)}
+        className={styles.toggleButton}
+        aria-label={item.isCompleted ? "완료 취소" : "완료 처리"}
+      >
         {item.isCompleted ? (
           <CheckCircle2 size={26} color={markerColor} fill={`${markerColor}40`} />
         ) : (

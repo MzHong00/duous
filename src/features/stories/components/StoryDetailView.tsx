@@ -67,12 +67,13 @@ export const StoryDetailView = () => {
       <AppHeader
         rightElement={
           <div className={styles.headerButtons}>
-            <button onClick={handleDelete} className={styles.headerButton}>
+            <button onClick={handleDelete} className={styles.headerButton} aria-label="스토리 삭제">
               <Trash2 size={20} color="var(--error)" />
             </button>
             <button
               onClick={() => router.push(ROUTES.STORIES.EDIT.query({ storyId }))}
               className={styles.headerButton}
+              aria-label="스토리 수정"
             >
               <Edit3 size={20} color="var(--grey-900)" />
             </button>

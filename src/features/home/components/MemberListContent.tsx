@@ -12,16 +12,16 @@ interface MemberListContentProps {
 // 참여자 목록 모달에 표시되는 멤버 리스트 UI
 export const MemberListContent = ({ members }: MemberListContentProps) => {
   return (
-    <div className={styles.list}>
+    <ul className={styles.list}>
       {members.map((member) => (
-        <div key={member.id} className={styles.row}>
+        <li key={member.id} className={styles.row}>
           <ProfileImage uri={member.avatar} name={member.name} size={44} />
           <div>
             <p className={styles.name}>{member.name}</p>
             <p className={styles.email}>{member.email}</p>
           </div>
-        </div>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 };

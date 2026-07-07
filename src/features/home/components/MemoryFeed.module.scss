@@ -8,6 +8,29 @@
   padding: 16px 16px 96px;
 }
 
+.feedTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--grey-900);
+}
+
+.skeletonCard {
+  height: 220px;
+  border-radius: 16px;
+  background: linear-gradient(90deg, var(--grey-100) 25%, var(--grey-50) 50%, var(--grey-100) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
 .emptyState {
   @include flex-col-center;
   gap: 12px;
@@ -32,16 +55,42 @@
   line-height: 1.6;
 }
 
-.emptyCta {
+.errorTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--grey-700);
+}
+
+.errorSub {
+  font-size: 13px;
+  color: var(--grey-400);
+  line-height: 1.6;
+}
+
+.emptyCta,
+.errorRetry {
   margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   background: var(--primary);
-  color: white;
+  color: var(--white);
   border: none;
   padding: 12px 24px;
   border-radius: 12px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  transition: transform 0.1s ease;
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
 }
 
 .fab {
@@ -53,11 +102,21 @@
   background: var(--primary);
   border-radius: 50%;
   @include flex-center;
-  color: white;
+  color: var(--white);
   font-size: 26px;
   font-weight: 300;
   box-shadow: var(--shadow-primary);
   border: none;
   cursor: pointer;
   z-index: 10;
+  transition: transform 0.1s ease;
+
+  &:active {
+    transform: scale(0.92);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--white);
+    outline-offset: 2px;
+  }
 }

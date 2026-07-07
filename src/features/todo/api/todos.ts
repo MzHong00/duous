@@ -1,33 +1,9 @@
 import { supabase } from "@/lib/supabase/client";
+import { rowToTodo } from "@/features/todo/utils/todoUtils";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Todo } from "@/features/todo/types/todo";
-
-interface TodoRow {
-  id: string;
-  workspace_id: string;
-  title: string;
-  description?: string;
-  is_completed: boolean;
-  assignee_id?: string;
-  start_date: string;
-  end_date: string;
-  color?: string;
-  created_at: string;
-}
-
-const rowToTodo = (row: TodoRow): Todo => ({
-  id: row.id,
-  workspaceId: row.workspace_id,
-  title: row.title,
-  description: row.description,
-  isCompleted: row.is_completed,
-  assigneeId: row.assignee_id,
-  startDate: row.start_date,
-  endDate: row.end_date,
-  color: row.color,
-  createdAt: row.created_at,
-});
+import type { TodoRow } from "@/features/todo/utils/todoUtils";
 
 export const todosApi = {
   // client 미지정 시 브라우저 클라이언트 사용 — 서버 prefetch에서는 서버 클라이언트 주입

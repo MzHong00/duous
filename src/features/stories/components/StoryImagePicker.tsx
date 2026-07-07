@@ -22,13 +22,17 @@ export const StoryImagePicker = ({
     <div>
       {previewUrl ? (
         <div className={styles.thumbnailWrap}>
-          <img src={previewUrl} alt="thumbnail" className={styles.thumbnail} />
-          <button onClick={onRemove} className={styles.removeButton}>
+          <img src={previewUrl} alt="선택한 스토리 사진" className={styles.thumbnail} />
+          <button onClick={onRemove} className={styles.removeButton} aria-label="사진 제거">
             <X size={16} />
           </button>
         </div>
       ) : (
-        <button onClick={() => fileInputRef.current?.click()} className={styles.imagePlaceholder}>
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          className={styles.imagePlaceholder}
+          aria-label="사진 추가하기"
+        >
           <ImageIcon size={32} />
           <span>사진 추가하기</span>
         </button>

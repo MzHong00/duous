@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import { calendarQueries } from "@/features/calendar/queries/calendarQueries";
@@ -9,34 +9,12 @@ import { useToggleTodoMutation } from "@/features/todo/queries/todoMutations";
 import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
 import { COLORS } from "@/constants/theme";
 import { useQueryParams } from "@/hooks/useQueryParams";
-import { addMonths, getCalendarDays, getIntermediateDates, getTodayDateString } from "@/utils/date";
+import { addMonths, getCalendarDays, getTodayDateString } from "@/utils/date";
+import { buildMarkedDates } from "@/features/calendar/utils/calendarUtils";
 
 import type { Filter } from "@/features/todo/components/TodoList";
 
 const MONTH_KEY_LENGTH = 7; // "YYYY-MM" 슬라이스 길이
-
-interface DateRangeItem {
-  startDate: string;
-  endDate: string;
-  color: string;
-}
-
-/** 시작·종료일 범위에 속한 모든 날짜별로 색상 점을 누적한다 */
-const buildMarkedDates = (items: DateRangeItem[]): Record<string, string[]> => {
-  const marks: Record<string, string[]> = {};
-  items.forEach((item) => {
-    const range = [
-      item.startDate,
-      ...getIntermediateDates(item.startDate, item.endDate),
-      item.endDate,
-    ];
-    [...new Set(range)].forEach((date) => {
-      if (!marks[date]) marks[date] = [];
-      if (!marks[date].includes(item.color)) marks[date].push(item.color);
-    });
-  });
-  return marks;
-};
 
 /**
  * 캘린더 화면의 날짜 선택·월 이동 상태와 파생 데이터(달력 셀, 날짜별 점, 선택일 할 일)를 관리한다.
@@ -79,20 +57,26 @@ export const useCalendar = () => {
   );
 
   /** 날짜를 선택하고 필터를 초기화한 뒤 URL 쿼리에 반영한다 */
-  const selectDate = (date: string) => {
-    setSelectedDate(date);
-    setFilter("all");
-    setParams.set("date", date);
-  };
+  const selectDate = useCallback(
+    (date: string) => {
+      setSelectedDate(date);
+      setFilter("all");
+      setParams.set("date", date);
+    },
+    [setParams]
+  );
 
   /** 표시 월을 delta만큼 이동한다 */
-  const moveMonth = (delta: number) => setCurrentMonth((m) => addMonths(m, delta));
+  const moveMonth = useCallback((delta: number) => setCurrentMonth((m) => addMonths(m, delta)), []);
 
   /** 할 일 완료 여부를 서버에 토글 반영한다 */
-  const toggleTodo = (id: string) => {
-    const target = todos.find((t) => t.id === id);
-    if (target) toggleTodoMutation.mutate({ id, isCompleted: !target.isCompleted });
-  };
+  const toggleTodo = useCallback(
+    (id: string) => {
+      const target = todos.find((t) => t.id === id);
+      if (target) toggleTodoMutation.mutate({ id, isCompleted: !target.isCompleted });
+    },
+    [todos, toggleTodoMutation]
+  );
 
   return {
     today,

@@ -1,8 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { todosApi } from "@/features/todo/api/todos";
+import { toastActions } from "@/stores/useToastStore";
 import type { Todo } from "@/features/todo/types/todo";
 import { todoQueries } from "./todoQueries";
+
+const TOGGLE_TODO_ERROR_MESSAGE = "완료 상태 변경에 실패했습니다."; // 토글 뮤테이션 실패 시 토스트 메시지
 
 export const useCreateTodoMutation = (workspaceId: string) => {
   const queryClient = useQueryClient();
@@ -35,6 +38,7 @@ export const useToggleTodoMutation = (workspaceId: string) => {
       todosApi.toggle(id, isCompleted),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: todoQueries.list(workspaceId).queryKey }),
+    onError: () => toastActions.showToast(TOGGLE_TODO_ERROR_MESSAGE, "error"),
   });
 };
 

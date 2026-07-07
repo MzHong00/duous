@@ -36,8 +36,7 @@ export const useWorkspaceStore = <T = WorkspaceState>(
 ) => workspaceStore(selector);
 
 export const workspaceActions = {
-  setCurrentWorkspaceId: (id: string | null) =>
-    workspaceStore.setState({ currentWorkspaceId: id }),
+  setCurrentWorkspaceId: (id: string | null) => workspaceStore.setState({ currentWorkspaceId: id }),
 
   clearData: () => workspaceStore.setState({ currentWorkspaceId: null }),
 };

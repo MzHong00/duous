@@ -1,32 +1,9 @@
 import { supabase } from "@/lib/supabase/client";
-import { PATH_COLORS } from "@/constants/theme";
+import { rowToStory } from "@/features/stories/utils/storyUtils";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Story, LocationPoint } from "@/features/stories/types/story";
-
-interface StoryRow {
-  id: string;
-  workspace_id: string;
-  user_id: string;
-  title?: string;
-  description?: string;
-  date: string;
-  thumbnail_url?: string;
-  path: LocationPoint[];
-  path_color: string;
-}
-
-const rowToStory = (row: StoryRow): Story => ({
-  id: row.id,
-  title: row.title,
-  description: row.description,
-  date: row.date,
-  thumbnailUrl: row.thumbnail_url,
-  path: row.path ?? [],
-  pathColor: row.path_color ?? PATH_COLORS[0],
-  userId: row.user_id,
-  workspaceId: row.workspace_id,
-});
+import type { Story } from "@/features/stories/types/story";
+import type { StoryRow } from "@/features/stories/utils/storyUtils";
 
 export const storiesApi = {
   // client 미지정 시 브라우저 클라이언트 사용 — 서버 prefetch에서는 서버 클라이언트 주입

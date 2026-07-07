@@ -55,6 +55,19 @@ export const useStoryForm = () => {
   const [isPathPickerOpen, setIsPathPickerOpen] = useState(false); // 경로 선택 지도 표시 여부
   const [isSaving, setIsSaving] = useState(false);
 
+  // 언마운트 시점에 최신 previewUrl을 참조하기 위한 ref (blob URL 정리용)
+  const previewUrlRef = useRef(previewUrl);
+  previewUrlRef.current = previewUrl;
+
+  /** 컴포넌트 언마운트 시(저장/제거 없이 화면 이탈) 남아있는 blob 미리보기 URL을 해제한다 */
+  useEffect(() => {
+    return () => {
+      if (previewUrlRef.current && previewUrlRef.current.startsWith("blob:")) {
+        URL.revokeObjectURL(previewUrlRef.current);
+      }
+    };
+  }, []);
+
   /** 수정 모드에서 스토리 쿼리 로드가 초기 렌더보다 늦을 수 있어, 로드 완료 시 폼 값을 채운다 */
   useEffect(() => {
     if (!existingStory) return;
@@ -68,19 +81,26 @@ export const useStoryForm = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [existingStory?.id]);
 
-  /** 파일 선택 시 미리보기 blob URL 생성 */
+  /** 파일 선택 시 미리보기 blob URL 생성 (기존 blob은 해제 후 교체) */
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (previewUrl && previewUrl.startsWith("blob:")) {
+      URL.revokeObjectURL(previewUrl);
+    }
     const blobUrl = URL.createObjectURL(file);
     setPendingFile(file);
     setPreviewUrl(blobUrl);
+    e.target.value = ""; // 동일 파일 재선택 시에도 onChange가 발생하도록 초기화
   };
 
   /** 선택한 이미지 제거 및 blob URL 정리 */
   const handleRemoveImage = () => {
     if (previewUrl && previewUrl.startsWith("blob:")) {
       URL.revokeObjectURL(previewUrl);
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // 동일 파일 재선택 시에도 onChange가 발생하도록 초기화
     }
     setPendingFile(null);
     setPreviewUrl(undefined);
