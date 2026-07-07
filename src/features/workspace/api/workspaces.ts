@@ -1,38 +1,11 @@
 import { supabase } from "@/lib/supabase/client";
+import { rowToWorkspace } from "@/features/workspace/utils/workspaceUtils";
+
 import type { RoomType, Workspace, WorkspaceMember } from "@/features/workspace/types/workspace";
+import type { WorkspaceRow, MemberRow } from "@/features/workspace/utils/workspaceUtils";
 
 const INVITE_CODE_LENGTH = 8; // 초대 코드 길이
 const INVITE_CODE_TTL_MS = 1000 * 60 * 60 * 24 * 7; // 초대 코드 유효 기간 (7일)
-
-interface WorkspaceRow {
-  id: string;
-  name: string;
-  type: RoomType;
-  start_date?: string;
-  background_image?: string;
-  created_by: string;
-}
-
-interface MemberRow {
-  user_id: string;
-  display_name: string;
-  email?: string;
-  avatar_url?: string;
-}
-
-const rowToWorkspace = (row: WorkspaceRow, members: MemberRow[]): Workspace => ({
-  id: row.id,
-  name: row.name,
-  type: row.type,
-  startDate: row.start_date,
-  backgroundImage: row.background_image,
-  members: members.map((m) => ({
-    id: m.user_id,
-    name: m.display_name,
-    email: m.email ?? "",
-    avatar: m.avatar_url,
-  })),
-});
 
 export const workspacesApi = {
   // 내가 속한 워크스페이스 목록 (멤버 포함)

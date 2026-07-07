@@ -96,10 +96,7 @@ export const WorkspaceListView = () => {
                   <Edit3 size={14} />
                   설정
                 </button>
-                <button
-                  onClick={() => handleLeave(ws.id, ws.name)}
-                  className={styles.deleteButton}
-                >
+                <button onClick={() => handleLeave(ws.id, ws.name)} className={styles.deleteButton}>
                   <Trash2 size={16} />
                 </button>
               </div>

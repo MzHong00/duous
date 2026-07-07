@@ -1,39 +1,22 @@
 "use client";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { ChevronRight, Trash2, User, UserPlus } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
 
-import { ROUTES } from "@/constants/routes";
-import { workspaceActions } from "@/features/workspace/stores/useWorkspaceStore";
 import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
-import { authQueries } from "@/features/auth/queries/authQueries";
+import { useWorkspaceEditActions } from "@/features/workspace/hooks/useWorkspaceEditActions";
 import { modalActions } from "@/stores/useModalStore";
-import { toastActions } from "@/stores/useToastStore";
-import {
-  useUpdateWorkspaceNameMutation,
-  useUpdateWorkspaceStartDateMutation,
-  useUpdateWorkspaceMemberMutation,
-  useLeaveWorkspaceMutation,
-  useCreateInviteCodeMutation,
-} from "@/features/workspace/queries/workspaceMutations";
 import { AppHeader } from "@/components/AppHeader";
 import { APP_WORKSPACE } from "@/constants/config";
 import { cx } from "@/utils/cn";
 import styles from "./WorkspaceEditView.module.scss";
 
 export const WorkspaceEditView = () => {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const workspaceId = searchParams.get("workspaceId") || "";
 
   const { workspaces } = useCurrentWorkspace();
   const workspace = workspaces.find((ws) => ws.id === workspaceId);
-  const { data: user } = useQuery(authQueries.user());
-  const updateName = useUpdateWorkspaceNameMutation();
-  const updateStartDate = useUpdateWorkspaceStartDateMutation();
-  const updateMember = useUpdateWorkspaceMemberMutation();
-  const leaveWorkspace = useLeaveWorkspaceMutation();
-  const createInviteCode = useCreateInviteCodeMutation();
+  const actions = useWorkspaceEditActions(workspaceId);
 
   if (!workspace) return null;
 
@@ -43,28 +26,32 @@ export const WorkspaceEditView = () => {
       title: `${APP_WORKSPACE.KR}에서 나가기`,
       message: `정말로 '${workspace.name}' ${APP_WORKSPACE.KR}에서 나갈까요?\n기존에 기록된 데이터는 삭제되지 않지만 목록에서 사라집니다.`,
       confirmText: "나가기",
-      onConfirm: async () => {
-        if (!user) return;
-        try {
-          await leaveWorkspace.mutateAsync({ workspaceId, userId: user.id });
-          workspaceActions.setCurrentWorkspaceId(null);
-          router.replace(ROUTES.WORKSPACE.LIST.path);
-        } catch {
-          modalActions.showModal({ type: "alert", title: "오류", message: "나가기에 실패했습니다." });
-        }
-      },
+      onConfirm: actions.leave,
     });
   };
 
-  const openNameEditModal = () => {
-    let input = workspace.name;
+  /** 텍스트 입력 하나로 구성된 수정 모달을 띄운다 (제목/프로필 이름 수정에서 공용으로 사용) */
+  const openTextPromptModal = ({
+    title,
+    helpText,
+    placeholder,
+    defaultValue,
+    onConfirm,
+  }: {
+    title: string;
+    helpText: string;
+    placeholder: string;
+    defaultValue: string;
+    onConfirm: (value: string) => Promise<void>;
+  }) => {
+    let input = defaultValue;
     modalActions.showModal({
       type: "confirm",
-      title: "라이프룸 제목 수정",
+      title,
       confirmText: "수정하기",
       content: (
         <div className={styles.modalContent}>
-          <p className={styles.modalHelp}>이 공간의 이름을 입력해주세요.</p>
+          <p className={styles.modalHelp}>{helpText}</p>
           <input
             type="text"
             defaultValue={input}
@@ -72,21 +59,26 @@ export const WorkspaceEditView = () => {
             onChange={(e) => {
               input = e.target.value;
             }}
-            placeholder="제목 입력"
+            placeholder={placeholder}
             className={styles.modalInput}
           />
         </div>
       ),
       onConfirm: async () => {
         if (!input.trim()) return;
-        try {
-          await updateName.mutateAsync({ workspaceId, name: input.trim() });
-        } catch {
-          modalActions.showModal({ type: "alert", title: "오류", message: "제목 수정에 실패했습니다." });
-        }
+        await onConfirm(input.trim());
       },
     });
   };
+
+  const openNameEditModal = () =>
+    openTextPromptModal({
+      title: "라이프룸 제목 수정",
+      helpText: "이 공간의 이름을 입력해주세요.",
+      placeholder: "제목 입력",
+      defaultValue: workspace.name,
+      onConfirm: actions.changeName,
+    });
 
   const openStartDateModal = () => {
     let selectedDate = workspace.startDate || "";
@@ -109,66 +101,21 @@ export const WorkspaceEditView = () => {
       ),
       onConfirm: async () => {
         if (!selectedDate) return;
-        try {
-          await updateStartDate.mutateAsync({ workspaceId, startDate: selectedDate });
-        } catch {
-          modalActions.showModal({ type: "alert", title: "오류", message: "날짜 수정에 실패했습니다." });
-        }
+        await actions.changeStartDate(selectedDate);
       },
     });
   };
 
   const openProfileEditModal = () => {
-    const myMember = workspace.members?.find((m) => m.id === user?.id);
-    let input = myMember?.name || "";
-    modalActions.showModal({
-      type: "confirm",
+    if (!actions.user) return;
+    const myMember = workspace.members?.find((m) => m.id === actions.user?.id);
+    openTextPromptModal({
       title: "내 활동 프로필 설정",
-      confirmText: "수정하기",
-      content: (
-        <div className={styles.modalContent}>
-          <p className={styles.modalHelp}>이 공간에서 사용할 이름을 입력해주세요.</p>
-          <input
-            type="text"
-            defaultValue={input}
-            autoFocus
-            onChange={(e) => {
-              input = e.target.value;
-            }}
-            placeholder="이름 입력"
-            className={styles.modalInput}
-          />
-        </div>
-      ),
-      onConfirm: async () => {
-        if (!input.trim() || !user) return;
-        try {
-          await updateMember.mutateAsync({
-            workspaceId,
-            userId: user.id,
-            updates: { display_name: input.trim() },
-          });
-        } catch {
-          modalActions.showModal({
-            type: "alert",
-            title: "오류",
-            message: "프로필 수정에 실패했습니다.",
-          });
-        }
-      },
+      helpText: "이 공간에서 사용할 이름을 입력해주세요.",
+      placeholder: "이름 입력",
+      defaultValue: myMember?.name || "",
+      onConfirm: actions.changeProfileName,
     });
-  };
-
-  const handleInvite = async () => {
-    if (!user) return;
-    try {
-      const code = await createInviteCode.mutateAsync({ workspaceId, userId: user.id });
-      const link = `${window.location.origin}${ROUTES.WORKSPACE.join(code)}`;
-      await navigator.clipboard.writeText(link);
-      toastActions.showToast("초대 링크를 복사했어요. 파트너에게 공유해보세요.", "success");
-    } catch {
-      toastActions.showToast("초대 링크 생성에 실패했어요.", "error");
-    }
   };
 
   return (
@@ -218,9 +165,9 @@ export const WorkspaceEditView = () => {
             </button>
             <div className={styles.divider} />
             <button
-              onClick={handleInvite}
+              onClick={actions.invite}
               className={styles.settingRow}
-              disabled={createInviteCode.isPending}
+              disabled={actions.isInviting}
             >
               <div className={cx(styles.settingIcon, styles.settingIconGreen)}>
                 <UserPlus size={18} />

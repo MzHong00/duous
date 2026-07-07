@@ -14,11 +14,9 @@ import {
   useCreateInviteCodeMutation,
 } from "@/features/workspace/queries/workspaceMutations";
 import { toastActions } from "@/stores/useToastStore";
+import { buildInviteLink } from "@/features/workspace/utils/workspaceUtils";
 
 import type { RoomType } from "@/features/workspace/types/workspace";
-
-/** 초대 코드로 참여 링크를 만든다 */
-const buildInviteLink = (code: string) => `${window.location.origin}${ROUTES.WORKSPACE.join(code)}`;
 
 type Step = "initial" | "create" | "invite"; // 위저드 최상위 단계
 type CreateSubStep = "type" | "name"; // create 단계 내부 세부 단계
