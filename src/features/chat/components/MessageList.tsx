@@ -1,3 +1,5 @@
+import { memo } from "react";
+
 import { MessageBubble } from "@/features/chat/components/MessageBubble";
 
 import type { ChatMessage } from "@/features/chat/types/chat";
@@ -10,7 +12,8 @@ interface MessageListProps {
   className?: string;
 }
 
-export const MessageList = ({
+// 입력바 텍스트 변경 등 부모(ChatView) 리렌더 시 messages 참조가 그대로면 메시지 목록 재계산을 건너뛴다
+const MessageListComponent = ({
   messages,
   partnerName,
   partnerAvatar,
@@ -33,3 +36,6 @@ export const MessageList = ({
     </div>
   );
 };
+
+export const MessageList = memo(MessageListComponent);
+MessageList.displayName = "MessageList";

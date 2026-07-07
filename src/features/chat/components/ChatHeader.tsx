@@ -1,4 +1,6 @@
 "use client";
+import { memo } from "react";
+
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 
@@ -12,12 +14,13 @@ interface ChatHeaderProps {
   partnerAvatar?: string;
 }
 
-export const ChatHeader = ({ partnerName, partnerAvatar }: ChatHeaderProps) => {
+// 입력바 텍스트 변경 등 부모(ChatView) 리렌더 시 props 참조가 그대로면 재렌더를 건너뛴다
+const ChatHeaderComponent = ({ partnerName, partnerAvatar }: ChatHeaderProps) => {
   const router = useRouter();
 
   return (
     <header className={styles.header}>
-      <button onClick={() => router.back()} className={styles.backButton}>
+      <button onClick={() => router.back()} className={styles.backButton} aria-label="뒤로 가기">
         <ChevronLeft size={24} />
       </button>
       <div className={styles.headerInfo}>
@@ -31,3 +34,6 @@ export const ChatHeader = ({ partnerName, partnerAvatar }: ChatHeaderProps) => {
     </header>
   );
 };
+
+export const ChatHeader = memo(ChatHeaderComponent);
+ChatHeader.displayName = "ChatHeader";
