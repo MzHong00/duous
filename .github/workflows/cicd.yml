@@ -24,7 +24,7 @@ jobs:
       - name: ⚙️ Setup Node.js # Node.js 환경 구축
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm # npm 의존성 캐시 활용 (속도 향상)
 
       - name: 📦 Install dependencies # 패키지 설치
