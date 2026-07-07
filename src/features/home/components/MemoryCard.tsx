@@ -31,9 +31,14 @@ export const MemoryCard = ({ story, isMe, members }: MemoryCardProps) => {
   };
 
   return (
-    <button onClick={handleClick} className={styles.card} type="button">
+    <button
+      onClick={handleClick}
+      className={styles.card}
+      type="button"
+      aria-label={`${authorName}의 기억, ${story.title || story.description || "제목 없음"} 상세 보기`}
+    >
       {story.thumbnailUrl ? (
-        <img src={story.thumbnailUrl} alt={story.title || "기억"} className={styles.photo} />
+        <img src={story.thumbnailUrl} alt="" aria-hidden="true" className={styles.photo} />
       ) : (
         <div className={styles.photoPlaceholder}>
           <MapPin size={24} className={styles.photoPlaceholderIcon} />

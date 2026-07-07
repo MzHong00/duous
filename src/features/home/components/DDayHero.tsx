@@ -21,10 +21,6 @@ import { MemberListContent } from "./MemberListContent";
 
 import styles from "./DDayHero.module.scss";
 
-const FIRST_AVATAR_OFFSET = 0; // 첫 아바타는 겹치지 않는다
-const AVATAR_OVERLAP = -10; // 이후 아바타는 왼쪽으로 겹쳐 쌓는다
-const AVATAR_BASE_Z = 10; // 앞쪽 아바타가 위에 오도록 z-index 기준값
-
 export const DDayHero = () => {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -77,7 +73,7 @@ export const DDayHero = () => {
     <div className={cx(styles.wrapper, hasBackground && styles.hasBackground)}>
       {hasBackground && (
         <>
-          <img src={backgroundImage} alt="배경" className={styles.bgImage} />
+          <img src={backgroundImage} alt="" className={styles.bgImage} />
           <div className={styles.bgOverlay} />
         </>
       )}
@@ -88,16 +84,15 @@ export const DDayHero = () => {
             <h1 className={styles.workspaceName}>{currentWorkspace.name}</h1>
             <p className={styles.memberNames}>{memberNamesString}</p>
           </div>
-          <button onClick={handleMembersClick} className={styles.membersStack}>
-            {currentWorkspace.members?.map((member, index) => (
-              <div
-                key={member.id}
-                className={styles.memberAvatar}
-                style={{
-                  marginLeft: index === 0 ? FIRST_AVATAR_OFFSET : AVATAR_OVERLAP,
-                  zIndex: AVATAR_BASE_Z - index,
-                }}
-              >
+          <button
+            type="button"
+            onClick={handleMembersClick}
+            className={styles.membersStack}
+            aria-label={`참여자 ${currentWorkspace.members?.length ?? 0}명 보기`}
+          >
+            {/* row-reverse로 렌더링해 DOM 뒤쪽(=원래 첫 멤버)이 자연스럽게 맨 위로 쌓이게 한다 */}
+            {[...(currentWorkspace.members ?? [])].reverse().map((member) => (
+              <div key={member.id} className={styles.memberAvatar}>
                 <ProfileImage uri={member.avatar} name={member.name} size={32} />
               </div>
             ))}
@@ -106,21 +101,32 @@ export const DDayHero = () => {
 
         <div className={styles.bottomSection}>
           <div className={styles.dDayRow}>
-            <div className={styles.dDayNumber}>
-              <span className={styles.dDayValue}>{days}</span>
-              <span className={styles.dDayUnit}>일</span>
+            <div className={styles.dDayNumber} aria-label={`함께한 지 ${days}일째`}>
+              <span className={styles.dDayValue} aria-hidden="true">
+                {days}
+              </span>
+              <span className={styles.dDayUnit} aria-hidden="true">
+                일
+              </span>
             </div>
-            <button onClick={handleBackgroundChange} className={styles.bgButton}>
+            <button
+              type="button"
+              onClick={handleBackgroundChange}
+              className={styles.bgButton}
+              aria-label="배경 이미지 변경"
+            >
               <ImageIcon size={16} />
             </button>
           </div>
 
           {nextEvent && (
             <button
+              type="button"
               onClick={() => router.push(ROUTES.ANNIVERSARY.path)}
               className={styles.eventBadge}
+              aria-label={`가장 가까운 기념일 ${nextEvent.title}, D-${nextEvent.daysLeft}, 자세히 보기`}
             >
-              <span className={styles.eventTitle}>{nextEvent.title} </span>
+              <span className={styles.eventTitle}>{nextEvent.title}</span>
               <span className={styles.eventDDay}>D-{nextEvent.daysLeft}</span>
             </button>
           )}
