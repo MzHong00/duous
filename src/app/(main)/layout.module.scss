@@ -3,7 +3,7 @@
 .layout {
   height: 100dvh;
   @include flex-col;
-  background-color: #ffffff;
+  background-color: var(--white);
   overflow: hidden;
 }
 

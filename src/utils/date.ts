@@ -57,6 +57,16 @@ export const isPastDate = (dateStr: string): boolean => {
   return dayjs(dateStr).isBefore(dayjs(), "day");
 };
 
+export const isToday = (dateStr: string): boolean => {
+  if (!dateStr) return false;
+  return dayjs(dateStr).isSame(dayjs(), "day");
+};
+
+export const isThisMonth = (dateStr: string): boolean => {
+  if (!dateStr) return false;
+  return dayjs(dateStr).isSame(dayjs(), "month");
+};
+
 export const getIntermediateDates = (startDate: string, endDate: string): string[] => {
   const start = dayjs(startDate).add(1, "day");
   // start(시작 다음 날)부터 endDate 전날까지의 일수

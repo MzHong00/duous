@@ -1,15 +1,10 @@
 @use "styles/mixins" as *;
 
 .nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  width: 100%;
   background-color: var(--white);
   box-shadow: 0 -1px 0 var(--grey-100);
-  z-index: 50;
-  max-width: 480px;
-  margin: 0 auto;
+  z-index: 10;
 }
 
 .navList {
