@@ -47,4 +47,15 @@ export const authApi = {
       profileImage: user.user_metadata?.avatar_url,
     };
   },
+
+  // 이름·프로필 이미지를 Supabase auth user_metadata에 반영해 실제로 영속화한다
+  updateProfile: async (updates: { name?: string; profileImage?: string }): Promise<void> => {
+    const { error } = await supabase.auth.updateUser({
+      data: {
+        ...(updates.name !== undefined && { full_name: updates.name }),
+        ...(updates.profileImage !== undefined && { avatar_url: updates.profileImage }),
+      },
+    });
+    if (error) throw error;
+  },
 };

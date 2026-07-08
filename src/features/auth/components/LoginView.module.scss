@@ -21,7 +21,7 @@
 .logoWrap {
   @include icon-box(80px, 24px);
   margin-bottom: 16px;
-  background-color: #e8f3ff;
+  background-color: var(--primary-light);
   box-shadow: 0 8px 24px rgba(var(--primary-rgb), 0.15);
 }
 
