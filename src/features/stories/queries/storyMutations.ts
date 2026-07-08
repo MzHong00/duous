@@ -22,7 +22,9 @@ export const useUpdateStoryMutation = (workspaceId: string) => {
       data,
     }: {
       id: string;
-      data: Partial<Pick<Story, "title" | "description" | "thumbnailUrl" | "path" | "pathColor">>;
+      data: Partial<
+        Pick<Story, "title" | "description" | "date" | "thumbnailUrl" | "path" | "pathColor">
+      >;
     }) => storiesApi.update(id, data),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: storyQueries.list(workspaceId).queryKey }),

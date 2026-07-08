@@ -1,7 +1,7 @@
 "use client";
 import { useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { Map, Edit3, Trash2 } from "lucide-react";
+import { Edit3, Trash2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
 import { ROUTES } from "@/constants/routes";
@@ -12,7 +12,7 @@ import { storyActions } from "@/features/stories/stores/useStoryStore";
 import { storyQueries } from "@/features/stories/queries/storyQueries";
 import { useDeleteStoryMutation } from "@/features/stories/queries/storyMutations";
 import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
-import { StoryBriefInfo } from "@/features/stories/components/StoryBriefInfo";
+import { StoryDetailContent } from "@/features/stories/components/StoryDetailContent";
 
 import type { Story } from "@/features/stories/types/story";
 
@@ -49,11 +49,6 @@ export const StoryDetailView = () => {
     });
   };
 
-  const handleShowOnMap = () => {
-    storyActions.setSelectedStoryId(storyId);
-    router.push(ROUTES.MAP.path);
-  };
-
   if (!story) {
     return (
       <div className={styles.notFound}>
@@ -81,25 +76,7 @@ export const StoryDetailView = () => {
         }
       />
 
-      <div className={styles.content}>
-        <StoryBriefInfo story={story} />
-
-        {story.thumbnailUrl && (
-          <img src={story.thumbnailUrl} alt={story.title} className={styles.thumbnail} />
-        )}
-
-        {story.description && <p className={styles.description}>{story.description}</p>}
-
-        <button onClick={handleShowOnMap} className={styles.mapButton}>
-          <div className={styles.mapIconWrap}>
-            <Map size={24} />
-          </div>
-          <div className={styles.mapInfo}>
-            <p className={styles.mapTitle}>지도에서 경로 보기</p>
-            <p className={styles.mapDesc}>그날 우리의 이동 동선을 확인해보세요</p>
-          </div>
-        </button>
-      </div>
+      <StoryDetailContent story={story} />
     </div>
   );
 };
