@@ -14,6 +14,7 @@ import { MapPartnerInfo } from "@/features/map/components/MapPartnerInfo";
 import { MapStoryInfo } from "@/features/map/components/MapStoryInfo";
 import { ProfileImage } from "@/components/ProfileImage";
 import { BottomDrawer } from "@/components/BottomDrawer";
+import { toastActions } from "@/stores/useToastStore";
 
 import type { WorkspaceMember } from "@/features/workspace/types/workspace";
 import styles from "./MapView.module.scss";
@@ -51,7 +52,10 @@ export const MapView = () => {
 
   const openDirections = () => {
     const partner = memberLocations.find((m) => m.member.id !== myUserId);
-    if (!partner) return;
+    if (!partner) {
+      toastActions.showToast("상대방의 위치를 아직 확인할 수 없어요.", "error");
+      return;
+    }
     const url = `${DIRECTIONS_BASE_URL}&destination=${partner.lat},${partner.lng}&travelmode=driving`;
     window.open(url, "_blank");
   };

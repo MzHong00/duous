@@ -24,8 +24,8 @@
 }
 
 .badgeCouple {
-  background-color: #fce7f3;
-  color: #ec4899;
+  background-color: var(--pink-light);
+  color: var(--pink);
 }
 
 .badgeGroup {
@@ -83,8 +83,8 @@
 }
 
 .settingIconGreen {
-  background-color: #f0fdf4;
-  color: #22c55e;
+  background-color: var(--green-light);
+  color: var(--green);
 }
 
 .divider {
@@ -94,7 +94,7 @@
 .dangerCard {
   background-color: var(--white);
   border-radius: 24px;
-  border: 1px solid #fee2e2;
+  border: 1px solid var(--error-border);
   overflow: hidden;
 }
 

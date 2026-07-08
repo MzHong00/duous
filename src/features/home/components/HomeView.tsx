@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
-import { DDayHero } from "@/features/home/components/DDayHero";
 import { MemoryFeed } from "@/features/home/components/MemoryFeed";
 import { ROUTES } from "@/constants/routes";
 import styles from "./HomeView.module.scss";
@@ -23,7 +22,6 @@ export const HomeView = () => {
 
   return (
     <div className={styles.page}>
-      <DDayHero />
       <MemoryFeed />
     </div>
   );

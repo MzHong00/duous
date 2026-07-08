@@ -38,13 +38,16 @@ export const storiesApi = {
 
   update: async (
     id: string,
-    data: Partial<Pick<Story, "title" | "description" | "thumbnailUrl" | "path" | "pathColor">>
+    data: Partial<
+      Pick<Story, "title" | "description" | "date" | "thumbnailUrl" | "path" | "pathColor">
+    >
   ): Promise<Story> => {
     const { data: updated, error } = await supabase
       .from("stories")
       .update({
         title: data.title,
         description: data.description,
+        date: data.date,
         thumbnail_url: data.thumbnailUrl,
         path: data.path,
         path_color: data.pathColor,

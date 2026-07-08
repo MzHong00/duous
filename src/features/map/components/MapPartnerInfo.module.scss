@@ -7,7 +7,6 @@
 
 .memberRow {
   @include flex-between;
-  margin-bottom: 8px;
 }
 
 .memberLeft {
@@ -18,34 +17,6 @@
   font-size: 18px;
   font-weight: 700;
   color: var(--grey-900);
-}
-
-.batteryRow {
-  @include flex-row(4px);
-  color: var(--grey-400);
-  font-size: 12px;
-}
-
-.locationRow {
-  @include flex-row(8px);
-  margin-bottom: 4px;
-  color: var(--primary);
-}
-
-.locationIcon {
-  flex-shrink: 0;
-}
-
-.locationText {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--grey-900);
-}
-
-.timeRow {
-  @include flex-row(6px);
-  color: var(--grey-400);
-  font-size: 12px;
 }
 
 .directionsSection {

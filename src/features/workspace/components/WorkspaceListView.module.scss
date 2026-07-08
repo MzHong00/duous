@@ -110,7 +110,7 @@
 
 .deleteButton {
   @include icon-box(36px, 12px);
-  background-color: rgba(240, 68, 82, 0.1);
+  background-color: rgba(var(--error-rgb), 0.1);
   color: var(--error);
 }
 

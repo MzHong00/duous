@@ -6,7 +6,7 @@
 
 .notFound {
   height: 100%;
-  background-color: #ffffff;
+  background-color: var(--white);
   @include flex-center;
   color: var(--grey-400);
 }
@@ -21,60 +21,4 @@
 
 .headerButtons {
   @include flex-row(4px);
-}
-
-.content {
-  padding: 20px;
-}
-
-.thumbnail {
-  width: 100%;
-  aspect-ratio: 1;
-  object-fit: cover;
-  border-radius: 24px;
-  margin-top: 16px;
-  background-color: var(--grey-100);
-}
-
-.description {
-  background-color: var(--grey-100);
-  border-radius: 16px;
-  padding: 16px;
-  margin: 24px 0;
-  font-size: 16px;
-  color: var(--grey-700);
-  line-height: 1.625;
-}
-
-.mapButton {
-  width: 100%;
-  @include flex-row(16px);
-  background-color: var(--primary);
-  padding: 20px;
-  border-radius: 16px;
-  margin-top: 16px;
-  box-shadow: 0 4px 16px rgba(var(--primary-rgb), 0.25);
-}
-
-.mapIconWrap {
-  @include icon-box(48px, 14px);
-  background-color: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-}
-
-.mapInfo {
-  flex: 1;
-  text-align: left;
-}
-
-.mapTitle {
-  color: #ffffff;
-  font-weight: 700;
-  font-size: 16px;
-}
-
-.mapDesc {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 12px;
-  margin-top: 2px;
 }

@@ -2,43 +2,104 @@
 
 .container {
   position: fixed;
-  bottom: 96px;
+  top: max(16px, env(safe-area-inset-top));
   left: 0;
   right: 0;
-  z-index: 300;
+  z-index: 500;
   @include flex-col-center(8px);
   padding: 0 16px;
   pointer-events: none;
 }
 
 .toast {
-  @include flex-row(12px);
+  @include flex-row(10px);
+  align-items: center;
   padding: 12px 16px;
   border-radius: 16px;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  background-color: var(--white);
+  box-shadow: var(--shadow-toast);
   max-width: 384px;
   width: 100%;
-  animation: fadeIn 0.15s ease-out;
+  animation: slideDown 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  // 무채색 베이스 위에 타입별 색조를 옅게 섞고, 좌측에 포인트 컬러 바를 둬 톤을 구분
+  &[data-type="success"] {
+    background: color-mix(in srgb, var(--success) 6%, var(--white));
+    border: 1px solid var(--success-light);
+  }
+
+  &[data-type="info"] {
+    background: color-mix(in srgb, var(--primary) 6%, var(--white));
+    border: 1px solid var(--primary-light);
+  }
+
+  &[data-type="error"] {
+    background: color-mix(in srgb, var(--error) 6%, var(--white));
+    border: 1px solid var(--error-light);
+  }
+
+  &[data-type="warning"] {
+    background: color-mix(in srgb, var(--warning) 8%, var(--white));
+    border: 1px solid var(--warning-light);
+  }
 }
 
-.success,
-.info {
-  background-color: var(--grey-900);
-  color: var(--white);
+.iconWrap {
+  flex-shrink: 0;
+  @include flex-center;
+  width: 28px;
+  height: 28px;
+  border-radius: 9999px;
+
+  [data-type="success"] & {
+    background-color: var(--success-light);
+  }
+
+  [data-type="info"] & {
+    background-color: var(--primary-light);
+  }
+
+  [data-type="error"] & {
+    background-color: var(--error-light);
+  }
+
+  [data-type="warning"] & {
+    background-color: var(--warning-light);
+  }
 }
 
-.error {
-  background-color: var(--error);
-  color: var(--white);
-}
+.icon {
+  [data-type="success"] & {
+    color: var(--success);
+  }
 
-.warning {
-  background-color: var(--warning);
-  color: var(--grey-900);
+  [data-type="info"] & {
+    color: var(--primary);
+  }
+
+  [data-type="error"] & {
+    color: var(--error);
+  }
+
+  [data-type="warning"] & {
+    color: var(--warning);
+  }
 }
 
 .message {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.375;
+  color: var(--grey-800);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

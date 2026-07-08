@@ -13,6 +13,28 @@
 .avatarButton {
   position: relative;
   margin-bottom: 16px;
+
+  &:disabled {
+    cursor: default;
+  }
+}
+
+// 사진 업로드 중 아바타 위에 덧씌우는 반투명 오버레이
+.uploadOverlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background-color: rgba(0, 0, 0, 0.4);
+  @include flex-center;
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--white);
+  border-top-color: transparent;
+  animation: spin 0.8s linear infinite;
 }
 
 .cameraButton {
@@ -21,9 +43,9 @@
   right: -2px;
   bottom: -2px;
   background-color: var(--primary);
-  border: 2px solid #ffffff;
+  border: 2px solid var(--white);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  color: #ffffff;
+  color: var(--white);
 }
 
 .fileInput {

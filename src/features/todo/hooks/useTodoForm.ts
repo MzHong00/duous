@@ -91,7 +91,7 @@ export const useTodoForm = (todoId: string | null, initialDate: string | null) =
       workspaceId: currentWorkspace.id,
       title: title.trim(),
       description: description.trim(),
-      isCompleted: false,
+      isCompleted: existingTodo?.isCompleted ?? false, // 수정 시 기존 완료 상태 유지, 생성 시 false
       assigneeId,
       startDate,
       endDate,

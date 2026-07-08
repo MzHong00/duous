@@ -4,7 +4,7 @@
   border-radius: 16px;
   overflow: hidden;
   border: 1.5px solid var(--grey-200);
-  background-color: #ffffff;
+  background-color: var(--white);
 }
 
 // ─── SVG 영역 ─────────────────────────────────────────────────────────────────
@@ -70,12 +70,12 @@
 
 .clearBtn {
   @include icon-box(32px);
-  background-color: rgba(240, 68, 82, 0.08);
+  background-color: rgba(var(--error-rgb), 0.08);
   color: var(--error);
   transition: background-color 0.12s;
 
   &:active {
-    background-color: rgba(240, 68, 82, 0.15);
+    background-color: rgba(var(--error-rgb), 0.15);
   }
 }
 

@@ -172,7 +172,9 @@ export const WorkspaceEditView = () => {
               <div className={cx(styles.settingIcon, styles.settingIconGreen)}>
                 <UserPlus size={18} />
               </div>
-              <span className={styles.settingLabel}>파트너 초대하기</span>
+              <span className={styles.settingLabel}>
+                {workspace.type === "couple" ? "파트너 초대하기" : "멤버 초대하기"}
+              </span>
               <span className={styles.settingValue}>
                 {workspace.members?.length || 0}명 참여 중
               </span>

@@ -2,8 +2,6 @@
 import { useToastStore } from "@/stores/useToastStore";
 import { CheckCircle, AlertCircle, Info, AlertTriangle } from "lucide-react";
 
-import { cx } from "@/utils/cn";
-
 import styles from "./Toast.module.scss";
 
 const iconMap = {
@@ -23,8 +21,10 @@ export const Toast = () => {
       {toasts.map((toast) => {
         const Icon = iconMap[toast.type];
         return (
-          <div key={toast.id} className={cx(styles.toast, styles[toast.type])}>
-            <Icon size={18} />
+          <div key={toast.id} className={styles.toast} data-type={toast.type}>
+            <span className={styles.iconWrap}>
+              <Icon size={16} className={styles.icon} />
+            </span>
             <span className={styles.message}>{toast.message}</span>
           </div>
         );

@@ -1,11 +1,13 @@
 "use client";
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 
+import { authApi } from "@/features/auth/api/auth";
 import { authQueries } from "@/features/auth/queries/authQueries";
 import { useSignOutMutation } from "@/features/auth/queries/authMutations";
 import { workspaceActions } from "@/features/workspace/stores/useWorkspaceStore";
+import { storageApi } from "@/api/storage";
 
 import { modalActions } from "@/stores/useModalStore";
 import { toastActions } from "@/stores/useToastStore";
@@ -31,6 +33,7 @@ export const useProfileSettings = (): UseProfileSettingsResult => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { mutateAsync: signOutMutationAsync } = useSignOutMutation();
+  const isUploadingPhotoRef = useRef(false); // 사진 업로드 중 중복 요청 방지
 
   /** 사용자 쿼리 캐시를 부분 갱신한다 */
   const updateUserCache = useCallback(
@@ -49,11 +52,16 @@ export const useProfileSettings = (): UseProfileSettingsResult => {
         title: "이름 수정",
         confirmText: "변경하기",
         content,
-        onConfirm: () => {
+        onConfirm: async () => {
           const nextName = getName().trim();
-          if (nextName) {
-            updateUserCache({ name: nextName });
+          if (!nextName) return;
+          updateUserCache({ name: nextName });
+          try {
+            await authApi.updateProfile({ name: nextName });
             toastActions.showToast("이름이 성공적으로 변경되었습니다", "success");
+          } catch {
+            updateUserCache({ name: currentName });
+            toastActions.showToast("이름 변경에 실패했습니다. 다시 시도해주세요.", "error");
           }
         },
       });
@@ -62,14 +70,32 @@ export const useProfileSettings = (): UseProfileSettingsResult => {
   );
 
   const changePhoto = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
+    async (event: ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
-      if (!file) return;
-      const url = URL.createObjectURL(file);
-      updateUserCache({ profileImage: url });
-      toastActions.showToast("프로필 사진이 변경되었습니다", "success");
+      event.target.value = ""; // 같은 파일 재선택 시에도 onChange가 다시 발생하도록 초기화
+      if (!file || isUploadingPhotoRef.current) return;
+      const user = queryClient.getQueryData<User | null>(authQueries.user().queryKey);
+      if (!user) return;
+
+      isUploadingPhotoRef.current = true;
+      const previousImage = user.profileImage;
+      const previewUrl = URL.createObjectURL(file);
+      updateUserCache({ profileImage: previewUrl });
+
+      try {
+        const uploadedUrl = await storageApi.uploadImage(file, user.id);
+        await authApi.updateProfile({ profileImage: uploadedUrl });
+        updateUserCache({ profileImage: uploadedUrl });
+        toastActions.showToast("프로필 사진이 변경되었습니다", "success");
+      } catch {
+        updateUserCache({ profileImage: previousImage });
+        toastActions.showToast("프로필 사진 변경에 실패했습니다. 다시 시도해주세요.", "error");
+      } finally {
+        URL.revokeObjectURL(previewUrl);
+        isUploadingPhotoRef.current = false;
+      }
     },
-    [updateUserCache]
+    [queryClient, updateUserCache]
   );
 
   const confirmLogout = useCallback(() => {

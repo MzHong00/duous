@@ -1,0 +1,111 @@
+@use "styles/mixins" as *;
+
+.row {
+  display: flex;
+  gap: 8px;
+  padding: 16px 16px 8px;
+}
+
+.item {
+  position: relative;
+  overflow: hidden;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 14px 12px;
+  border-radius: 16px;
+  color: var(--grey-800);
+  box-shadow: var(--shadow-card);
+  text-align: left;
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
+
+  &:active {
+    transform: scale(0.96);
+    box-shadow: none;
+  }
+
+  // 카드마다 살짝 다른 모서리 곡률로 획일적이지 않은 리듬 부여, 배경은 무채색 베이스에 색조를 옅게만 섞어 톤다운
+  &[data-color="primary"] {
+    background: color-mix(in srgb, var(--primary) 10%, var(--grey-50));
+    border-radius: 20px 16px 16px 16px;
+  }
+
+  &[data-color="green"] {
+    background: color-mix(in srgb, var(--green) 10%, var(--grey-50));
+    border-radius: 16px 16px 20px 16px;
+  }
+
+  &[data-color="warning"] {
+    background: color-mix(in srgb, var(--warning) 12%, var(--grey-50));
+    border-radius: 16px 20px 16px 16px;
+  }
+}
+
+// 카드 배경에 녹아드는 워터마크 아이콘: 각 카드 색조를 옅게 섞어 은은하게 표시
+.ghostIcon {
+  position: absolute;
+  right: -10px;
+  bottom: -12px;
+  opacity: 0.4;
+  pointer-events: none;
+
+  [data-color="primary"] & {
+    color: var(--primary);
+  }
+
+  [data-color="green"] & {
+    color: var(--green);
+  }
+
+  [data-color="warning"] & {
+    color: var(--warning);
+  }
+}
+
+.icon {
+  position: relative;
+  z-index: 1;
+
+  [data-color="primary"] & {
+    color: var(--primary);
+  }
+
+  [data-color="green"] & {
+    color: var(--green);
+  }
+
+  [data-color="warning"] & {
+    color: var(--warning);
+  }
+}
+
+.label {
+  position: relative;
+  z-index: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--grey-600);
+}
+
+.summary {
+  position: relative;
+  z-index: 1;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--grey-900);
+  @include text-ellipsis;
+  max-width: 100%;
+}
+
+.summaryEmpty {
+  position: relative;
+  z-index: 1;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--grey-400);
+}

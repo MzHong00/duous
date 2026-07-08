@@ -1,20 +1,51 @@
 @use "styles/mixins" as *;
 
+// 폴라로이드 더미처럼 카드마다 회전각을 다르게 부여(4개 주기 반복)
 .item {
+  position: relative;
   width: 100%;
-  background-color: #ffffff;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: var(--shadow-card);
-  transition: transform 0.15s;
+  background-color: var(--white);
+  border-radius: 6px;
+  box-shadow: var(--shadow-card-lg);
+  padding: 8px 8px 14px;
+  transform: rotate(var(--story-rotate, 0deg));
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 
+  &:not(:first-child) {
+    margin-top: -22px;
+  }
+
+  &:nth-child(4n + 1) {
+    --story-rotate: -3deg;
+  }
+
+  &:nth-child(4n + 2) {
+    --story-rotate: 2deg;
+  }
+
+  &:nth-child(4n + 3) {
+    --story-rotate: -2deg;
+  }
+
+  &:nth-child(4n + 4) {
+    --story-rotate: 3deg;
+  }
+
+  &:hover,
+  &:focus-visible,
   &:active {
-    transform: scale(0.98);
+    transform: rotate(0deg) scale(1.05);
+    box-shadow: var(--shadow-modal);
+    z-index: 1;
   }
 }
 
 .thumbnail {
   width: 100%;
+  border-radius: 2px;
+  overflow: hidden;
   @include flex-center;
 }
 
@@ -33,7 +64,7 @@
 }
 
 .info {
-  padding: 12px;
+  padding: 10px 4px 0;
 }
 
 .title {

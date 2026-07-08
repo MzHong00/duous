@@ -1,4 +1,4 @@
-import { Battery, MapPin, Clock, Navigation, ChevronRight } from "lucide-react";
+import { MapPin, Navigation, ChevronRight } from "lucide-react";
 import { ProfileImage } from "@/components/ProfileImage";
 import type { WorkspaceMember } from "@/features/workspace/types/workspace";
 import styles from "./MapPartnerInfo.module.scss";
@@ -25,18 +25,6 @@ export const MapPartnerInfo = ({ member, onOpenDirections, recentPlaces }: MapPa
             <ProfileImage uri={member.avatar} name={member.name} size={44} />
             <span className={styles.memberName}>{member.name}</span>
           </div>
-          <div className={styles.batteryRow}>
-            <Battery size={16} />
-            <span>85%</span>
-          </div>
-        </div>
-        <div className={styles.locationRow}>
-          <MapPin size={16} className={styles.locationIcon} />
-          <span className={styles.locationText}>서울특별시 강남구 역삼동</span>
-        </div>
-        <div className={styles.timeRow}>
-          <Clock size={14} />
-          <span>10분 전 확인됨</span>
         </div>
       </div>
 
@@ -47,23 +35,25 @@ export const MapPartnerInfo = ({ member, onOpenDirections, recentPlaces }: MapPa
         </button>
       </div>
 
-      <div className={styles.placesSection}>
-        <p className={styles.placesTitle}>최근 함께한 장소</p>
-        <div className={styles.placesList}>
-          {recentPlaces.map((place) => (
-            <button type="button" key={place.id} className={styles.placeButton}>
-              <div className={styles.placeIcon}>
-                <MapPin size={18} />
-              </div>
-              <div className={styles.placeInfo}>
-                <p className={styles.placeName}>{place.name}</p>
-                <p className={styles.placeDate}>{place.date}</p>
-              </div>
-              <ChevronRight size={16} className={styles.chevron} />
-            </button>
-          ))}
+      {recentPlaces.length > 0 && (
+        <div className={styles.placesSection}>
+          <p className={styles.placesTitle}>최근 함께한 장소</p>
+          <div className={styles.placesList}>
+            {recentPlaces.map((place) => (
+              <button type="button" key={place.id} className={styles.placeButton}>
+                <div className={styles.placeIcon}>
+                  <MapPin size={18} />
+                </div>
+                <div className={styles.placeInfo}>
+                  <p className={styles.placeName}>{place.name}</p>
+                  <p className={styles.placeDate}>{place.date}</p>
+                </div>
+                <ChevronRight size={16} className={styles.chevron} />
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 };

@@ -25,16 +25,17 @@ $on-image-surface: rgba(255, 255, 255, 0.25);
 .bgOverlay {
   position: absolute;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.4);
+  // 상단은 옅게, 하단은 짙게 — 배경 사진의 디테일은 살리고 텍스트 가독성은 확보
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.55) 100%);
 }
 
 .content {
   position: relative;
-  padding: 16px 20px;
+  padding: 16px 20px 20px;
   @include flex-col;
   justify-content: space-between;
-  min-height: 168px;
-  gap: 32px;
+  min-height: 180px;
+  gap: 28px;
 }
 
 .topSection {
@@ -50,8 +51,8 @@ $on-image-surface: rgba(255, 255, 255, 0.25);
 }
 
 .workspaceName {
-  font-size: 24px;
-  font-weight: 800;
+  font-size: 20px;
+  font-weight: 700;
   color: var(--grey-900);
   @include text-ellipsis;
 }
@@ -105,14 +106,14 @@ $on-image-surface: rgba(255, 255, 255, 0.25);
 }
 
 .dDayValue {
-  font-size: 28px;
+  font-size: 40px;
   font-weight: 800;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.03em;
   color: var(--grey-900);
 }
 
 .dDayUnit {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 700;
   color: var(--grey-900);
 }

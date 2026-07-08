@@ -5,7 +5,6 @@ import { useQuery } from "@tanstack/react-query";
 
 import { authQueries } from "@/features/auth/queries/authQueries";
 import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
-import { modalActions } from "@/stores/useModalStore";
 import { toastActions } from "@/stores/useToastStore";
 import { storageApi } from "@/api/storage";
 import { PATH_COLORS } from "@/constants/theme";
@@ -134,6 +133,7 @@ export const useStoryForm = () => {
       const storyData = {
         title: title.trim() || undefined,
         description: description.trim() || undefined,
+        date: new Date(date).toISOString(),
         thumbnailUrl: finalThumbnailUrl,
         path,
         pathColor,
@@ -144,18 +144,16 @@ export const useStoryForm = () => {
       } else {
         await createStory.mutateAsync({
           ...storyData,
-          date: new Date(date).toISOString(),
           userId: user?.id ?? "",
           workspaceId,
         });
       }
 
-      modalActions.showModal({
-        type: "alert",
-        title: "성공",
-        message: isEditMode ? "기억이 수정되었습니다." : "기억이 기록되었습니다.",
-        onConfirm: () => router.back(),
-      });
+      toastActions.showToast(
+        isEditMode ? "기억이 수정되었습니다." : "기억이 기록되었습니다.",
+        "success"
+      );
+      router.back();
     } catch {
       toastActions.showToast("저장에 실패했습니다. 잠시 후 다시 시도해주세요.", "error");
     } finally {

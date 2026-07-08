@@ -1,6 +1,4 @@
 "use client";
-import { Copy } from "lucide-react";
-
 import { AppHeader } from "@/components/AppHeader";
 import { useWorkspaceSetupWizard } from "@/features/workspace/hooks/useWorkspaceSetupWizard";
 
@@ -56,16 +54,13 @@ export const WorkspaceSetupView = () => {
           <div className={styles.stepContent}>
             <SetupInviteStep
               workspaceName={wizard.workspaceName}
+              roomType={wizard.roomType}
               inviteCode={wizard.inviteCode}
               onCopy={wizard.copyInviteLink}
             />
             <div className={styles.bottomSection}>
-              <button onClick={wizard.copyInviteLink} className={styles.primaryButton}>
-                <Copy size={20} />
-                초대 링크 복사하기
-              </button>
-              <button onClick={wizard.skipInvite} className={styles.secondaryButton}>
-                나중에 하기
+              <button onClick={wizard.skipInvite} className={styles.primaryButton}>
+                완료하기
               </button>
             </div>
           </div>

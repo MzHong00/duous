@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   sassOptions: {
     loadPaths: [path.join(__dirname, "src")],
   },
+  devIndicators: false,
   allowedDevOrigins: ["192.168.1.116"],
   images: {
     remotePatterns: [

@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import styles from "./BottomDrawer.module.scss";
 
-const INITIAL_DRAWER_HEIGHT = 300; // 초기 렌더 시 기본 높이(px), 마운트 후 비율로 재계산
 const SNAP_DRAG_THRESHOLD = 30; // 이 픽셀 이상 드래그해야 다음 앵커로 스냅
 const SNAP_ANCHOR_GAP = 10; // 현재 높이와 앵커 간 최소 간격(px)
 
@@ -11,7 +10,8 @@ interface BottomDrawerProps {
   initialHeightRatio?: number;
   minHeight?: number;
   maxHeightRatio?: number;
-  bottomOffset?: number;
+  /** 드로어 하단 오프셋(CSS 값). 기본값은 BottomNav가 노출하는 --gnb-height 변수를 참조해 GNB에 밀착시킨다 */
+  bottomOffset?: string;
 }
 
 export const BottomDrawer = ({
@@ -19,25 +19,22 @@ export const BottomDrawer = ({
   initialHeightRatio = 0.45,
   minHeight = 40,
   maxHeightRatio = 0.8,
-  bottomOffset = 60,
+  bottomOffset = "0px",
 }: BottomDrawerProps) => {
   // ref로 관리해서 클로저 이슈 방지
   const isDragging = useRef(false);
   const touchStartY = useRef(0);
   const initialDrawerHeight = useRef(0);
-  const drawerHeightRef = useRef(INITIAL_DRAWER_HEIGHT);
+  const drawerHeightRef = useRef(minHeight);
   const handleRef = useRef<HTMLButtonElement>(null);
 
-  const [drawerHeight, setDrawerHeight] = useState(INITIAL_DRAWER_HEIGHT);
+  // 기본 상태는 접힘(minHeight) — 사용자가 핸들을 드래그해야 펼쳐짐
+  const [drawerHeight, setDrawerHeight] = useState(minHeight);
   const [isDraggingState, setIsDraggingState] = useState(false);
 
   useEffect(() => {
     drawerHeightRef.current = drawerHeight;
   }, [drawerHeight]);
-
-  useEffect(() => {
-    setDrawerHeight(window.innerHeight * initialHeightRatio);
-  }, [initialHeightRatio]);
 
   const snapHeight = useCallback(
     (currentHeight: number, delta: number) => {
@@ -143,7 +140,7 @@ export const BottomDrawer = ({
       className={styles.drawer}
       style={{
         height: `${drawerHeight}px`,
-        bottom: `${bottomOffset}px`,
+        bottom: bottomOffset,
         transition: isDraggingState ? "none" : "height 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
       }}
     >
