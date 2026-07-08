@@ -26,7 +26,7 @@
   background: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  color: #ffffff;
+  color: var(--white);
   transition: background 0.12s;
 
   &:active {
@@ -122,11 +122,11 @@
 }
 
 .toolBtnDanger {
-  background: rgba(240, 68, 82, 0.08);
+  background: rgba(var(--error-rgb), 0.08);
   color: var(--error);
 
   &:active {
-    background: rgba(240, 68, 82, 0.16);
+    background: rgba(var(--error-rgb), 0.16);
   }
 }
 
@@ -143,7 +143,7 @@
   height: 36px;
   padding: 0 18px;
   border-radius: 10px;
-  color: #ffffff;
+  color: var(--white);
   font-size: 14px;
   font-weight: 700;
   transition:

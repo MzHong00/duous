@@ -52,7 +52,7 @@
   right: 0;
   width: 18px;
   height: 18px;
-  background-color: #ffffff;
+  background-color: var(--white);
   border-radius: 9999px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
   @include flex-center;
@@ -82,7 +82,8 @@
   position: absolute;
   left: 0;
   right: 0;
-  top: 100px;
+  // 화면 하단, 접힌 상태의 BottomDrawer(GNB에 밀착 + 최소 높이 40px) 바로 위에 여유를 두고 배치
+  bottom: calc(40px + 16px);
   @include flex-center;
   z-index: 5;
   pointer-events: none;
@@ -110,7 +111,7 @@
 
 .recordButtonActive {
   background-color: var(--error);
-  color: #ffffff;
+  color: var(--white);
 }
 
 .recordLabel {
