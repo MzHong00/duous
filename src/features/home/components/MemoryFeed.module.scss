@@ -4,22 +4,487 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 16px 16px 96px;
+  padding: 0;
+  height: 100%; /* 부모 .page 높이를 100% 빈틈없이 채워 GNB(하단 BottomNav 등) 제외 영역을 온전히 수혈받음 */
 }
 
-.feedTitle {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--grey-900);
+// 잡지 커버 역할을 하는 거대한 캔버스 보드
+.board {
+  position: relative;
+  height: 100%; /* 부모 .feed 높이를 100% 꽉 채워 기기별 오차 여백 제거 */
+  min-height: 540px; /* 모바일 최소 사양 보장 */
+  overflow: hidden;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+
+  // 1. 파스텔 톤의 오로라 메쉬 그라데이션 광원 배치
+  background:
+    radial-gradient(at 0% 0%, rgba(var(--primary-rgb), 0.15) 0px, transparent 65%),
+    radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.15) 0px, transparent 65%),
+    /* --pink */ radial-gradient(at 50% 100%, rgba(156, 39, 176, 0.1) 0px, transparent 75%),
+    /* --purple */ linear-gradient(180deg, var(--grey-50) 0%, var(--white) 100%);
+
+  box-shadow: inset 0 -2px 10px rgba(var(--primary-rgb), 0.02);
+
+  // 2. 아날로그 필름 노이즈 텍스처 오버레이 (마크업 없이 가상 요소로 구현)
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.035; /* 입자가 과하지 않게 아주 은은하게 조절 */
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+}
+
+.overlayTop {
+  display: none;
+}
+
+// 참여자 아바타 스택 (DDayHero 코드 재사용 및 28px 튜닝)
+.membersStack {
+  display: flex;
+  flex-direction: row-reverse;
+  border-radius: 9999px;
+  transition: opacity 0.15s ease;
+
+  &:active {
+    opacity: 0.7;
+  }
+}
+
+.memberAvatar {
+  border: 2px solid var(--white);
+  border-radius: 9999px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+  &:not(:last-child) {
+    margin-left: -8px; /* 크기 28px에 맞춰 겹침 폭 조절 */
+  }
+}
+
+// 중앙 컨텐츠 래퍼
+.centerContent {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+// 로딩, 에러, 엠프티 컨테이너 공통 스타일 (하단 대시보드 카드를 고려해 여백 튜닝)
+.skeletonContainer,
+.errorState,
+.emptyState {
+  position: absolute;
+  inset: 0;
+  @include flex-col-center(16px);
+  justify-content: center;
+  padding-top: 40px;
+  padding-bottom: 140px; /* 하단 infoCard에 가려지지 않도록 하단 여백 대폭 확보 */
+  text-align: center;
+}
+
+// 스켈레톤 중앙 배열
+.skeletonContainer {
+  @include flex-row(10px);
+  justify-content: center;
 }
 
 .skeletonCard {
-  height: 220px;
-  border-radius: 16px;
+  width: 90px;
+  aspect-ratio: 3 / 4;
+  border-radius: 12px;
   background: linear-gradient(90deg, var(--grey-100) 25%, var(--grey-50) 50%, var(--grey-100) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
+
+  &:nth-child(2) {
+    transform: rotate(4deg) translateY(-8px);
+  }
+  &:nth-child(3) {
+    transform: rotate(-3deg) translateY(4px);
+  }
+}
+
+// 에러 & 엠프티 디테일
+.errorIcon,
+.emptyIcon {
+  color: var(--grey-300);
+  opacity: 0.7;
+}
+
+.errorTitle,
+.emptyTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--grey-700);
+}
+
+.emptySub {
+  font-size: 12px;
+  color: var(--grey-400);
+  line-height: 1.5;
+  margin-top: -8px;
+}
+
+// 콜라주 캔버스 영역
+.collageContainer {
+  position: absolute;
+  inset: 0;
+  transform: translateY(
+    85px
+  ); /* 상단 오버레이 카드의 세로 높이만큼 모든 카드/버튼을 일괄 하강시켜 겹침 방지 */
+}
+
+// 중앙으로 이동한 카드 자리에서 펼쳐져 메모리뷰를 꽉 채우는 상세 오버레이
+@keyframes detailGrow {
+  from {
+    transform: scale(0.62);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.detailOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 300; /* 정보 카드(10)·퀵버튼(15) 등 모든 보드 오버레이 위에 표시 */
+  border-radius: 0; /* 보드를 가장자리까지 꽉 채우도록 라운드 제거 */
+  overflow-y: auto;
+  touch-action: pan-y; /* 세로 스크롤은 허용하되 좌우 스와이프는 JS(닫기)로 처리 */
+  background-color: var(--white);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  transform-origin: center; /* 보드 중앙(카드가 모인 지점)에서 펼쳐지도록 */
+  animation: detailGrow 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.detailClose {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 1;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:active {
+    transform: scale(0.9);
+  }
+}
+
+// 중앙 카드 뭉치 네비게이션 버튼
+.bigStackPrev,
+.bigStackNext {
+  position: absolute;
+  // 부모의 translateY(85px) 보정 및 카드뭉치 상향에 맞춰 내비게이션 버튼 높이를 bottom: 310px로 변경
+  bottom: 310px;
+  z-index: 12; // 부채꼴 카드(최대 z-index: 10)보다 위에 오도록
+  transform: translateY(50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--grey-700);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease;
+
+  &:active {
+    transform: translateY(50%) scale(0.85);
+  }
+}
+
+.bigStackPrev {
+  left: 20px; /* 모바일 max-width 480px 내에서 완전히 좌측 끝에 배치 */
+}
+
+.bigStackNext {
+  right: 20px; /* 우측 끝 배치 */
+}
+
+// 중앙 부채꼴 카드 뭉치 컨테이너
+.bigStack {
+  position: absolute;
+  bottom: 200px; /* 부모 translateY(85px) 보정을 위해 bottom 값을 200px로 상향 */
+  left: 50%;
+  z-index: 2;
+  touch-action: none; /* 터치 드래그 시 페이지 스크롤과 충돌 방지 */
+  width: 36%; /* 콤팩트한 부채꼴을 위해 가로폭 살짝 조정 */
+  aspect-ratio: 3 / 4;
+  transform: translateX(-50%);
+  // 부채꼴 컨테이너가 확장될 때 캔버스 전체로 부드럽게 늘어나도록 트랜지션 처리
+  transition:
+    bottom 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    left 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    width 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    height 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: bottom, left, width, height, transform;
+
+  // 카드가 확장되었을 때 부모 영역 자체를 보드 전체 화면(1:1)으로 가득 늘려 덮음
+  &.hasExpanded {
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    transform: none !important;
+    aspect-ratio: auto !important;
+    z-index: 100;
+  }
+}
+
+// 부채꼴로 동적 배치되는 개별 카드
+.fannedCard {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  // 부채꼴 회전과 솟아오름에 쫀득한 느낌을 주기 위해 스프링감 있는 큐빅 베지어 사용
+  transition:
+    transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.35s ease,
+    left 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    top 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    width 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    height 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity, left, top, width, height;
+
+  // 카드 하단 그림자와 흰색 테두리로 유리창에 얹힌 폴라로이드 느낌 강조
+  :global(.card) {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+  }
+
+  // 카드 자체가 확장되어 보드 전체를 덮을 때 강제할 레이아웃 스타일
+  &.expandedCard {
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 101 !important;
+    cursor: default;
+
+    :global(.card) {
+      box-shadow: none;
+    }
+  }
+}
+
+// 주변부 작은 카드들 (흩뿌려진 폴라로이드 사진첩 감성 연출)
+// 쉬는 위치/기울기와 던지기 물리(드래그·관성·벽 튕김)는 useScatterCards 훅이
+// 실제 렌더링 픽셀 기준으로 계산해 transform을 직접 제어한다.
+.smallCard {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 17%;
+  aspect-ratio: 3 / 4;
+  cursor: grab;
+  touch-action: none; /* 터치 드래그 시 페이지 스크롤과 충돌 방지 */
+  will-change: transform;
+
+  &:active {
+    cursor: grabbing;
+    z-index: 20;
+
+    .floatWrap {
+      animation-play-state: paused; /* 드래그 중에는 부유 애니메이션을 멈춰 물리 이동과 겹치지 않게 함 */
+    }
+  }
+}
+
+// 쉬는 상태의 카드가 둥실 떠 있는 듯한 미세한 상하 움직임 (카드마다 주기·시작 시점을 달리해 자연스럽게 흩어지게 함)
+@keyframes cardFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(1deg);
+  }
+}
+
+.floatWrap {
+  width: 100%;
+  height: 100%;
+  animation: cardFloat 4s ease-in-out infinite;
+}
+
+.smallCard {
+  &:nth-of-type(2) .floatWrap {
+    animation-duration: 3.4s;
+    animation-delay: -0.6s;
+  }
+  &:nth-of-type(3) .floatWrap {
+    animation-duration: 4.2s;
+    animation-delay: -2.1s;
+  }
+  &:nth-of-type(4) .floatWrap {
+    animation-duration: 3.7s;
+    animation-delay: -1.3s;
+  }
+  &:nth-of-type(5) .floatWrap {
+    animation-duration: 4.5s;
+    animation-delay: -3s;
+  }
+  &:nth-of-type(6) .floatWrap {
+    animation-duration: 3.2s;
+    animation-delay: -0.2s;
+  }
+  &:nth-of-type(7) .floatWrap {
+    animation-duration: 4s;
+    animation-delay: -1.8s;
+  }
+  &:nth-of-type(8) .floatWrap {
+    animation-duration: 3.9s;
+    animation-delay: -2.6s;
+  }
+  &:nth-of-type(9) .floatWrap {
+    animation-duration: 4.3s;
+    animation-delay: -0.9s;
+  }
+  &:nth-of-type(10) .floatWrap {
+    animation-duration: 3.5s;
+    animation-delay: -1.5s;
+  }
+  &:nth-of-type(11) .floatWrap {
+    animation-duration: 4.1s;
+    animation-delay: -2.3s;
+  }
+}
+
+// 상단 플로팅 종합 정보 카드 (오버레이 상단 배치)
+.infoCard {
+  position: absolute;
+  top: 20px; /* 스토리 보드 최상단에 20px 띄워 오버레이 */
+  left: 16px;
+  right: 16px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  padding: 14px 16px;
+  border-radius: 20px;
+  background-color: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+.infoCardTop {
+  @include flex-between;
+  align-items: center;
+  width: 100%;
+}
+
+.workspaceInfo {
+  @include flex-col(2px);
+  min-width: 0;
+  text-align: left;
+}
+
+.workspaceName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--grey-600);
+  letter-spacing: -0.01em;
+  @include text-ellipsis;
+}
+
+.dDayRow {
+  @include flex-row(0);
+  align-items: baseline;
+}
+
+.dDayValue {
+  font-size: 22px;
+  font-weight: 850;
+  color: var(--grey-900);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.dDayUnit {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--grey-900);
+  margin-left: 1px;
+  margin-right: 4px;
+}
+
+.memberNames {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--grey-400);
+  @include text-ellipsis;
+}
+
+.cardDivider {
+  height: 1px;
+  background-color: rgba(0, 0, 0, 0.06);
+  margin: 12px 0 10px;
+  width: 100%;
+}
+
+.eventRow {
+  width: 100%;
+  @include flex-between;
+  align-items: center;
+  text-align: left;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+
+  &:active {
+    opacity: 0.6;
+  }
+}
+
+.eventLabel {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--grey-500);
+}
+
+.eventContent {
+  @include flex-row(4px);
+  align-items: center;
+}
+
+.eventTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--grey-800);
+}
+
+.eventDDay {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.eventArrow {
+  color: var(--grey-400);
 }
 
 @keyframes shimmer {
@@ -29,42 +494,6 @@
   100% {
     background-position: -200% 0;
   }
-}
-
-.emptyState {
-  @include flex-col-center;
-  gap: 12px;
-  padding: 80px 32px 40px;
-  text-align: center;
-}
-
-.emptyIcon {
-  color: var(--grey-300);
-  opacity: 0.6;
-}
-
-.emptyTitle {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--grey-700);
-}
-
-.emptySub {
-  font-size: 13px;
-  color: var(--grey-400);
-  line-height: 1.6;
-}
-
-.errorTitle {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--grey-700);
-}
-
-.errorSub {
-  font-size: 13px;
-  color: var(--grey-400);
-  line-height: 1.6;
 }
 
 .emptyCta,
@@ -93,30 +522,17 @@
   }
 }
 
-.fab {
-  position: fixed;
-  bottom: 76px;
-  right: max(20px, calc(50vw - 240px + 20px));
-  width: 52px;
-  height: 52px;
-  background: var(--primary);
-  border-radius: 50%;
-  @include flex-center;
-  color: var(--white);
-  font-size: 26px;
-  font-weight: 300;
-  box-shadow: var(--shadow-primary);
-  border: none;
-  cursor: pointer;
-  z-index: 10;
-  transition: transform 0.1s ease;
+// 하단 플로팅 퀵 버튼들 오버레이
+.quickAccessOverlay {
+  position: absolute;
+  bottom: 10px; /* 바텀 여백 다이어트에 맞춰 GNB(바텀네비) 위에 10px 간격으로 타이트하게 배치 */
+  left: 16px;
+  right: 16px;
+  z-index: 15;
+  pointer-events: auto;
 
-  &:active {
-    transform: scale(0.92);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--white);
-    outline-offset: 2px;
+  // 하위 QuickAccessRow의 padding 제거
+  div {
+    padding: 0 !important;
   }
 }

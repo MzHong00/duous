@@ -1,19 +1,25 @@
 @use "styles/mixins" as *;
 
+// 스택 안의 카드 한 장. 위치·각도·깊이감은 부모(MemoryFeed의 .stackCard)가 담당하고,
+// 이 카드는 주어진 자리를 꽉 채우는 시각적 표면 역할만 한다.
+// 흰 프레임 + 부드러운 그림자로 사진 인화물 느낌
 .card {
+  position: relative;
   display: block;
   width: 100%;
+  height: 100%;
   text-align: left;
   background: var(--white);
-  border-radius: 16px;
+  border: 5px solid var(--white);
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: var(--shadow-card);
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.16);
   cursor: pointer;
-  border: none;
-  transition: transform 0.1s ease;
+  transition: box-shadow 0.2s ease;
 
-  &:active {
-    transform: scale(0.98);
+  &:hover,
+  &:focus-visible {
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.22);
   }
 
   &:focus-visible {
@@ -22,16 +28,24 @@
   }
 }
 
+// 예시(껍데기) 카드: 흰 프레임 안쪽 점선으로 예시임을 표시
+.shell {
+  outline: 1.6px dashed var(--grey-300);
+  outline-offset: -3px;
+}
+
 .photo {
   width: 100%;
-  height: 220px;
+  height: 100%;
   object-fit: cover;
   display: block;
+  -webkit-user-drag: none; /* 카드 드래그(던지기) 시 이미지 네이티브 고스트 드래그 방지 */
+  user-select: none;
 }
 
 .photoPlaceholder {
   width: 100%;
-  height: 140px;
+  height: 100%;
   background: var(--grey-100);
   @include flex-center;
 }
@@ -40,42 +54,142 @@
   color: var(--grey-300);
 }
 
-.body {
-  padding: 12px 16px 14px;
-  @include flex-col(6px);
-}
-
-.meta {
-  @include flex-between;
-}
-
-.author {
-  @include flex-row(6px);
-}
-
-.authorName {
-  font-size: 12px;
-  color: var(--grey-600);
-}
-
-.date {
-  font-size: 11px;
-  color: var(--grey-400);
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 10px 10px 12px;
+  background: linear-gradient(180deg, transparent 45%, rgba(0, 0, 0, 0.75) 100%);
+  color: var(--white);
 }
 
 .caption {
-  font-size: 14px;
-  color: var(--grey-900);
-  line-height: 1.5;
-  @include text-ellipsis;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--white);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.pathBadge {
-  @include flex-row(4px);
-  font-size: 11px;
-  color: var(--primary);
+.dateBadge {
+  font-size: 8.5px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 2px;
+  letter-spacing: 0.03em;
+}
 
-  svg {
-    flex-shrink: 0;
+// ─── 확장(상세보기) 상태 스타일 ────────────────────────────────────────────────
+.expanded {
+  cursor: default !important;
+  background: var(--white) !important;
+  border-radius: 0 !important;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  box-shadow: none !important;
+
+  &:hover {
+    box-shadow: none !important;
   }
+}
+
+.closeButton {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 20;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--white);
+  @include flex-center;
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease;
+
+  &:active {
+    transform: scale(0.9);
+    background: rgba(0, 0, 0, 0.6);
+  }
+}
+
+.expandedContent {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.expandedImageWrap {
+  width: 100%;
+  aspect-ratio: 16 / 11;
+  overflow: hidden;
+  background: var(--grey-900);
+}
+
+.expandedPhoto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.expandedPlaceholder {
+  width: 100%;
+  aspect-ratio: 16 / 11;
+  background: var(--grey-100);
+  @include flex-center;
+}
+
+.expandedPlaceholderIcon {
+  color: var(--grey-300);
+}
+
+.expandedDetails {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  text-align: left;
+  background: var(--white);
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+}
+
+.expandedDate {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--grey-400);
+  letter-spacing: -0.01em;
+}
+
+.expandedTitle {
+  font-size: 21px;
+  font-weight: 850;
+  color: var(--grey-900);
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+}
+
+.expandedDesc {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--grey-600);
+  line-height: 1.65;
+  margin-top: 6px;
+  white-space: pre-wrap;
 }
