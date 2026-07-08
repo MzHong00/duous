@@ -1,49 +1,54 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { Settings } from "lucide-react";
 
 import { ProfileImage } from "@/components/ProfileImage";
 import { ROUTES } from "@/constants/routes";
 
 import { useProfileUser } from "@/features/profile/hooks/useProfileUser";
-import { QUICK_ACTIONS, PROFILE_MENU_ITEMS } from "@/features/profile/constants/profileMenu";
+import { PROFILE_MENU_ITEMS } from "@/features/profile/constants/profileMenu";
 import { APP_VERSION } from "@/features/profile/constants/profile";
-import { QuickActionButton } from "./QuickActionButton";
+import { ProfileQuickCards } from "./ProfileQuickCards";
 import { ProfileMenuRow } from "./ProfileMenuRow";
 import styles from "./ProfileView.module.scss";
 
+const SETTINGS_ICON_SIZE = 20; // 설정 버튼 아이콘 크기(px)
+const HERO_AVATAR_SIZE = 84; // 히어로 영역 아바타 크기(px)
+
 export const ProfileView = () => {
   const router = useRouter();
-  const { user, displayName } = useProfileUser();
+  const { user, email, displayName } = useProfileUser();
 
   return (
     <div className={styles.page}>
-      <header className={styles.header}>
-        <div className={styles.headerLeft}>
-          <ProfileImage uri={user?.profileImage} name={displayName} size={36} />
-          <h1 className={styles.headerName}>{displayName}</h1>
-        </div>
-        <div className={styles.headerRight}>
-          <button
-            onClick={() => router.push(ROUTES.PROFILE.SETTINGS.path)}
-            className={styles.headerBtn}
-          >
-            설정
-          </button>
-        </div>
+      <header className={styles.hero}>
+        <button
+          onClick={() => router.push(ROUTES.PROFILE.SETTINGS.path)}
+          className={styles.settingsBtn}
+          aria-label="설정"
+        >
+          <Settings size={SETTINGS_ICON_SIZE} />
+        </button>
+        <ProfileImage
+          uri={user?.profileImage}
+          name={displayName}
+          size={HERO_AVATAR_SIZE}
+          className={styles.heroAvatar}
+        />
+        <h1 className={styles.heroName}>{displayName}</h1>
+        <p className={styles.heroEmail}>{email}</p>
       </header>
 
-      <div className={styles.quickGrid}>
-        {QUICK_ACTIONS.map((item) => (
-          <QuickActionButton key={item.id} item={item} />
-        ))}
-      </div>
+      <ProfileQuickCards />
 
-      <h2 className={styles.sectionTitle}>알림 및 지원</h2>
-      <div className={styles.list}>
-        {PROFILE_MENU_ITEMS.map((item) => (
-          <ProfileMenuRow key={item.id} item={item} />
-        ))}
-      </div>
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>알림 및 지원</h2>
+        <div className={styles.listCard}>
+          {PROFILE_MENU_ITEMS.map((item) => (
+            <ProfileMenuRow key={item.id} item={item} />
+          ))}
+        </div>
+      </section>
 
       <p className={styles.version}>{APP_VERSION}</p>
     </div>

@@ -1,92 +1,95 @@
 @use "styles/mixins" as *;
 
 .page {
-  @include page-base(#ffffff);
+  @include page-base(var(--grey-50));
   padding-bottom: 100px;
 }
 
-.header {
-  @include flex-between;
-  padding: 24px 24px 16px;
-  align-items: center;
+/* Hero */
+.hero {
+  position: relative;
+  @include flex-col-center(6px);
+  padding: 40px 24px 28px;
+  background: linear-gradient(180deg, var(--primary-light) 0%, var(--grey-50) 100%);
 }
 
-.headerLeft {
-  @include flex-row(12px);
-  align-items: center;
+.settingsBtn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  @include icon-box(36px);
+  background-color: var(--white);
+  color: var(--grey-600);
+  box-shadow: var(--shadow-card);
+
+  &:active {
+    color: var(--grey-900);
+  }
 }
 
-.headerName {
-  font-size: 24px;
+.heroAvatar {
+  border: 3px solid var(--white);
+  box-shadow: var(--shadow-card-lg);
+  margin-bottom: 4px;
+}
+
+.heroName {
+  font-size: 22px;
   font-weight: 800;
   color: var(--grey-900);
 }
 
-.headerRight {
-  @include flex-row(12px);
-  align-items: center;
-}
-
-.headerBtn {
+.heroEmail {
   font-size: 14px;
   color: var(--grey-500);
   font-weight: 500;
-  padding: 4px 0;
-
-  &:active {
-    color: var(--grey-700);
-  }
 }
 
-.headerDivider {
-  width: 1px;
-  height: 12px;
-  background-color: var(--grey-200);
+/* List Section */
+.section {
+  padding: 0 20px 24px;
 }
 
-/* Quick Actions Grid */
-.quickGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px 8px;
-  padding: 8px 16px 32px;
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--grey-500);
+  padding: 0 6px 10px;
 }
 
-.gridItem {
-  @include flex-col-center(8px);
-
-  &:active {
-    opacity: 0.7;
-  }
-}
-
-.gridIconWrap {
-  @include icon-box(56px, 16px);
+.listCard {
+  background-color: var(--white);
   border-radius: 20px;
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.listRow {
+  @include flex-between;
+  padding: 16px;
+  width: 100%;
+  @include ripple-effect;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--grey-100);
+  }
+}
+
+.listLeft {
+  @include flex-row(14px);
+}
+
+.listIconWrap {
+  @include icon-box(38px, 12px);
 
   &.blue {
     background-color: rgba(var(--primary-rgb), 0.12);
     color: var(--primary);
   }
 
-  &.orange {
-    background-color: rgba(255, 173, 19, 0.12);
-    color: #f39c12; /* slightly darker orange for text contrast */
-  }
-
   &.green {
-    background-color: rgba(0, 212, 148, 0.12);
+    background-color: var(--success-light);
     color: var(--success);
-  }
-
-  &.red {
-    background-color: rgba(240, 68, 82, 0.12);
-    color: var(--error);
-  }
-
-  &.purple {
-    background-color: rgba(156, 39, 176, 0.12);
-    color: #9c27b0;
   }
 
   &.grey {
@@ -95,68 +98,20 @@
   }
 }
 
-.gridIconBadgeWrap {
-  position: relative;
-  display: inline-flex;
-}
-
-.gridBadge {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  border-radius: 999px;
-  background-color: var(--error);
-  color: #ffffff;
-  font-size: 10px;
-  font-weight: 700;
-  @include flex-center;
-}
-
-.gridLabel {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--grey-700);
-}
-
-/* List Section */
-.sectionTitle {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--grey-900);
-  padding: 16px 24px;
-}
-
-.listRow {
-  @include flex-between;
-  padding: 14px 24px;
-  width: 100%;
-  @include ripple-effect;
-}
-
-.listLeft {
-  @include flex-row(16px);
-}
-
-.listIconWrap {
-  @include icon-box(40px, 12px);
-  border-radius: 12px;
-  background-color: var(--grey-100);
-  color: var(--grey-700);
-}
-
 .listTitle {
-  font-size: 16px;
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 600;
   color: var(--grey-900);
+}
+
+.listRight {
+  @include flex-row(6px);
 }
 
 .listRightText {
   font-size: 13px;
   color: var(--grey-400);
-  font-weight: 400;
+  font-weight: 500;
 }
 
 /* Invitations */
@@ -179,7 +134,7 @@
 
 .inviteIcon {
   @include icon-box(40px, 12px);
-  background-color: #ffffff;
+  background-color: var(--white);
   color: var(--primary);
   border-radius: 12px;
 }
@@ -208,13 +163,13 @@
 }
 
 .declineButton {
-  background-color: #ffffff;
+  background-color: var(--white);
   color: var(--grey-600);
 }
 
 .acceptButton {
   background-color: var(--primary);
-  color: #ffffff;
+  color: var(--white);
 }
 
 .version {

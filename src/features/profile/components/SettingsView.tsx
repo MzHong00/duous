@@ -9,6 +9,7 @@ import { cx } from "@/utils/cn";
 
 import { useProfileUser } from "@/features/profile/hooks/useProfileUser";
 import { useProfileSettings } from "@/features/profile/hooks/useProfileSettings";
+import { toastActions } from "@/stores/useToastStore";
 import styles from "./SettingsView.module.scss";
 
 import type { ReactNode } from "react";
@@ -48,6 +49,8 @@ export const SettingsView = () => {
   const nameInputRef = useRef<HTMLInputElement>(null);
   const { user, email, displayName } = useProfileUser();
   const { openEditNameModal, changePhoto, confirmLogout } = useProfileSettings();
+  // 서버 업로드가 끝나기 전엔 로컬 blob 미리보기가 표시되므로, 이를 업로드 중 상태로 간주한다
+  const isUploadingPhoto = !!user?.profileImage?.startsWith("blob:");
 
   /** 이름 수정 모달을 띄운다 (입력값은 ref로 확인 시점에 읽는다) */
   const handleEditName = () => {
@@ -66,13 +69,27 @@ export const SettingsView = () => {
     );
   };
 
+  /** 아직 구현되지 않은 설정 항목을 안내한다 */
+  const handleSettingItemClick = (label: string) => {
+    toastActions.showToast(`${label}은(는) 준비 중입니다`, "info");
+  };
+
   return (
     <div className={styles.page}>
       <AppHeader />
 
       <div className={styles.profileSection}>
-        <button onClick={() => fileInputRef.current?.click()} className={styles.avatarButton}>
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isUploadingPhoto}
+          className={styles.avatarButton}
+        >
           <ProfileImage uri={user?.profileImage} name={displayName} size={80} />
+          {isUploadingPhoto && (
+            <div className={styles.uploadOverlay}>
+              <div className={styles.spinner} />
+            </div>
+          )}
           <div className={styles.cameraButton}>
             <Camera size={13} strokeWidth={2.5} />
           </div>
@@ -96,7 +113,10 @@ export const SettingsView = () => {
         <Card className={styles.settingCard}>
           {SETTING_ITEMS.map((item) => (
             <div key={item.id}>
-              <button className={styles.settingRow}>
+              <button
+                className={styles.settingRow}
+                onClick={() => handleSettingItemClick(item.label)}
+              >
                 <div className={styles.settingLeft}>
                   <div className={styles.settingIcon}>{item.icon}</div>
                   <div className={styles.settingInfo}>
