@@ -38,10 +38,12 @@ export const useWorkspaceSetupWizard = () => {
   const [startDate, setStartDate] = useState(getTodayDateString()); // 시작일/만난 날짜
   const [isMain, setIsMain] = useState(true); // 메인 워크스페이스 설정 여부
   const [inviteCode, setInviteCode] = useState(""); // 생성된 초대 코드
+  const [createdWorkspaceId, setCreatedWorkspaceId] = useState<string | null>(null); // 생성 완료됐지만 초대코드 발급에 실패한 워크스페이스 id (재시도 시 재사용)
 
   /** 유형 선택 → 이름 설정 세부 단계로 진입 */
   const goToNameStep = () => {
     setWorkspaceName("");
+    setCreatedWorkspaceId(null); // 이름을 새로 입력하므로 이전 생성 시도의 워크스페이스 id는 재사용하지 않음
     setCreateSubStep("name");
   };
 
@@ -58,15 +60,21 @@ export const useWorkspaceSetupWizard = () => {
     if (!user) return;
 
     try {
-      const { workspace } = await createWorkspace.mutateAsync({
-        name: workspaceName,
-        type: roomType,
-        startDate,
-        user,
-      });
-      if (isMain) workspaceActions.setCurrentWorkspaceId(workspace.id);
+      // 이전 시도에서 워크스페이스는 생성됐지만 초대코드 발급만 실패했다면 재생성하지 않고 재사용
+      let workspaceId = createdWorkspaceId;
+      if (!workspaceId) {
+        const { workspace } = await createWorkspace.mutateAsync({
+          name: workspaceName,
+          type: roomType,
+          startDate,
+          user,
+        });
+        workspaceId = workspace.id;
+        setCreatedWorkspaceId(workspaceId);
+        if (isMain) workspaceActions.setCurrentWorkspaceId(workspaceId);
+      }
       const code = await createInviteCode.mutateAsync({
-        workspaceId: workspace.id,
+        workspaceId,
         userId: user.id,
       });
       setInviteCode(code);
