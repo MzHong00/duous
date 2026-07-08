@@ -26,6 +26,7 @@
 }
 
 .list {
+  @include flex-col(10px);
   padding: 0 20px;
 }
 

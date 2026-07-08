@@ -3,7 +3,7 @@ import { CheckCircle2 } from "lucide-react";
 
 import { ProfileImage } from "@/components/ProfileImage";
 import { COLORS } from "@/constants/theme";
-import { getRelativeDateLabel } from "@/utils/date";
+import { getRelativeDateLabel, isPastDate, isToday } from "@/utils/date";
 import { cx } from "@/utils/cn";
 
 import type { Todo } from "@/features/todo/types/todo";
@@ -24,6 +24,9 @@ export const TodoItem = ({ item, currentWorkspace, onToggle, onPress }: TodoItem
   const assignee = currentWorkspace?.members?.find((m) => m.id === item.assigneeId);
   const dateLabel = getRelativeDateLabel(item.endDate); // 종료일 기준 상대 날짜 라벨
   const markerColor = item.color || COLORS.primary; // 완료 표시 마커 색상
+  // 미완료 상태에서 마감이 지났거나 오늘인 경우 마감 임박을 시각적으로 강조한다
+  const isOverdue = !item.isCompleted && isPastDate(item.endDate);
+  const isDueToday = !item.isCompleted && isToday(item.endDate);
 
   return (
     <div className={cx(styles.item, item.isCompleted && styles.itemDone)}>
@@ -44,7 +47,15 @@ export const TodoItem = ({ item, currentWorkspace, onToggle, onPress }: TodoItem
           <p className={cx(styles.title, item.isCompleted && styles.titleDone)}>{item.title}</p>
           {item.isCompleted && <span className={styles.doneBadge}>완료</span>}
         </div>
-        <p className={styles.dateLabel}>{dateLabel}</p>
+        <p
+          className={cx(
+            styles.dateLabel,
+            isOverdue && styles.dateLabelOverdue,
+            isDueToday && styles.dateLabelToday
+          )}
+        >
+          {dateLabel}
+        </p>
       </button>
 
       {assignee && <ProfileImage uri={assignee.avatar} name={assignee.name} size={28} />}
