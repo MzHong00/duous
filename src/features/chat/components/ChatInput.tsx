@@ -4,6 +4,7 @@ import { Send, Plus } from "lucide-react";
 
 import { cx } from "@/utils/cn";
 import { CHAT_ACTION_ITEMS } from "@/features/chat/constants/chat";
+import { toastActions } from "@/stores/useToastStore";
 
 import styles from "./ChatInput.module.scss";
 
@@ -43,12 +44,22 @@ export const ChatInput = ({ value, onChange, onSend }: ChatInputProps) => {
     inputRef.current?.focus();
   };
 
+  /** 아직 구현되지 않은 도구함 액션을 안내하고 도구함을 닫는다 */
+  const handleActionItemClick = (label: string) => {
+    toastActions.showToast(`${label} 기능은 준비 중입니다`, "info");
+    setIsMenuOpen(false);
+  };
+
   return (
     <div className={styles.wrapper}>
       {isMenuOpen && (
         <div className={styles.actionMenu}>
           {CHAT_ACTION_ITEMS.map(({ id, Icon, label }) => (
-            <button key={id} className={styles.actionItem} onClick={() => setIsMenuOpen(false)}>
+            <button
+              key={id}
+              className={styles.actionItem}
+              onClick={() => handleActionItemClick(label)}
+            >
               <div className={styles.actionIcon}>
                 <Icon size={20} />
               </div>

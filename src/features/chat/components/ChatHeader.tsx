@@ -27,7 +27,6 @@ const ChatHeaderComponent = ({ partnerName, partnerAvatar }: ChatHeaderProps) =>
         <ProfileImage uri={partnerAvatar} name={partnerName} size={PARTNER_AVATAR_SIZE} />
         <div>
           <p className={styles.partnerName}>{partnerName}</p>
-          <p className={styles.onlineStatus}>현재 활동 중</p>
         </div>
       </div>
       <div className={styles.headerRight} />
