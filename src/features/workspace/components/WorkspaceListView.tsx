@@ -1,16 +1,13 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
 import { ROUTES } from "@/constants/routes";
-import { Plus, Users, Heart, Check, Trash2, Edit3 } from "lucide-react";
+import { Plus, Users, Heart, Star, Settings } from "lucide-react";
 import { workspaceActions } from "@/features/workspace/stores/useWorkspaceStore";
 import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
-import { useLeaveWorkspaceMutation } from "@/features/workspace/queries/workspaceMutations";
-import { authQueries } from "@/features/auth/queries/authQueries";
-import { modalActions } from "@/stores/useModalStore";
 import { toastActions } from "@/stores/useToastStore";
 import { AppHeader } from "@/components/AppHeader";
 import { Card } from "@/components/Card";
+import { ProfileImage } from "@/components/ProfileImage";
 import { formatDate, calculateDDay } from "@/utils/date";
 import { APP_WORKSPACE } from "@/constants/config";
 import styles from "./WorkspaceListView.module.scss";
@@ -18,8 +15,6 @@ import styles from "./WorkspaceListView.module.scss";
 export const WorkspaceListView = () => {
   const router = useRouter();
   const { workspaces, currentWorkspace } = useCurrentWorkspace();
-  const { data: user } = useQuery(authQueries.user());
-  const leaveWorkspace = useLeaveWorkspaceMutation();
 
   const handleSetMain = (id: string) => {
     const workspace = workspaces.find((w) => w.id === id);
@@ -27,25 +22,6 @@ export const WorkspaceListView = () => {
       workspaceActions.setCurrentWorkspaceId(id);
       toastActions.showToast(`'${workspace.name}'이 메인 라이프룸으로 설정되었습니다`, "success");
     }
-  };
-
-  const handleLeave = (id: string, name: string) => {
-    modalActions.showModal({
-      type: "confirm",
-      title: `${APP_WORKSPACE.KR}에서 나가기`,
-      message: `'${name}'에서 나가시겠습니까?`,
-      confirmText: "나가기",
-      onConfirm: async () => {
-        if (!user) return;
-        try {
-          await leaveWorkspace.mutateAsync({ workspaceId: id, userId: user.id });
-          if (currentWorkspace?.id === id) workspaceActions.setCurrentWorkspaceId(null);
-          toastActions.showToast("라이프룸에서 나갔습니다", "success");
-        } catch {
-          toastActions.showToast("나가기에 실패했습니다", "error");
-        }
-      },
-    });
   };
 
   return (
@@ -64,6 +40,29 @@ export const WorkspaceListView = () => {
 
           return (
             <Card key={ws.id} className={styles.workspaceCard}>
+              <div className={styles.cardIconActions}>
+                {!isMain && (
+                  <button
+                    type="button"
+                    onClick={() => handleSetMain(ws.id)}
+                    className={styles.setMainButton}
+                    aria-label={`${ws.name} 메인 라이프룸으로 설정`}
+                    title="메인 설정"
+                  >
+                    <Star size={16} />
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => router.push(ROUTES.WORKSPACE.EDIT.query({ workspaceId: ws.id }))}
+                  className={styles.settingsButton}
+                  aria-label={`${ws.name} 설정`}
+                  title="설정"
+                >
+                  <Settings size={16} />
+                </button>
+              </div>
+
               <div className={styles.cardTop}>
                 <div className={styles.wsIcon}>
                   {ws.type === "couple" ? <Heart size={22} /> : <Users size={22} />}
@@ -78,28 +77,21 @@ export const WorkspaceListView = () => {
                       {formatDate(ws.startDate)} 시작 · {days}일째
                     </p>
                   )}
-                  <p className={styles.wsMember}>멤버 {ws.members?.length || 0}명</p>
                 </div>
               </div>
 
-              <div className={styles.cardActions}>
-                {!isMain && (
-                  <button onClick={() => handleSetMain(ws.id)} className={styles.setMainButton}>
-                    <Check size={14} />
-                    메인 설정
-                  </button>
-                )}
-                <button
-                  onClick={() => router.push(ROUTES.WORKSPACE.EDIT.query({ workspaceId: ws.id }))}
-                  className={styles.settingsButton}
-                >
-                  <Edit3 size={14} />
-                  설정
-                </button>
-                <button onClick={() => handleLeave(ws.id, ws.name)} className={styles.deleteButton}>
-                  <Trash2 size={16} />
-                </button>
-              </div>
+              {!!ws.members?.length && (
+                <div className={styles.cardMembers}>
+                  <div className={styles.membersStack}>
+                    {[...ws.members].reverse().map((member) => (
+                      <div key={member.id} className={styles.memberAvatar}>
+                        <ProfileImage uri={member.avatar} name={member.name} size={24} />
+                      </div>
+                    ))}
+                  </div>
+                  <span className={styles.wsMember}>멤버 {ws.members.length}명</span>
+                </div>
+              )}
             </Card>
           );
         })}

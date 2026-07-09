@@ -1,0 +1,241 @@
+@use "styles/mixins" as *;
+
+// 유리 질감 대시보드 카드 (최근 스토리 전용 섹션)
+.dashboard {
+  @include flex-col(12px);
+  padding: 0; /* 카드 내부가 꽉 차도록 패딩을 0으로 하고 외부에서 마진/패딩 제공 */
+  border-radius: 0;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: none;
+  box-shadow: none;
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--grey-800);
+  letter-spacing: -0.01em;
+  padding: 0 4px;
+}
+
+.storyList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.storyItem {
+  list-style: none;
+  width: 100%;
+}
+
+// ─── 최근 스토리 카드 포스터형 디자인 ─────────────────────────────────────────
+
+.recentStoryCard {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 140px; /* 120px은 다소 좁았으므로 포스터 가독성을 위해 140px로 소폭 상향 */
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow:
+    0 12px 32px -8px rgba(0, 0, 0, 0.08),
+    0 1px 3px rgba(255, 255, 255, 0.5) inset;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 20px 40px -12px rgba(0, 0, 0, 0.12),
+      0 1px 3px rgba(255, 255, 255, 0.6) inset;
+
+    .cardBgImage {
+      transform: scale(1.06);
+    }
+  }
+
+  &:active {
+    transform: scale(0.98) translateY(0);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  }
+}
+
+.cardBgImage {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.1) 0%,
+      rgba(0, 0, 0, 0.25) 50%,
+      rgba(0, 0, 0, 0.75) 100%
+    );
+  }
+}
+
+// 스토리에 썸네일 이미지가 없을 때의 트렌디한 그라데이션 아트 배경
+.cardBgPlaceholder {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    135deg,
+    rgba(var(--primary-rgb), 0.75) 0%,
+    rgba(var(--theme-accent-rgb), 0.7) 60%,
+    rgba(var(--theme-tertiary-rgb), 0.8) 100%
+  );
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.15) 0%, transparent 60%);
+  }
+}
+
+.cardContent {
+  position: relative;
+  height: 100%;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 14px;
+}
+
+.cardHeader {
+  @include flex-between;
+  align-items: center;
+  width: 100%;
+}
+
+.recentStoryLabel {
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding: 4px 12px;
+  border-radius: 9999px;
+  letter-spacing: 0.02em;
+}
+
+.cardBody {
+  @include flex-col(2px);
+  width: 100%;
+}
+
+.recentStoryTitle {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--white);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  @include text-ellipsis;
+  letter-spacing: -0.01em;
+}
+
+.recentStoryDate {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.65);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+// ─── 스토리가 비어있을 때의 유도형 카드 ──────────────────────────────────────────
+
+.emptyStoryCard {
+  width: 100%;
+  padding: 24px 20px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow:
+    0 10px 30px -10px rgba(0, 0, 0, 0.04),
+    0 1px 2px rgba(255, 255, 255, 0.5) inset;
+  cursor: pointer;
+  transition:
+    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background 0.25s ease,
+    box-shadow 0.25s ease;
+
+  &:hover,
+  &:active {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.78);
+    box-shadow:
+      0 16px 36px -12px rgba(var(--primary-rgb), 0.12),
+      0 1px 3px rgba(255, 255, 255, 0.6) inset;
+  }
+}
+
+.emptyContent {
+  @include flex-col-center(12px);
+  width: 100%;
+}
+
+.emptyBadge {
+  @include flex-center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: rgba(var(--primary-rgb), 0.08);
+  color: var(--primary);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+}
+
+.emptyTexts {
+  @include flex-col(3px);
+  text-align: center;
+}
+
+.emptyTitle {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--grey-800);
+}
+
+.emptySub {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--grey-500);
+  line-height: 1.4;
+  max-width: 240px;
+}
+
+.writeButton {
+  @include flex-row(6px);
+  align-items: center;
+  background: var(--primary);
+  color: var(--white);
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: var(--shadow-primary);
+  transition:
+    transform 0.2s ease,
+    filter 0.2s ease;
+
+  &:hover {
+    filter: brightness(1.05);
+  }
+}

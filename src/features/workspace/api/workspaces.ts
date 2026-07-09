@@ -1,7 +1,12 @@
 import { supabase } from "@/lib/supabase/client";
 import { rowToWorkspace } from "@/features/workspace/utils/workspaceUtils";
 
-import type { RoomType, Workspace, WorkspaceMember } from "@/features/workspace/types/workspace";
+import type {
+  RoomType,
+  ThemeColor,
+  Workspace,
+  WorkspaceMember,
+} from "@/features/workspace/types/workspace";
 import type { WorkspaceRow, MemberRow } from "@/features/workspace/utils/workspaceUtils";
 
 const INVITE_CODE_LENGTH = 8; // 초대 코드 길이
@@ -173,6 +178,15 @@ export const workspacesApi = {
     const { error } = await supabase
       .from("workspaces")
       .update({ background_image: imageUrl })
+      .eq("id", workspaceId);
+    if (error) throw error;
+  },
+
+  // 워크스페이스 색상 테마 수정
+  updateThemeColor: async (workspaceId: string, themeColor: ThemeColor): Promise<void> => {
+    const { error } = await supabase
+      .from("workspaces")
+      .update({ theme_color: themeColor })
       .eq("id", workspaceId);
     if (error) throw error;
   },

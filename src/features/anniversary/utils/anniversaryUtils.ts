@@ -20,6 +20,7 @@ export const generateAnniversaries = (startDate: string): Anniversary[] => {
   });
 
   return [...ddayAnniversaries, ...yearlyAnniversaries]
-    .sort((a, b) => Math.abs(a.daysLeft) - Math.abs(b.daysLeft))
+    .filter((anniversary) => anniversary.daysLeft >= 0) // 이미 지난 기념일은 "다가오는 기념일" 목록에서 제외
+    .sort((a, b) => a.daysLeft - b.daysLeft)
     .slice(0, ANNIVERSARY_DISPLAY_COUNT);
 };

@@ -7,14 +7,17 @@
   padding: 10px 12px 10px;
 }
 
-// 인풋 필 (플러스 + 텍스트 + 전송)
+// 인풋 필 (플러스 + 텍스트 + 전송) — 유리질감으로 오로라 배경과 톤을 맞춤
 .container {
   width: 100%;
   @include flex-row(8px);
   padding: 10px 10px 10px 12px;
-  background-color: var(--white);
+  background-color: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 9999px;
-  box-shadow: var(--shadow-card);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
 
 .plusButton {

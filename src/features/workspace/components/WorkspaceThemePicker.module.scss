@@ -1,0 +1,76 @@
+@use "styles/mixins" as *;
+
+.picker {
+  @include flex-row(12px);
+}
+
+.card {
+  @include flex-col(8px);
+  flex: 1;
+  align-items: stretch;
+  padding: 10px;
+  border-radius: 16px;
+  background: var(--white);
+  border: 2px solid transparent;
+  box-shadow: var(--shadow-card);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+// 앱 오로라 배경과 같은 계열의 색감만 담은 단순 그라데이션 미리보기
+.swatch {
+  position: relative;
+  height: 56px;
+  border-radius: 10px;
+}
+
+.cardPink .swatch {
+  background: linear-gradient(120deg, var(--primary) 0%, var(--pink) 100%);
+}
+
+.cardBlue .swatch {
+  background: linear-gradient(120deg, var(--primary) 0%, #38bdf8 100%);
+}
+
+.checkBadge {
+  @include flex-col-center;
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--grey-900);
+  box-shadow: var(--shadow-card);
+}
+
+.label {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--grey-700);
+}
+
+.cardSelected {
+  box-shadow: var(--shadow-card-lg);
+  transform: scale(1.01);
+
+  .label {
+    color: var(--grey-900);
+  }
+}
+
+.cardPink.cardSelected {
+  border-color: var(--pink);
+}
+
+.cardBlue.cardSelected {
+  border-color: #38bdf8;
+}

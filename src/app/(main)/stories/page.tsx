@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { cookies } from "next/headers";
 
@@ -6,7 +5,7 @@ import { COOKIE_KEYS } from "@/constants/config";
 import { getQueryClient } from "@/lib/getQueryClient";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { storyQueries } from "@/features/stories/queries/storyQueries";
-import { StoriesView } from "@/features/stories/components/StoriesView";
+import { StoryBoardView } from "@/features/stories/components/StoryBoardView";
 
 export default async function Page() {
   const queryClient = getQueryClient();
@@ -20,9 +19,7 @@ export default async function Page() {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <Suspense>
-        <StoriesView />
-      </Suspense>
+      <StoryBoardView />
     </HydrationBoundary>
   );
 }

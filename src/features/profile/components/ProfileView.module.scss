@@ -10,7 +10,10 @@
   position: relative;
   @include flex-col-center(6px);
   padding: 40px 24px 28px;
-  background: linear-gradient(180deg, var(--primary-light) 0%, var(--grey-50) 100%);
+  /* 워크스페이스 테마 액센트를 살짝 곁들인 그라데이션(리스트 카드 대비 유지 위해 은은하게) */
+  background:
+    radial-gradient(at 25% 0%, rgba(var(--theme-accent-rgb), 0.18) 0px, transparent 55%),
+    linear-gradient(180deg, var(--primary-light) 0%, var(--grey-50) 100%);
 }
 
 .settingsBtn {

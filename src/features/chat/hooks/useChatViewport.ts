@@ -1,37 +1,26 @@
 import { useEffect, useRef } from "react";
 
 interface UseChatViewportResult {
-  pageRef: React.RefObject<HTMLDivElement | null>;
   bottomRef: React.RefObject<HTMLDivElement | null>;
 }
 
 /**
  * iOS Safari 키보드 대응 훅
- * visualViewport 크기·위치에 맞춰 페이지 높이를 갱신하고, scrollDep 변화 시 하단으로 스크롤한다
+ * 키보드가 올라와 visualViewport가 줄어들면 즉시, scrollDep(메시지) 변화 시 부드럽게 하단으로 스크롤한다
+ * GNB 탭 페이지는 (main) 레이아웃의 dvh 컨테이너를 그대로 채우므로 페이지 높이 자체는 CSS(height: 100%)에 위임한다
  */
 export const useChatViewport = (scrollDep: unknown): UseChatViewportResult => {
-  const pageRef = useRef<HTMLDivElement>(null); // 키보드 높이에 맞춰 크기를 조정할 페이지 컨테이너
   const bottomRef = useRef<HTMLDivElement>(null); // 메시지 목록 최하단 앵커
 
-  // visualViewport 변화에 맞춰 페이지 높이·오프셋을 즉시 동기화 (dvh는 SSR 폴백)
+  // 키보드가 열려 visualViewport가 줄어들면 즉시 하단으로 스크롤
   useEffect(() => {
     const viewport = window.visualViewport;
-    if (!viewport || !pageRef.current) return;
+    if (!viewport) return;
 
-    const update = () => {
-      if (!pageRef.current) return;
-      pageRef.current.style.height = `${viewport.height}px`;
-      pageRef.current.style.top = `${viewport.offsetTop}px`;
-      bottomRef.current?.scrollIntoView({ behavior: "instant" });
-    };
+    const handleResize = () => bottomRef.current?.scrollIntoView({ behavior: "instant" });
 
-    update();
-    viewport.addEventListener("resize", update);
-    viewport.addEventListener("scroll", update);
-    return () => {
-      viewport.removeEventListener("resize", update);
-      viewport.removeEventListener("scroll", update);
-    };
+    viewport.addEventListener("resize", handleResize);
+    return () => viewport.removeEventListener("resize", handleResize);
   }, []);
 
   // 새 메시지가 추가되면 부드럽게 하단으로 스크롤
@@ -39,5 +28,5 @@ export const useChatViewport = (scrollDep: unknown): UseChatViewportResult => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [scrollDep]);
 
-  return { pageRef, bottomRef };
+  return { bottomRef };
 };

@@ -18,6 +18,7 @@ export const ROUTES = {
 
   STORIES: {
     path: "/stories",
+    LIST: { path: "/stories/list" },
     EDIT: {
       path: "/stories/edit",
       query: (params: { storyId?: string }) => withQuery("/stories/edit", params),

@@ -77,6 +77,11 @@
   @include icon-box(36px, 12px);
 }
 
+.themeRow {
+  @include flex-col(10px);
+  padding: 16px 20px;
+}
+
 .settingIconPrimary {
   background-color: rgba(var(--primary-rgb), 0.1);
   color: var(--primary);

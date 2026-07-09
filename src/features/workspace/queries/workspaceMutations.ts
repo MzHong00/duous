@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { workspacesApi } from "@/features/workspace/api/workspaces";
 import type { User } from "@/types/user";
-import type { RoomType } from "@/features/workspace/types/workspace";
+import type { RoomType, ThemeColor } from "@/features/workspace/types/workspace";
 import { workspaceQueries } from "./workspaceQueries";
 
 export const useCreateWorkspaceMutation = () => {
@@ -46,6 +46,15 @@ export const useUpdateWorkspaceStartDateMutation = () => {
   return useMutation({
     mutationFn: ({ workspaceId, startDate }: { workspaceId: string; startDate: string }) =>
       workspacesApi.updateStartDate(workspaceId, startDate),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: workspaceQueries.mine().queryKey }),
+  });
+};
+
+export const useUpdateWorkspaceThemeMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ workspaceId, themeColor }: { workspaceId: string; themeColor: ThemeColor }) =>
+      workspacesApi.updateThemeColor(workspaceId, themeColor),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: workspaceQueries.mine().queryKey }),
   });
 };

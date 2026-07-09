@@ -1,0 +1,158 @@
+@use "styles/mixins" as *;
+
+.digest {
+  @include flex-col(16px);
+  padding: 18px 18px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 10px 30px -10px rgba(0, 0, 0, 0.05),
+    0 1px 2px rgba(255, 255, 255, 0.5) inset;
+}
+
+.section {
+  @include flex-col(12px);
+}
+
+.sectionHeader {
+  @include flex-between;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  padding: 2px 4px;
+}
+
+.sectionTitle {
+  @include flex-row(8px);
+  align-items: center;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--grey-800);
+  letter-spacing: -0.01em;
+}
+
+.calendarIcon,
+.todoIcon {
+  @include flex-col-center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  padding: 5px;
+  flex-shrink: 0;
+}
+
+.calendarIcon {
+  background: rgba(var(--primary-rgb), 0.1);
+  color: var(--primary);
+}
+
+.todoIcon {
+  background: rgba(var(--theme-accent-rgb), 0.1);
+  color: var(--theme-accent);
+}
+
+.arrow {
+  color: var(--grey-400);
+  transition: transform 0.2s ease;
+}
+
+.sectionHeader:hover .arrow {
+  transform: translateX(2px);
+  color: var(--grey-600);
+}
+
+// 리스트 및 각 행(Row) 아이템 스타일링
+.list {
+  @include flex-col(6px);
+}
+
+.row {
+  @include flex-row(10px);
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.45);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.01);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--grey-800);
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.6);
+    border-color: rgba(var(--primary-rgb), 0.15);
+  }
+}
+
+.eventDate {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--primary);
+  background: var(--primary-light);
+  padding: 2px 6px;
+  border-radius: 6px;
+  text-align: center;
+  min-width: 38px;
+}
+
+.rowTitle {
+  flex: 1;
+  min-width: 0;
+  @include text-ellipsis;
+}
+
+.todoDot {
+  flex-shrink: 0;
+  color: var(--theme-accent);
+  fill: var(--theme-accent);
+  opacity: 0.85;
+}
+
+.todoDue {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--grey-500);
+  background: var(--grey-100);
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.more {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--grey-400);
+  padding: 4px 0 2px;
+}
+
+.divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(var(--grey-200), 0.5) 20%,
+    rgba(var(--grey-200), 0.5) 80%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+// ─── 빈 상태 (Empty State) ──────────────────────────────────────────────────
+.empty {
+  padding: 16px 8px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--grey-400);
+  background: rgba(var(--grey-100), 0.3);
+  border-radius: 12px;
+  border: 1px dashed rgba(var(--grey-300), 0.4);
+  letter-spacing: -0.01em;
+}

@@ -27,6 +27,11 @@
   --pink-light: #fce7f3;
   --green: #22c55e;
   --green-light: #f0fdf4;
+  --theme-accent: var(--pink); /* 워크스페이스 테마 액센트 (기본: 핑크) */
+  --theme-accent-rgb: 236, 72, 153; /* --theme-accent 알파 변형용 RGB 채널 */
+  --theme-accent-light: var(--pink-light);
+  --theme-tertiary: var(--purple); /* 오로라 배경 3번째 광원 (기본: 보라) */
+  --theme-tertiary-rgb: 156, 39, 176; /* --theme-tertiary 알파 변형용 RGB 채널 */
   --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
   --shadow-card-lg: 0 4px 16px rgba(0, 0, 0, 0.1);
   --shadow-primary: 0 4px 12px rgba(var(--primary-rgb), 0.25);
@@ -34,6 +39,15 @@
   --shadow-toast: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   --overlay-scrim: rgba(0, 0, 0, 0.5);
+}
+
+/* 워크스페이스 테마가 'blue'일 때 액센트 토큰을 코어 블루 단독 톤으로 오버라이드 */
+[data-theme="blue"] {
+  --theme-accent: #38bdf8;
+  --theme-accent-rgb: 56, 189, 248;
+  --theme-accent-light: #e0f2fe;
+  --theme-tertiary: #0ea5e9; /* 블루 테마의 오로라 3번째 광원: 보라 대신 하늘색 계열 */
+  --theme-tertiary-rgb: 14, 165, 233;
 }
 
 * {

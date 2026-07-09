@@ -1,38 +1,21 @@
 @use "styles/mixins" as *;
 
+// GNB 탭 페이지 프레임리스 헤더 — 뒤로가기 없이 아우라 배경 위에 파트너 정보만 표시
 .header {
   flex-shrink: 0;
-  @include flex-between;
-  align-items: center;
-  padding: 0 8px 0 4px;
-  height: 60px;
-  background-color: var(--white);
-  border-bottom: 1px solid var(--grey-100);
-}
-
-.backButton {
-  @include icon-box(40px);
-  color: var(--grey-900);
-
-  &:active {
-    background-color: var(--grey-100);
-  }
+  z-index: 10;
+  padding: 20px 20px 12px;
 }
 
 .headerInfo {
   @include flex-row(10px);
   align-items: center;
-  flex: 1;
-  padding-left: 4px;
-}
-
-.headerRight {
-  width: 40px;
 }
 
 .partnerName {
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   color: var(--grey-900);
   line-height: 1.2;
 }
