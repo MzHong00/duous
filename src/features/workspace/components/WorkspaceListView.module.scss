@@ -29,12 +29,14 @@
 }
 
 .workspaceCard {
+  position: relative;
   padding: 16px;
 }
 
 .cardTop {
   @include flex-row(12px);
   align-items: flex-start;
+  padding-right: 76px; /* 우상단 아이콘 버튼 2개와 겹치지 않도록 여백 확보 */
 }
 
 .wsIcon {
@@ -74,44 +76,49 @@
 .wsMember {
   font-size: 12px;
   color: var(--grey-400);
-  margin-top: 2px;
 }
 
-.cardActions {
+.cardIconActions {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  @include flex-row(6px);
+}
+
+.setMainButton {
+  @include icon-box(32px, 10px);
+  background-color: rgba(var(--primary-rgb), 0.1);
+  color: var(--primary);
+}
+
+.settingsButton {
+  @include icon-box(32px, 10px);
+  background-color: var(--grey-100);
+  color: var(--grey-700);
+}
+
+.cardMembers {
   @include flex-row(8px);
+  align-items: center;
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px solid var(--grey-100);
 }
 
-.setMainButton {
-  flex: 1;
-  @include flex-center;
-  gap: 6px;
-  height: 36px;
-  border-radius: 12px;
-  background-color: rgba(var(--primary-rgb), 0.1);
-  color: var(--primary);
-  font-size: 14px;
-  font-weight: 600;
+// 참여자 아바타 스택 (MemoryFeed.membersStack 패턴 재사용, 24px 튜닝)
+.membersStack {
+  display: flex;
+  flex-direction: row-reverse;
 }
 
-.settingsButton {
-  flex: 1;
-  @include flex-center;
-  gap: 6px;
-  height: 36px;
-  border-radius: 12px;
-  background-color: var(--grey-100);
-  color: var(--grey-700);
-  font-size: 14px;
-  font-weight: 600;
-}
+.memberAvatar {
+  border: 2px solid var(--white);
+  border-radius: 9999px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 
-.deleteButton {
-  @include icon-box(36px, 12px);
-  background-color: rgba(var(--error-rgb), 0.1);
-  color: var(--error);
+  &:not(:last-child) {
+    margin-left: -8px; /* 크기 24px에 맞춰 겹침 폭 조절 */
+  }
 }
 
 .addButton {

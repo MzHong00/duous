@@ -1,6 +1,6 @@
 import { ROUTES } from "@/constants/routes";
 
-import type { RoomType, Workspace } from "@/features/workspace/types/workspace";
+import type { RoomType, ThemeColor, Workspace } from "@/features/workspace/types/workspace";
 
 export interface WorkspaceRow {
   id: string;
@@ -9,6 +9,7 @@ export interface WorkspaceRow {
   start_date?: string;
   background_image?: string;
   created_by: string;
+  theme_color: ThemeColor;
 }
 
 export interface MemberRow {
@@ -25,6 +26,7 @@ export const rowToWorkspace = (row: WorkspaceRow, members: MemberRow[]): Workspa
   type: row.type,
   startDate: row.start_date,
   backgroundImage: row.background_image,
+  themeColor: row.theme_color,
   members: members.map((m) => ({
     id: m.user_id,
     name: m.display_name,

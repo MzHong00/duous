@@ -19,7 +19,7 @@ export const ChatView = () => {
   const { data: user } = useQuery(authQueries.user());
   const partner = useChatPartner();
   const { messages, sendMessage } = useChatMessages(currentWorkspace?.id ?? "", user?.id ?? "");
-  const { pageRef, bottomRef } = useChatViewport(messages);
+  const { bottomRef } = useChatViewport(messages);
 
   /** 현재 입력값을 전송하고 입력바를 비운다 */
   const handleSend = () => {
@@ -28,19 +28,21 @@ export const ChatView = () => {
   };
 
   return (
-    <div ref={pageRef} className={styles.page}>
-      <ChatHeader partnerName={partner.name} partnerAvatar={partner.avatar} />
+    <div className={styles.page}>
+      <div className={styles.board}>
+        <ChatHeader partnerName={partner.name} partnerAvatar={partner.avatar} />
 
-      <MessageList
-        messages={messages}
-        partnerName={partner.name}
-        partnerAvatar={partner.avatar}
-        bottomRef={bottomRef}
-        className={styles.messages}
-      />
+        <MessageList
+          messages={messages}
+          partnerName={partner.name}
+          partnerAvatar={partner.avatar}
+          bottomRef={bottomRef}
+          className={styles.messages}
+        />
 
-      <div className={styles.inputArea}>
-        <ChatInput value={inputText} onChange={setInputText} onSend={handleSend} />
+        <div className={styles.inputArea}>
+          <ChatInput value={inputText} onChange={setInputText} onSend={handleSend} />
+        </div>
       </div>
     </div>
   );

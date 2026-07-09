@@ -2,18 +2,18 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, MapPin, Heart, User } from "lucide-react";
+import { Home, MapPin, Heart, MessageCircle, User } from "lucide-react";
 
 import { ROUTES } from "@/constants/routes";
 import { cx } from "@/utils/cn";
 
 import styles from "./BottomNav.module.scss";
 
-// 할 일·채팅은 홈 QuickAccessRow로만 진입(GNB는 5탭이면 비좁고, 둘 다 넣기엔 자리가 부족)
 const navItems = [
   { href: ROUTES.HOME.path, label: "홈", Icon: Home },
-  { href: ROUTES.MAP.path, label: "위치", Icon: MapPin },
+  { href: ROUTES.CHAT.path, label: "채팅", Icon: MessageCircle },
   { href: ROUTES.STORIES.path, label: "스토리", Icon: Heart },
+  { href: ROUTES.MAP.path, label: "위치", Icon: MapPin },
   { href: ROUTES.PROFILE.path, label: "프로필", Icon: User },
 ];
 

@@ -1,7 +1,7 @@
 "use client";
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Plus } from "lucide-react";
+import { ChevronLeft, Search, Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
 import { ROUTES } from "@/constants/routes";
@@ -40,17 +40,27 @@ export const StoriesView = () => {
 
   return (
     <div className={styles.page}>
+      <header className={styles.header}>
+        <button
+          onClick={() => router.push(ROUTES.STORIES.path)}
+          className={styles.backButton}
+          aria-label="보드로 돌아가기"
+        >
+          <ChevronLeft size={24} />
+        </button>
+        <p className={styles.headerTitle}>스토리 목록</p>
+        <div className={styles.headerRight} />
+      </header>
+
       <div className={styles.searchRow}>
-        <div className={styles.searchBox}>
-          <Search size={18} className={styles.searchIcon} />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            placeholder="추억을 검색해보세요"
-            className={styles.searchInput}
-          />
-        </div>
+        <Search size={18} className={styles.searchIcon} />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => handleSearchChange(e.target.value)}
+          placeholder="추억을 검색해보세요"
+          className={styles.searchInput}
+        />
         <button onClick={() => router.push(ROUTES.STORIES.EDIT.path)} className={styles.addButton}>
           <Plus size={22} strokeWidth={2.5} />
         </button>

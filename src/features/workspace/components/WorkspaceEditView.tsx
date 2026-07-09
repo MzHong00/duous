@@ -4,6 +4,7 @@ import { ChevronRight, Trash2, User, UserPlus } from "lucide-react";
 
 import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
 import { useWorkspaceEditActions } from "@/features/workspace/hooks/useWorkspaceEditActions";
+import { WorkspaceThemePicker } from "@/features/workspace/components/WorkspaceThemePicker";
 import { modalActions } from "@/stores/useModalStore";
 import { AppHeader } from "@/components/AppHeader";
 import { APP_WORKSPACE } from "@/constants/config";
@@ -150,6 +151,14 @@ export const WorkspaceEditView = () => {
               <span className={styles.settingValue}>{workspace.startDate || "날짜 선택"}</span>
               <ChevronRight size={16} color="var(--grey-300)" />
             </button>
+            <div className={styles.divider} />
+            <div className={styles.themeRow}>
+              <span className={styles.settingLabel}>테마</span>
+              <WorkspaceThemePicker
+                value={workspace.themeColor}
+                onChange={actions.changeThemeColor}
+              />
+            </div>
           </div>
         </div>
 

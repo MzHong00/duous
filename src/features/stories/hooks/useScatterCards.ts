@@ -6,18 +6,25 @@ interface CardSlot {
   rotate: number; // 쉬는 상태의 기울기(deg)
 }
 
-// 부채꼴 카드 뭉치(하단 55%~85% 영역) 위쪽에 작은 카드들이 둥실둥실 뜨도록 top 좌표를 15%~52% 사이로 재배치
+// 부채꼴 카드 뭉치(하단 영역) 위쪽 영역에 카드 15장을 손으로 흩뿌리듯 불규칙 배치.
+// 열/행이 맞춰 보이지 않도록 좌표를 어긋나게 잡되, 서로 겹치지 않을 최소 간격은 유지해 여백이 남지 않게 함
+// top은 상단 통계 오버레이(StoryBoardHeader)와 겹치지 않도록 전체적으로 아래로 밀어둔 값
 const SLOTS: CardSlot[] = [
-  { top: 18, left: 8, rotate: -15 },
-  { top: 16, left: 88, rotate: 15 },
-  { top: 15, left: 48, rotate: 8 },
-  { top: 32, left: 12, rotate: -12 },
-  { top: 34, left: 85, rotate: 18 },
-  { top: 36, left: 32, rotate: -8 },
-  { top: 38, left: 64, rotate: 12 },
-  { top: 50, left: 10, rotate: 14 },
-  { top: 48, left: 88, rotate: -16 },
-  { top: 26, left: 50, rotate: -10 },
+  { top: 14, left: 6, rotate: -14 },
+  { top: 12, left: 35, rotate: 9 },
+  { top: 21, left: 60, rotate: -6 },
+  { top: 11, left: 84, rotate: 16 },
+  { top: 33, left: 20, rotate: -11 },
+  { top: 30, left: 46, rotate: 7 },
+  { top: 25, left: 73, rotate: -9 },
+  { top: 39, left: 92, rotate: 13 },
+  { top: 46, left: 8, rotate: -15 },
+  { top: 52, left: 33, rotate: 6 },
+  { top: 43, left: 58, rotate: -8 },
+  { top: 57, left: 80, rotate: 11 },
+  { top: 64, left: 15, rotate: -13 },
+  { top: 66, left: 44, rotate: 8 },
+  { top: 60, left: 65, rotate: -10 },
 ];
 
 const FOCUS_TRANSITION = "transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)"; // 중앙 이동/복귀 시 부드러운 트랜지션

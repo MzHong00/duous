@@ -10,10 +10,13 @@ import { workspaceActions } from "@/features/workspace/stores/useWorkspaceStore"
 import {
   useUpdateWorkspaceNameMutation,
   useUpdateWorkspaceStartDateMutation,
+  useUpdateWorkspaceThemeMutation,
   useUpdateWorkspaceMemberMutation,
   useLeaveWorkspaceMutation,
   useCreateInviteCodeMutation,
 } from "@/features/workspace/queries/workspaceMutations";
+
+import type { ThemeColor } from "@/features/workspace/types/workspace";
 
 /**
  * 라이프룸 설정 화면(WorkspaceEditView)의 수정·나가기·초대 액션을 담당하는 훅.
@@ -24,6 +27,7 @@ export const useWorkspaceEditActions = (workspaceId: string) => {
   const { data: user } = useQuery(authQueries.user());
   const updateName = useUpdateWorkspaceNameMutation();
   const updateStartDate = useUpdateWorkspaceStartDateMutation();
+  const updateTheme = useUpdateWorkspaceThemeMutation();
   const updateMember = useUpdateWorkspaceMemberMutation();
   const leaveWorkspace = useLeaveWorkspaceMutation();
   const createInviteCode = useCreateInviteCodeMutation();
@@ -50,6 +54,19 @@ export const useWorkspaceEditActions = (workspaceId: string) => {
         type: "alert",
         title: "오류",
         message: "날짜 수정에 실패했습니다.",
+      });
+    }
+  };
+
+  /** 워크스페이스 전역 색상 테마를 수정한다 */
+  const changeThemeColor = async (themeColor: ThemeColor) => {
+    try {
+      await updateTheme.mutateAsync({ workspaceId, themeColor });
+    } catch {
+      modalActions.showModal({
+        type: "alert",
+        title: "오류",
+        message: "테마 수정에 실패했습니다.",
       });
     }
   };
@@ -102,6 +119,7 @@ export const useWorkspaceEditActions = (workspaceId: string) => {
     isInviting: createInviteCode.isPending,
     changeName,
     changeStartDate,
+    changeThemeColor,
     changeProfileName,
     invite,
     leave,

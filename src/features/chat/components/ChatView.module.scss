@@ -1,32 +1,54 @@
 @use "styles/mixins" as *;
 
-// GNB 없는 standalone 페이지 — flex-col로 키보드 대응
-// dvh 지원 브라우저에서 키보드가 올라오면 전체 높이가 자연스럽게 줄어든다
+// GNB 탭 페이지 — 다른 탭(홈/스토리)과 동일하게 부모(.main) 높이를 100% 채움
 .page {
-  // position: fixed + visualViewport로 iOS Safari 키보드 대응
-  // top/height는 JS가 즉각 업데이트 — dvh는 SSR 초기 폴백
-  position: fixed;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 480px;
-  height: 100dvh;
+  height: 100%;
   @include flex-col;
-  background-color: var(--grey-50);
+}
+
+// 홈/스토리 보드와 동일한 오로라 메쉬 그라데이션 + 필름 노이즈 톤으로 앱 전체와 톤을 맞춘 캔버스
+.board {
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  @include flex-col;
   overflow: hidden;
+
+  // 1. 파스텔 톤의 오로라 메쉬 그라데이션 광원 배치
+  background:
+    radial-gradient(at 0% 0%, rgba(var(--primary-rgb), 0.15) 0px, transparent 65%),
+    radial-gradient(at 100% 0%, rgba(var(--theme-accent-rgb), 0.15) 0px, transparent 65%),
+    radial-gradient(at 50% 100%, rgba(var(--theme-tertiary-rgb), 0.1) 0px, transparent 75%),
+    /* --theme-tertiary */ linear-gradient(180deg, var(--grey-50) 0%, var(--white) 100%);
+
+  // 2. 아날로그 필름 노이즈 텍스처 오버레이 (마크업 없이 가상 요소로 구현)
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.035; /* 입자가 과하지 않게 아주 은은하게 조절 */
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
 }
 
 // flex: 1로 남은 공간 전부 차지하며 자체 스크롤
 .messages {
+  position: relative;
+  z-index: 1;
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
-  padding: 16px 16px 8px;
+  padding: 4px 16px 8px;
+  @include scrollbar-hide;
 }
 
 // flex 아이템으로 하단에 자연스럽게 위치 — position: fixed 불필요
 .inputArea {
+  position: relative;
+  z-index: 1;
   flex-shrink: 0;
-  background-color: var(--grey-50);
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
