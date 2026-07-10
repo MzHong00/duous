@@ -9,10 +9,9 @@ import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorksp
 import { useQueryParams } from "@/hooks/useQueryParams";
 import { AppHeader } from "@/components/AppHeader";
 import { TodoList } from "@/features/todo/components/TodoList";
+import { FILTERS } from "@/features/todo/hooks/useFilteredTodos";
 import type { Filter } from "@/features/todo/hooks/useFilteredTodos";
 import styles from "./TodoView.module.scss";
-
-const VALID_FILTERS: Filter[] = ["all", "active", "completed"];
 
 export const TodoView = () => {
   const router = useRouter();
@@ -22,7 +21,7 @@ export const TodoView = () => {
   const toggleTodo = useToggleTodoMutation(currentWorkspace?.id ?? "");
 
   const rawFilter = params.get("filter");
-  const filter: Filter = VALID_FILTERS.includes(rawFilter as Filter)
+  const filter: Filter = FILTERS.includes(rawFilter as Filter)
     ? (rawFilter as Filter)
     : "all";
 

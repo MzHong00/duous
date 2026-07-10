@@ -27,8 +27,11 @@ export const StoriesView = () => {
     );
   }, [stories, searchQuery]);
 
-  const leftCol = filteredStories.filter((_, i) => i % 2 === 0);
-  const rightCol = filteredStories.filter((_, i) => i % 2 !== 0);
+  // 2단 지그재그 레이아웃: 짝수 인덱스는 왼쪽, 홀수 인덱스는 오른쪽 컬럼
+  const columns = [
+    filteredStories.filter((_, i) => i % 2 === 0),
+    filteredStories.filter((_, i) => i % 2 !== 0),
+  ];
 
   const handleSearchChange = (value: string) => {
     if (value) {
@@ -81,24 +84,20 @@ export const StoriesView = () => {
           </div>
         ) : (
           <div className={styles.columns}>
-            <div className={styles.col}>
-              {leftCol.map((story) => (
-                <StoryItem
-                  key={story.id}
-                  story={story}
-                  onPress={(id) => router.push(ROUTES.STORIES.detail(id))}
-                />
-              ))}
-            </div>
-            <div className={cx(styles.col, styles.colOffset)}>
-              {rightCol.map((story) => (
-                <StoryItem
-                  key={story.id}
-                  story={story}
-                  onPress={(id) => router.push(ROUTES.STORIES.detail(id))}
-                />
-              ))}
-            </div>
+            {columns.map((column, columnIndex) => (
+              <div
+                key={columnIndex === 0 ? "left" : "right"}
+                className={cx(styles.col, columnIndex === 1 && styles.colOffset)}
+              >
+                {column.map((story) => (
+                  <StoryItem
+                    key={story.id}
+                    story={story}
+                    onPress={(id) => router.push(ROUTES.STORIES.detail(id))}
+                  />
+                ))}
+              </div>
+            ))}
           </div>
         )}
       </div>

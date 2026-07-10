@@ -1,12 +1,8 @@
 import { supabase } from "@/lib/supabase/client";
 import { rowToWorkspace } from "@/features/workspace/utils/workspaceUtils";
 
-import type {
-  RoomType,
-  ThemeColor,
-  Workspace,
-  WorkspaceMember,
-} from "@/features/workspace/types/workspace";
+import type { User } from "@/types/user";
+import type { RoomType, ThemeColor, Workspace } from "@/features/workspace/types/workspace";
 import type { WorkspaceRow, MemberRow } from "@/features/workspace/utils/workspaceUtils";
 
 const INVITE_CODE_LENGTH = 8; // 초대 코드 길이
@@ -52,7 +48,7 @@ export const workspacesApi = {
     name: string,
     type: RoomType,
     startDate: string | undefined,
-    user: { id: string; name: string; email?: string; profileImage?: string }
+    user: User
   ): Promise<{ workspace: Workspace }> => {
     const { data: ws, error: wsError } = await supabase
       .from("workspaces")
@@ -119,10 +115,7 @@ export const workspacesApi = {
   },
 
   // 워크스페이스 참여
-  join: async (
-    workspaceId: string,
-    user: { id: string; name: string; email?: string; profileImage?: string }
-  ): Promise<Workspace> => {
+  join: async (workspaceId: string, user: User): Promise<Workspace> => {
     // 이미 멤버인지 확인
     const { data: existing } = await supabase
       .from("workspace_members")

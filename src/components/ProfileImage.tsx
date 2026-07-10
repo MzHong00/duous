@@ -17,14 +17,14 @@ interface ProfileImageProps {
 const BG_COLORS = ["#3182F6", "#10b981", "#a855f7", "#f97316", "#ec4899", "#6366f1"];
 
 export const ProfileImage = ({ uri, name, size = 40, className }: ProfileImageProps) => {
-  const initial = getInitials(name);
-  const colorIndex = name ? name.charCodeAt(0) % BG_COLORS.length : 0;
-  const bgColor = BG_COLORS[colorIndex];
-
   // 이미지 로딩 상태: uri가 있으면 처음엔 로딩 중으로 시작한다
   const [isLoading, setIsLoading] = useState(!!uri);
   // 이미지 로드 실패 시 이니셜 폴백으로 전환한다
   const [isError, setIsError] = useState(false);
+
+  const initial = getInitials(name);
+  const colorIndex = name ? name.charCodeAt(0) % BG_COLORS.length : 0;
+  const bgColor = BG_COLORS[colorIndex];
 
   if (uri && !isError) {
     return (

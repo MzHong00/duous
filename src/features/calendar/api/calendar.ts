@@ -1,6 +1,5 @@
 import { supabase } from "@/lib/supabase/client";
 
-import type { SupabaseClient } from "@supabase/supabase-js";
 import type { CalendarEvent, CreateEventData } from "@/features/calendar/types/calendar";
 
 interface CalendarEventRow {
@@ -32,12 +31,8 @@ const rowToEvent = (row: CalendarEventRow): CalendarEvent => ({
 });
 
 export const calendarApi = {
-  // client 미지정 시 브라우저 클라이언트 사용 — 서버 prefetch에서는 서버 클라이언트 주입
-  list: async (
-    workspaceId: string,
-    client: SupabaseClient = supabase
-  ): Promise<CalendarEvent[]> => {
-    const { data, error } = await client
+  list: async (workspaceId: string): Promise<CalendarEvent[]> => {
+    const { data, error } = await supabase
       .from("calendar_events")
       .select("*")
       .eq("workspace_id", workspaceId)

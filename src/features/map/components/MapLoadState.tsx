@@ -1,3 +1,5 @@
+import { cx } from "@/utils/cn";
+
 import type { MapLoadStatus } from "@/features/map/hooks/useGoogleMap";
 import styles from "./MapLoadState.module.scss";
 
@@ -21,7 +23,7 @@ export const MapLoadState = ({ status, errorMessage }: MapLoadStateProps) => {
   if (status === "error") {
     return (
       <div className={styles.container}>
-        <p className={`${styles.title} ${styles.titleError}`}>지도를 불러오지 못했습니다</p>
+        <p className={cx(styles.title, styles.titleError)}>지도를 불러오지 못했습니다</p>
         {errorMessage && <p className={styles.desc}>{errorMessage}</p>}
       </div>
     );

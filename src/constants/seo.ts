@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 
-export const SITE_URL = "https://duous.app"; // 실제 배포 도메인 확정 시 교체
-
 // 로그인 없이 접근 가능해 검색엔진에 노출해야 하는 페이지만 true
 export const INDEXABLE_ROBOTS: Metadata["robots"] = { index: true, follow: true };
 export const NOINDEX_ROBOTS: Metadata["robots"] = { index: false, follow: false };

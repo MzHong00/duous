@@ -13,18 +13,12 @@ import { MapLoadState } from "@/features/map/components/MapLoadState";
 import { MemberMarker } from "@/features/map/components/MemberMarker";
 
 import type { LocationPoint, Story } from "@/features/stories/types/story";
-import type { WorkspaceMember } from "@/features/workspace/types/workspace";
+import type { MemberLocation } from "@/features/map/types/map";
 import styles from "./GoogleMapView.module.scss";
 
 const SELECTED_STROKE_WEIGHT = 6;
 const UNSELECTED_STROKE_WEIGHT = 4;
 const UNSELECTED_STROKE_OPACITY = 0.25;
-
-interface MemberLocation {
-  member: WorkspaceMember;
-  lat: number;
-  lng: number;
-}
 
 interface GoogleMapViewProps {
   center: google.maps.LatLngLiteral;

@@ -61,6 +61,18 @@ export const useTodoForm = (todoId: string | null, initialDate: string | null) =
 
   const members = currentWorkspace?.members || [];
 
+  /** 시작일을 변경하고 종료일이 앞서면 종료일도 같은 날짜로 보정한다 */
+  const handleStartDateChange = (date: string) => {
+    setStartDate(date);
+    if (date > endDate) setEndDate(date);
+  };
+
+  /** 종료일을 변경하고 시작일이 뒤서면 시작일도 같은 날짜로 보정한다 */
+  const handleEndDateChange = (date: string) => {
+    setEndDate(date);
+    if (date < startDate) setStartDate(date);
+  };
+
   /** 삭제 확인 모달을 띄우고 확인 시 서버에서 항목을 제거한다 */
   const handleDelete = () => {
     if (!todoId) return;
@@ -119,9 +131,9 @@ export const useTodoForm = (todoId: string | null, initialDate: string | null) =
     assigneeId,
     setAssigneeId,
     startDate,
-    setStartDate,
     endDate,
-    setEndDate,
+    handleStartDateChange,
+    handleEndDateChange,
     selectedColor,
     setSelectedColor,
     members,

@@ -16,7 +16,7 @@ import { ProfileImage } from "@/components/ProfileImage";
 import { BottomDrawer } from "@/components/BottomDrawer";
 import { toastActions } from "@/stores/useToastStore";
 
-import type { WorkspaceMember } from "@/features/workspace/types/workspace";
+import type { MemberLocation } from "@/features/map/types/map";
 import styles from "./MapView.module.scss";
 
 const DIRECTIONS_BASE_URL = "https://www.google.com/maps/dir/?api=1";
@@ -36,17 +36,12 @@ export const MapView = () => {
     userId: myUserId,
   });
 
-  const memberLocations = (currentWorkspace?.members ?? []).flatMap<{
-    member: WorkspaceMember;
-    lat: number;
-    lng: number;
-  }>((member) => {
+  const memberLocations = (currentWorkspace?.members ?? []).flatMap<MemberLocation>((member) => {
     // 실시간 위치 공유(presence) 연동 전까지는 본인 위치만 표시한다
     if (member.id !== myUserId) return [];
     return [{ member, lat: myLocation.lat, lng: myLocation.lng }];
   });
 
-  const mapCenter = myLocation;
   const selectedStory = stories.find((s) => s.id === selectedStoryId);
   const selectedUser = currentWorkspace?.members?.find((m) => m.id === selectedUserId);
 
@@ -92,7 +87,7 @@ export const MapView = () => {
       </div>
 
       <GoogleMapView
-        center={mapCenter}
+        center={myLocation}
         focusLocation={focusLocation}
         myUserId={myUserId}
         memberLocations={memberLocations}

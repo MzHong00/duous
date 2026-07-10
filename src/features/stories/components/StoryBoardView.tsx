@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
-import { Camera, RotateCcw, X } from "lucide-react";
+import { Camera, RotateCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { storyQueries } from "@/features/stories/queries/storyQueries";
@@ -13,7 +13,7 @@ import { useMemoryBoard } from "../hooks/useMemoryBoard";
 import { useScatterCards } from "../hooks/useScatterCards";
 
 import { SHELL_STORIES, isShellStory } from "@/features/stories/constants/previewMockStories";
-import { StoryDetailContent } from "@/features/stories/components/StoryDetailContent";
+import { StoryDetailOverlay } from "@/features/stories/components/StoryDetailOverlay";
 import { MemoryCard } from "./MemoryCard";
 import { StoryBoardHeader } from "./StoryBoardHeader";
 
@@ -21,11 +21,17 @@ import styles from "./StoryBoardView.module.scss";
 
 const SKELETON_KEYS = ["skeleton-1", "skeleton-2", "skeleton-3"]; // 로딩 스켈레톤 카드 개수(3장)
 const CENTER_MOVE_MS = 450; // 카드가 보드 중앙으로 이동하는 시간(이후 상세 오버레이를 펼침)
-const SWIPE_CLOSE_THRESHOLD = 90; // 이 거리(px)를 넘겨 놓으면 상세 오버레이가 그 방향으로 날아가며 닫힘
-const SWIPE_FADE_DISTANCE = 260; // 이 거리(px)만큼 스와이프하면 완전히 투명해지는 기준
-const SWIPE_OUT_MS = 280; // 스와이프 아웃 애니메이션 시간(ms)
-const SWIPE_TRANSITION = `transform ${SWIPE_OUT_MS}ms ease, opacity ${SWIPE_OUT_MS}ms ease`;
 const BOARD_STORY_COUNT = 20; // 보드를 채우는 목표 스토리 수(부채꼴 5장 + 흩어진 카드 15장, 실 스토리 + 껍데기)
+const FAN_DRAG_STEP_PX = 130; // 부채꼴에서 카드 한 장을 넘기는 데 필요한 드래그 거리(px)
+const FAN_ROTATE_STEP_DEG = 16; // 활성 카드에서 한 장 멀어질 때마다 더해지는 회전(deg)
+const FAN_OFFSET_X_STEP = 70; // 활성 카드에서 한 장 멀어질 때마다 더해지는 가로 이동(px)
+const FAN_OFFSET_Y_STEP = 15; // 활성 카드에서 한 장 멀어질 때마다 더해지는 세로 이동(px)
+const FAN_SCALE_STEP = 0.08; // 활성 카드에서 한 장 멀어질 때마다 줄어드는 배율
+const FAN_MIN_SCALE = 0.75; // 부채꼴 카드 최소 배율
+const FAN_VISIBLE_RANGE = 2; // 활성 카드 기준 이 장수를 넘게 떨어진 카드는 숨김
+const FAN_BEHIND_OPACITY = 0.6; // 활성 카드보다 왼쪽(지나간) 카드의 투명도
+const FAN_BASE_Z_INDEX = 10; // 활성 카드의 z-index(멀어질수록 낮아짐)
+const FOCUSED_Z_INDEX = 50; // 중앙으로 이동한 카드의 z-index
 
 export const StoryBoardView = () => {
   const boardRef = useRef<HTMLDivElement>(null); // 카드가 튕겨야 할 실제 벽(보드) 경계
@@ -57,9 +63,6 @@ export const StoryBoardView = () => {
   const [focus, setFocus] = useState<{ id: string; dx: number; dy: number } | null>(null); // 보드 정중앙으로 이동한 카드 id와 이동량(px)
   const [detailId, setDetailId] = useState<string | null>(null); // 상세 오버레이로 펼쳐진 스토리 id(없으면 null)
   const detailTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined); // 중앙 이동 완료 후 상세를 여는 예약 타이머
-  const detailOverlayRef = useRef<HTMLDivElement>(null); // 상세 오버레이 엘리먼트(스와이프 중 transform 직접 제어)
-  const detailSwipeRef = useRef<{ x: number; y: number; engaged: boolean } | null>(null); // 상세 오버레이 좌우 스와이프 시작 좌표·가로 스와이프 진입 여부
-  const dismissTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined); // 스와이프 아웃 애니메이션 후 언마운트 예약 타이머
   const {
     setCardRef,
     handlePointerDown,
@@ -69,14 +72,8 @@ export const StoryBoardView = () => {
     resetFocus,
   } = useScatterCards(collageRef, boardRef, smallItems.length);
 
-  // 언마운트 시 상세 열기/스와이프 아웃 예약 타이머 정리
-  useEffect(
-    () => () => {
-      clearTimeout(detailTimerRef.current);
-      clearTimeout(dismissTimerRef.current);
-    },
-    []
-  );
+  // 언마운트 시 상세 열기 예약 타이머 정리
+  useEffect(() => () => clearTimeout(detailTimerRef.current), []);
 
   if (!currentWorkspace) return null;
 
@@ -92,8 +89,8 @@ export const StoryBoardView = () => {
   const handleDragMove = (e: React.PointerEvent) => {
     if (dragStartXRef.current === null) return;
     const diffX = e.clientX - dragStartXRef.current;
-    // 130px 드래그할 때마다 한 장씩 인덱스 변경
-    const indexOffset = Math.round(diffX / 130);
+    // FAN_DRAG_STEP_PX만큼 드래그할 때마다 한 장씩 인덱스 변경
+    const indexOffset = Math.round(diffX / FAN_DRAG_STEP_PX);
     let nextIndex = (dragStartIndexRef.current - indexOffset) % bigItems.length;
     if (nextIndex < 0) nextIndex += bigItems.length;
     if (nextIndex !== currentIndex) {
@@ -161,54 +158,6 @@ export const StoryBoardView = () => {
     scheduleDetail(id);
   };
 
-  const handleDetailPointerDown = (e: React.PointerEvent) => {
-    const el = detailOverlayRef.current;
-    if (!el) return;
-    detailSwipeRef.current = { x: e.clientX, y: e.clientY, engaged: false };
-    el.style.animation = "none"; // 등장 애니메이션이 인라인 transform을 덮지 않도록 제거
-    el.style.transition = "none"; // 손가락을 즉시 따라오도록 트랜지션 끄기
-  };
-
-  const handleDetailPointerMove = (e: React.PointerEvent) => {
-    const swipe = detailSwipeRef.current;
-    const el = detailOverlayRef.current;
-    if (!swipe || !el) return;
-
-    const dx = e.clientX - swipe.x;
-    const dy = e.clientY - swipe.y;
-    // 세로 스크롤과 구분: 가로 이동이 우세할 때만 스와이프로 진입
-    if (!swipe.engaged) {
-      if (Math.abs(dx) < 8 || Math.abs(dx) <= Math.abs(dy)) return;
-      swipe.engaged = true;
-    }
-    // 스와이프한 만큼 오버레이를 이동시키고 거리에 비례해 투명하게
-    el.style.transform = `translateX(${dx}px)`;
-    el.style.opacity = String(Math.max(0, 1 - Math.abs(dx) / SWIPE_FADE_DISTANCE));
-  };
-
-  const handleDetailPointerUp = (e: React.PointerEvent) => {
-    const swipe = detailSwipeRef.current;
-    const el = detailOverlayRef.current;
-    detailSwipeRef.current = null;
-    if (!swipe || !el) return;
-
-    const dx = e.clientX - swipe.x;
-    el.style.transition = SWIPE_TRANSITION;
-
-    if (swipe.engaged && Math.abs(dx) > SWIPE_CLOSE_THRESHOLD) {
-      // 스와이프 방향으로 화면 밖까지 날려보내며 사라지게 한 뒤 언마운트
-      const direction = dx > 0 ? 1 : -1;
-      el.style.transform = `translateX(${direction * window.innerWidth}px)`;
-      el.style.opacity = "0";
-      clearTimeout(dismissTimerRef.current);
-      dismissTimerRef.current = setTimeout(closeDetail, SWIPE_OUT_MS);
-    } else {
-      // 임계값 미만이면 제자리로 부드럽게 복귀
-      el.style.transform = "translateX(0)";
-      el.style.opacity = "1";
-    }
-  };
-
   return (
     <div className={styles.page}>
       <div className={styles.board} ref={boardRef}>
@@ -256,13 +205,14 @@ export const StoryBoardView = () => {
                   } else if (diff < -half) {
                     diff += totalLength;
                   }
-                  const rotate = diff * 16;
-                  const translateX = diff * 70;
-                  const translateY = Math.abs(diff) * 15;
+                  const rotate = diff * FAN_ROTATE_STEP_DEG;
+                  const translateX = diff * FAN_OFFSET_X_STEP;
+                  const translateY = Math.abs(diff) * FAN_OFFSET_Y_STEP;
 
-                  const zIndex = 10 - Math.abs(diff);
-                  const scale = Math.max(0.75, 1 - Math.abs(diff) * 0.08);
-                  const opacity = Math.abs(diff) > 2 ? 0 : diff < 0 ? 0.6 : 1;
+                  const zIndex = FAN_BASE_Z_INDEX - Math.abs(diff);
+                  const scale = Math.max(FAN_MIN_SCALE, 1 - Math.abs(diff) * FAN_SCALE_STEP);
+                  const isHidden = Math.abs(diff) > FAN_VISIBLE_RANGE;
+                  const opacity = isHidden ? 0 : diff < 0 ? FAN_BEHIND_OPACITY : 1;
                   const pointerEvents: React.CSSProperties["pointerEvents"] =
                     opacity === 0 ? "none" : "auto";
 
@@ -277,7 +227,7 @@ export const StoryBoardView = () => {
                       className={styles.fannedCard}
                       style={{
                         transform: `translate3d(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px), 0) rotate(${rotate}deg) scale(${scale})`,
-                        zIndex: isFocused ? 50 : zIndex,
+                        zIndex: isFocused ? FOCUSED_Z_INDEX : zIndex,
                         opacity: isFocused ? 1 : opacity,
                         pointerEvents,
                       }}
@@ -309,26 +259,7 @@ export const StoryBoardView = () => {
         </div>
 
         {/* 상세 펼침 오버레이 (보드 전체를 상단까지 덮음) */}
-        {detailStory && (
-          <div
-            ref={detailOverlayRef}
-            className={styles.detailOverlay}
-            onPointerDown={handleDetailPointerDown}
-            onPointerMove={handleDetailPointerMove}
-            onPointerUp={handleDetailPointerUp}
-            onPointerCancel={handleDetailPointerUp}
-          >
-            <button
-              type="button"
-              onClick={closeDetail}
-              className={styles.detailClose}
-              aria-label="상세 닫기"
-            >
-              <X size={20} />
-            </button>
-            <StoryDetailContent story={detailStory} />
-          </div>
-        )}
+        {detailStory && <StoryDetailOverlay story={detailStory} onClose={closeDetail} />}
       </div>
     </div>
   );
