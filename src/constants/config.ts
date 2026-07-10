@@ -22,3 +22,5 @@ export const APP_WORKSPACE = {
   KR: "라이프룸",
   EN: "LifeRoom",
 };
+
+export const SITE_URL = "https://duous.vercel.app"; // 실제 배포 도메인 확정 시 교체

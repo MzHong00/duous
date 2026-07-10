@@ -3,12 +3,12 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { ENV } from "@/constants/config";
 
-/** 요청 쿠키의 세션 토큰을 갱신하고, 갱신된 쿠키가 실린 응답과 유저를 반환 */
+/** 요청 쿠키의 세션 토큰을 갱신하고, 갱신된 쿠키가 실린 응답과 로그인 여부를 반환 */
 export const updateSession = async (request: NextRequest) => {
   let response = NextResponse.next({ request });
 
   if (!ENV.SUPABASE_URL || !ENV.SUPABASE_PUBLISHABLE_KEY) {
-    return { response, user: null };
+    return { response, isAuthenticated: false };
   }
 
   const supabase = createServerClient(ENV.SUPABASE_URL, ENV.SUPABASE_PUBLISHABLE_KEY, {
@@ -24,9 +24,8 @@ export const updateSession = async (request: NextRequest) => {
     },
   });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getClaims는 JWT 서명을 로컬 검증(비대칭 키)해 Auth 서버 왕복 없이 로그인 여부 판별
+  const { data } = await supabase.auth.getClaims();
 
-  return { response, user };
+  return { response, isAuthenticated: !!data?.claims };
 };

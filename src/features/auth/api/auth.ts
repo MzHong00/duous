@@ -1,6 +1,5 @@
 import { supabase } from "@/lib/supabase/client";
 
-import type { SupabaseClient } from "@supabase/supabase-js";
 import type { User } from "@/types/user";
 
 const DEFAULT_USER_NAME = "사용자"; // 이름·이메일을 얻지 못했을 때의 표시 이름
@@ -33,12 +32,11 @@ export const authApi = {
     return session;
   },
 
-  // client 미지정 시 브라우저 클라이언트 사용 — 서버 prefetch에서는 서버 클라이언트 주입
-  getUser: async (client: SupabaseClient = supabase): Promise<User | null> => {
+  getUser: async (): Promise<User | null> => {
     const {
       data: { user },
       error,
-    } = await client.auth.getUser();
+    } = await supabase.auth.getUser();
     if (error || !user) return null;
     return {
       id: user.id,

@@ -8,13 +8,13 @@ const PUBLIC_PATH_PREFIXES = [ROUTES.LOGIN.path, "/auth/callback", "/workspace/j
 
 /** 세션 쿠키 갱신 + 비로그인 사용자의 보호 라우트 접근 차단 */
 export async function proxy(request: NextRequest) {
-  const { response, user } = await updateSession(request);
+  const { response, isAuthenticated } = await updateSession(request);
   const { pathname } = request.nextUrl;
 
   const isPublicPath =
     pathname === "/" || PUBLIC_PATH_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 
-  if (!user && !isPublicPath) {
+  if (!isAuthenticated && !isPublicPath) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = ROUTES.LOGIN.path;
     loginUrl.search = `?redirect=${encodeURIComponent(pathname)}`;
