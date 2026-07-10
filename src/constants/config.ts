@@ -10,12 +10,12 @@ export const ENV = {
 };
 
 export const COOKIE_KEYS = {
-  WORKSPACE_ID: "lifeshare-workspace-id", // 서버(SSR prefetch)가 현재 워크스페이스를 식별하기 위한 쿠키
+  WORKSPACE_ID: "duous-workspace-id", // 서버(SSR prefetch)가 현재 워크스페이스를 식별하기 위한 쿠키
 };
 
 export const APP_BRAND_NAME = {
-  KR: "라이프쉐어",
-  EN: "LifeShare",
+  KR: "듀어스",
+  EN: "Duous",
 };
 
 export const APP_WORKSPACE = {
