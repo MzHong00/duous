@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { authQueries } from "@/features/auth/queries/authQueries";
 import { useAnniversaries } from "@/features/anniversary/hooks/useAnniversaries";
 import { ROUTES } from "@/constants/routes";
+import { cx } from "@/utils/cn";
 import { formatDate } from "@/utils/date";
 
 import styles from "./AnniversarySpotlight.module.scss";
@@ -48,7 +49,7 @@ export const AnniversarySpotlight = () => {
         <button
           type="button"
           onClick={() => router.push(ROUTES.ANNIVERSARY.path)}
-          className={`${styles.polaroid} ${isDDay ? styles.isTodayAnniversary : ""}`}
+          className={cx(styles.polaroid, isDDay && styles.isTodayAnniversary)}
           aria-label={`다가오는 기념일 ${nextEvent.title}, ${isDDay ? "오늘" : `${nextEvent.daysLeft}일 남음`}, 기념일 페이지로 이동`}
         >
           <div className={styles.polaroidInner}>
