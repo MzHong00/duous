@@ -1,14 +1,12 @@
 import { supabase } from "@/lib/supabase/client";
 import { rowToStory } from "@/features/stories/utils/storyUtils";
 
-import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Story } from "@/features/stories/types/story";
 import type { StoryRow } from "@/features/stories/utils/storyUtils";
 
 export const storiesApi = {
-  // client 미지정 시 브라우저 클라이언트 사용 — 서버 prefetch에서는 서버 클라이언트 주입
-  list: async (workspaceId: string, client: SupabaseClient = supabase): Promise<Story[]> => {
-    const { data, error } = await client
+  list: async (workspaceId: string): Promise<Story[]> => {
+    const { data, error } = await supabase
       .from("stories")
       .select("*")
       .eq("workspace_id", workspaceId)

@@ -3,6 +3,8 @@ import { useMemo } from "react";
 
 import { LayoutGrid } from "lucide-react";
 
+import { isThisMonth } from "@/utils/date";
+
 import type { Story } from "@/features/stories/types/story";
 
 import styles from "./StoryBoardHeader.module.scss";
@@ -14,15 +16,11 @@ interface StoryBoardHeaderProps {
 
 /** 스토리 보드 상단 플로팅 오버레이: 총 개수·이번 달 등록 통계 + 목록 이동 버튼 */
 export const StoryBoardHeader = ({ stories, onListClick }: StoryBoardHeaderProps) => {
-  const thisMonthCount = useMemo(() => {
-    const now = new Date();
-    return stories.filter((story) => {
-      const storyDate = new Date(story.date);
-      return (
-        storyDate.getFullYear() === now.getFullYear() && storyDate.getMonth() === now.getMonth()
-      );
-    }).length;
-  }, [stories]);
+  // 이번 달에 기록된 스토리 개수
+  const thisMonthCount = useMemo(
+    () => stories.filter((story) => isThisMonth(story.date)).length,
+    [stories]
+  );
 
   return (
     <header className={styles.overlay}>

@@ -1,6 +1,9 @@
 "use client";
 import { MapPin, X } from "lucide-react";
 
+import { cx } from "@/utils/cn";
+import { formatDate } from "@/utils/date";
+
 import type { Story } from "@/features/stories/types/story";
 
 import styles from "./MemoryCard.module.scss";
@@ -18,7 +21,7 @@ export const MemoryCard = ({ story, isExpanded, onClose, showDate, isShell }: Me
 
   if (isExpanded) {
     return (
-      <div className={`${styles.card} ${styles.expanded}`} aria-label={`기억 상세, ${cardTitle}`}>
+      <div className={cx(styles.card, styles.expanded)} aria-label={`기억 상세, ${cardTitle}`}>
         {onClose && (
           <button
             type="button"
@@ -57,7 +60,7 @@ export const MemoryCard = ({ story, isExpanded, onClose, showDate, isShell }: Me
 
   return (
     <div
-      className={`${styles.card} ${isShell ? styles.shell : ""}`}
+      className={cx(styles.card, isShell && styles.shell)}
       aria-label={`기억, ${cardTitle}`}
     >
       {story.thumbnailUrl ? (
@@ -70,7 +73,7 @@ export const MemoryCard = ({ story, isExpanded, onClose, showDate, isShell }: Me
 
       <div className={styles.overlay}>
         {showDate && story.date && (
-          <span className={styles.dateBadge}>{story.date.split("T")[0].replaceAll("-", ".")}</span>
+          <span className={styles.dateBadge}>{formatDate(story.date, "YYYY.MM.DD")}</span>
         )}
         <p className={styles.caption}>{cardTitle}</p>
       </div>
