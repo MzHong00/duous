@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 
 import { ROUTES } from "@/constants/routes";
+import { buildInviteLink } from "@/features/workspace/utils/workspaceUtils";
 import { modalActions } from "@/stores/useModalStore";
 import { toastActions } from "@/stores/useToastStore";
 import { authQueries } from "@/features/auth/queries/authQueries";
@@ -32,61 +33,44 @@ export const useWorkspaceEditActions = (workspaceId: string) => {
   const leaveWorkspace = useLeaveWorkspaceMutation();
   const createInviteCode = useCreateInviteCodeMutation();
 
-  /** 라이프룸 제목을 수정한다 */
-  const changeName = async (name: string) => {
+  /** 액션을 실행하고 실패 시 오류 알림 모달을 띄운다 (수정 계열 액션 공통 에러 처리) */
+  const runWithErrorAlert = async (action: () => Promise<unknown>, errorMessage: string) => {
     try {
-      await updateName.mutateAsync({ workspaceId, name });
+      await action();
     } catch {
-      modalActions.showModal({
-        type: "alert",
-        title: "오류",
-        message: "제목 수정에 실패했습니다.",
-      });
+      modalActions.showModal({ type: "alert", title: "오류", message: errorMessage });
     }
   };
+
+  /** 라이프룸 제목을 수정한다 */
+  const changeName = (name: string) =>
+    runWithErrorAlert(
+      () => updateName.mutateAsync({ workspaceId, name }),
+      "제목 수정에 실패했습니다."
+    );
 
   /** 함께한 날(시작일)을 수정한다 */
-  const changeStartDate = async (startDate: string) => {
-    try {
-      await updateStartDate.mutateAsync({ workspaceId, startDate });
-    } catch {
-      modalActions.showModal({
-        type: "alert",
-        title: "오류",
-        message: "날짜 수정에 실패했습니다.",
-      });
-    }
-  };
+  const changeStartDate = (startDate: string) =>
+    runWithErrorAlert(
+      () => updateStartDate.mutateAsync({ workspaceId, startDate }),
+      "날짜 수정에 실패했습니다."
+    );
 
   /** 워크스페이스 전역 색상 테마를 수정한다 */
-  const changeThemeColor = async (themeColor: ThemeColor) => {
-    try {
-      await updateTheme.mutateAsync({ workspaceId, themeColor });
-    } catch {
-      modalActions.showModal({
-        type: "alert",
-        title: "오류",
-        message: "테마 수정에 실패했습니다.",
-      });
-    }
-  };
+  const changeThemeColor = (themeColor: ThemeColor) =>
+    runWithErrorAlert(
+      () => updateTheme.mutateAsync({ workspaceId, themeColor }),
+      "테마 수정에 실패했습니다."
+    );
 
   /** 내 활동 프로필(표시 이름)을 수정한다 */
   const changeProfileName = async (name: string) => {
     if (!user) return;
-    try {
-      await updateMember.mutateAsync({
-        workspaceId,
-        userId: user.id,
-        updates: { display_name: name },
-      });
-    } catch {
-      modalActions.showModal({
-        type: "alert",
-        title: "오류",
-        message: "프로필 수정에 실패했습니다.",
-      });
-    }
+    await runWithErrorAlert(
+      () =>
+        updateMember.mutateAsync({ workspaceId, userId: user.id, updates: { display_name: name } }),
+      "프로필 수정에 실패했습니다."
+    );
   };
 
   /** 초대 링크를 생성해 클립보드에 복사한다 */
@@ -94,8 +78,7 @@ export const useWorkspaceEditActions = (workspaceId: string) => {
     if (!user) return;
     try {
       const code = await createInviteCode.mutateAsync({ workspaceId, userId: user.id });
-      const link = `${window.location.origin}${ROUTES.WORKSPACE.join(code)}`;
-      await navigator.clipboard.writeText(link);
+      await navigator.clipboard.writeText(buildInviteLink(code));
       toastActions.showToast("초대 링크를 복사했어요. 파트너에게 공유해보세요.", "success");
     } catch {
       toastActions.showToast("초대 링크 생성에 실패했어요.", "error");
@@ -105,13 +88,11 @@ export const useWorkspaceEditActions = (workspaceId: string) => {
   /** 라이프룸에서 나가고 목록 화면으로 이동한다 */
   const leave = async () => {
     if (!user) return;
-    try {
+    await runWithErrorAlert(async () => {
       await leaveWorkspace.mutateAsync({ workspaceId, userId: user.id });
       workspaceActions.setCurrentWorkspaceId(null);
       router.replace(ROUTES.WORKSPACE.LIST.path);
-    } catch {
-      modalActions.showModal({ type: "alert", title: "오류", message: "나가기에 실패했습니다." });
-    }
+    }, "나가기에 실패했습니다.");
   };
 
   return {

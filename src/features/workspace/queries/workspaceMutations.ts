@@ -1,14 +1,25 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { workspacesApi } from "@/features/workspace/api/workspaces";
+import { workspaceQueries } from "@/features/workspace/queries/workspaceQueries";
+
 import type { User } from "@/types/user";
 import type { RoomType, ThemeColor } from "@/features/workspace/types/workspace";
-import { workspaceQueries } from "./workspaceQueries";
 
-export const useCreateWorkspaceMutation = () => {
+/** 성공 시 내 워크스페이스 목록(mine) 쿼리를 무효화하는 공통 뮤테이션 헬퍼 */
+const useInvalidateMineMutation = <TVariables, TData>(
+  mutationFn: (variables: TVariables) => Promise<TData>
+) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
+    mutationFn,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: workspaceQueries.mine().queryKey }),
+  });
+};
+
+export const useCreateWorkspaceMutation = () =>
+  useInvalidateMineMutation(
+    ({
       name,
       type,
       startDate,
@@ -17,52 +28,35 @@ export const useCreateWorkspaceMutation = () => {
       name: string;
       type: RoomType;
       startDate?: string;
-      user: { id: string; name: string; email?: string; profileImage?: string };
-    }) => workspacesApi.create(name, type, startDate, user),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: workspaceQueries.mine().queryKey }),
-  });
-};
+      user: User;
+    }) => workspacesApi.create(name, type, startDate, user)
+  );
 
-export const useJoinWorkspaceMutation = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ workspaceId, user }: { workspaceId: string; user: User }) =>
-      workspacesApi.join(workspaceId, user),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: workspaceQueries.mine().queryKey }),
-  });
-};
+export const useJoinWorkspaceMutation = () =>
+  useInvalidateMineMutation(({ workspaceId, user }: { workspaceId: string; user: User }) =>
+    workspacesApi.join(workspaceId, user)
+  );
 
-export const useUpdateWorkspaceNameMutation = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ workspaceId, name }: { workspaceId: string; name: string }) =>
-      workspacesApi.updateName(workspaceId, name),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: workspaceQueries.mine().queryKey }),
-  });
-};
+export const useUpdateWorkspaceNameMutation = () =>
+  useInvalidateMineMutation(({ workspaceId, name }: { workspaceId: string; name: string }) =>
+    workspacesApi.updateName(workspaceId, name)
+  );
 
-export const useUpdateWorkspaceStartDateMutation = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ workspaceId, startDate }: { workspaceId: string; startDate: string }) =>
-      workspacesApi.updateStartDate(workspaceId, startDate),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: workspaceQueries.mine().queryKey }),
-  });
-};
+export const useUpdateWorkspaceStartDateMutation = () =>
+  useInvalidateMineMutation(
+    ({ workspaceId, startDate }: { workspaceId: string; startDate: string }) =>
+      workspacesApi.updateStartDate(workspaceId, startDate)
+  );
 
-export const useUpdateWorkspaceThemeMutation = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ workspaceId, themeColor }: { workspaceId: string; themeColor: ThemeColor }) =>
-      workspacesApi.updateThemeColor(workspaceId, themeColor),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: workspaceQueries.mine().queryKey }),
-  });
-};
+export const useUpdateWorkspaceThemeMutation = () =>
+  useInvalidateMineMutation(
+    ({ workspaceId, themeColor }: { workspaceId: string; themeColor: ThemeColor }) =>
+      workspacesApi.updateThemeColor(workspaceId, themeColor)
+  );
 
-export const useUpdateWorkspaceMemberMutation = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({
+export const useUpdateWorkspaceMemberMutation = () =>
+  useInvalidateMineMutation(
+    ({
       workspaceId,
       userId,
       updates,
@@ -70,19 +64,14 @@ export const useUpdateWorkspaceMemberMutation = () => {
       workspaceId: string;
       userId: string;
       updates: { display_name?: string; avatar_url?: string };
-    }) => workspacesApi.updateMember(workspaceId, userId, updates),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: workspaceQueries.mine().queryKey }),
-  });
-};
+    }) => workspacesApi.updateMember(workspaceId, userId, updates)
+  );
 
-export const useUpdateWorkspaceBackgroundMutation = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ workspaceId, imageUrl }: { workspaceId: string; imageUrl: string }) =>
-      workspacesApi.updateBackground(workspaceId, imageUrl),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: workspaceQueries.mine().queryKey }),
-  });
-};
+export const useUpdateWorkspaceBackgroundMutation = () =>
+  useInvalidateMineMutation(
+    ({ workspaceId, imageUrl }: { workspaceId: string; imageUrl: string }) =>
+      workspacesApi.updateBackground(workspaceId, imageUrl)
+  );
 
 export const useCreateInviteCodeMutation = () =>
   useMutation({
@@ -90,11 +79,7 @@ export const useCreateInviteCodeMutation = () =>
       workspacesApi.createInviteCode(workspaceId, userId),
   });
 
-export const useLeaveWorkspaceMutation = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ workspaceId, userId }: { workspaceId: string; userId: string }) =>
-      workspacesApi.leave(workspaceId, userId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: workspaceQueries.mine().queryKey }),
-  });
-};
+export const useLeaveWorkspaceMutation = () =>
+  useInvalidateMineMutation(({ workspaceId, userId }: { workspaceId: string; userId: string }) =>
+    workspacesApi.leave(workspaceId, userId)
+  );
