@@ -9,7 +9,7 @@ import { cx } from "@/utils/cn";
 
 import styles from "./BottomNav.module.scss";
 
-const navItems = [
+const NAV_ITEMS = [
   { href: ROUTES.HOME.path, label: "홈", Icon: Home },
   { href: ROUTES.CHAT.path, label: "채팅", Icon: MessageCircle },
   { href: ROUTES.STORIES.path, label: "스토리", Icon: Heart },
@@ -17,7 +17,7 @@ const navItems = [
   { href: ROUTES.PROFILE.path, label: "프로필", Icon: User },
 ];
 
-const GNB_PATHS = navItems.map((item) => item.href);
+const GNB_PATHS = NAV_ITEMS.map((item) => item.href);
 const GNB_HEIGHT_CSS_VAR = "--gnb-height"; // GNB 실제 렌더 높이를 다른 화면(바텀시트 등)에서 참조하기 위한 CSS 변수명
 
 export const BottomNav = () => {
@@ -46,7 +46,7 @@ export const BottomNav = () => {
   return (
     <nav ref={navRef} className={styles.nav}>
       <div className={styles.navList}>
-        {navItems.map(({ href, label, Icon }) => {
+        {NAV_ITEMS.map(({ href, label, Icon }) => {
           const isActive = pathname === href || pathname.startsWith(href + "/");
           return (
             <Link key={href} href={href} className={styles.navLink}>

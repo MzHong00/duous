@@ -1,10 +1,12 @@
 "use client";
-import { useToastStore } from "@/stores/useToastStore";
 import { CheckCircle, AlertCircle, Info, AlertTriangle } from "lucide-react";
+
+import { useToastStore } from "@/stores/useToastStore";
 
 import styles from "./Toast.module.scss";
 
-const iconMap = {
+/** 토스트 타입별 아이콘 매핑 */
+const TOAST_ICONS = {
   success: CheckCircle,
   error: AlertCircle,
   info: Info,
@@ -19,7 +21,7 @@ export const Toast = () => {
   return (
     <div className={styles.container}>
       {toasts.map((toast) => {
-        const Icon = iconMap[toast.type];
+        const Icon = TOAST_ICONS[toast.type];
         return (
           <div key={toast.id} className={styles.toast} data-type={toast.type}>
             <span className={styles.iconWrap}>
