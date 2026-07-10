@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { cookies } from "next/headers";
@@ -8,6 +9,9 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { calendarQueries } from "@/features/calendar/queries/calendarQueries";
 import { todoQueries } from "@/features/todo/queries/todoQueries";
 import { CalendarView } from "@/features/calendar/components/CalendarView";
+import { PAGE_TITLES } from "@/constants/seo";
+
+export const metadata: Metadata = { title: PAGE_TITLES.CALENDAR };
 
 export default async function Page() {
   const queryClient = getQueryClient();

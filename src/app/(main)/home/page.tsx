@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { cookies } from "next/headers";
 
@@ -8,6 +9,9 @@ import { authQueries } from "@/features/auth/queries/authQueries";
 import { calendarQueries } from "@/features/calendar/queries/calendarQueries";
 import { todoQueries } from "@/features/todo/queries/todoQueries";
 import { HomeView } from "@/features/home/components/HomeView";
+import { PAGE_TITLES } from "@/constants/seo";
+
+export const metadata: Metadata = { title: PAGE_TITLES.HOME };
 
 export default async function Page() {
   const queryClient = getQueryClient();

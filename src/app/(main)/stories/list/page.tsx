@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { cookies } from "next/headers";
@@ -7,6 +8,9 @@ import { getQueryClient } from "@/lib/getQueryClient";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { storyQueries } from "@/features/stories/queries/storyQueries";
 import { StoriesView } from "@/features/stories/components/StoriesView";
+import { PAGE_TITLES } from "@/constants/seo";
+
+export const metadata: Metadata = { title: PAGE_TITLES.STORIES_LIST };
 
 export default async function Page() {
   const queryClient = getQueryClient();
