@@ -5,6 +5,8 @@ import type { Todo } from "@/features/todo/types/todo";
 // 할 일 목록 필터 타입. 페이지에서 URL 쿼리스트링으로 관리한다.
 export type Filter = "all" | "active" | "completed";
 
+export const FILTERS: Filter[] = ["all", "active", "completed"]; // 필터 탭 노출 순서이자 유효 필터 목록
+
 /** 마감일(endDate) 오름차순 정렬. 마감이 임박한 항목일수록 먼저 노출한다 */
 const byEndDateAsc = (a: Todo, b: Todo) => (a.endDate ?? "").localeCompare(b.endDate ?? "");
 /** 마감일(endDate) 내림차순 정렬. 완료 항목은 최근에 끝낸 것을 먼저 노출한다 */

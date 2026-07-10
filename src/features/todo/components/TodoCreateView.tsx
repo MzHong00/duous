@@ -30,9 +30,9 @@ export const TodoCreateView = () => {
     assigneeId,
     setAssigneeId,
     startDate,
-    setStartDate,
     endDate,
-    setEndDate,
+    handleStartDateChange,
+    handleEndDateChange,
     selectedColor,
     setSelectedColor,
     members,
@@ -82,10 +82,7 @@ export const TodoCreateView = () => {
           <input
             type="date"
             value={startDate}
-            onChange={(e) => {
-              setStartDate(e.target.value);
-              if (e.target.value > endDate) setEndDate(e.target.value);
-            }}
+            onChange={(e) => handleStartDateChange(e.target.value)}
             className={styles.input}
           />
         </div>
@@ -96,11 +93,7 @@ export const TodoCreateView = () => {
             {QUICK_DATES.map((item) => (
               <button
                 key={item.label}
-                onClick={() => {
-                  const d = getDateWithOffset(item.offset);
-                  setEndDate(d);
-                  if (d < startDate) setStartDate(d);
-                }}
+                onClick={() => handleEndDateChange(getDateWithOffset(item.offset))}
                 className={styles.quickDateButton}
               >
                 {item.label}
@@ -110,10 +103,7 @@ export const TodoCreateView = () => {
           <input
             type="date"
             value={endDate}
-            onChange={(e) => {
-              setEndDate(e.target.value);
-              if (e.target.value < startDate) setStartDate(e.target.value);
-            }}
+            onChange={(e) => handleEndDateChange(e.target.value)}
             className={styles.input}
           />
         </div>

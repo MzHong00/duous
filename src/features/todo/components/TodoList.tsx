@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
 import { cx } from "@/utils/cn";
 
-import { useFilteredTodos } from "@/features/todo/hooks/useFilteredTodos";
+import { FILTERS, useFilteredTodos } from "@/features/todo/hooks/useFilteredTodos";
 import { TodoItem } from "@/features/todo/components/TodoItem";
 
 import type { Filter } from "@/features/todo/hooks/useFilteredTodos";
@@ -15,8 +15,6 @@ import styles from "./TodoList.module.scss";
 
 // 캘린더 등 외부 소비자 호환을 위해 Filter 타입을 재노출한다.
 export type { Filter };
-
-const FILTERS: Filter[] = ["all", "active", "completed"];
 
 const FILTER_LABELS: Record<Filter, string> = {
   all: "전체",

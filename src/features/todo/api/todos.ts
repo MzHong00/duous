@@ -1,14 +1,12 @@
 import { supabase } from "@/lib/supabase/client";
 import { rowToTodo } from "@/features/todo/utils/todoUtils";
 
-import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Todo } from "@/features/todo/types/todo";
 import type { TodoRow } from "@/features/todo/utils/todoUtils";
 
 export const todosApi = {
-  // client 미지정 시 브라우저 클라이언트 사용 — 서버 prefetch에서는 서버 클라이언트 주입
-  list: async (workspaceId: string, client: SupabaseClient = supabase): Promise<Todo[]> => {
-    const { data, error } = await client
+  list: async (workspaceId: string): Promise<Todo[]> => {
+    const { data, error } = await supabase
       .from("todos")
       .select("*")
       .eq("workspace_id", workspaceId)
