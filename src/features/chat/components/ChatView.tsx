@@ -18,12 +18,16 @@ export const ChatView = () => {
   const { currentWorkspace } = useCurrentWorkspace();
   const { data: user } = useQuery(authQueries.user());
   const partner = useChatPartner();
-  const { messages, sendMessage } = useChatMessages(currentWorkspace?.id ?? "", user?.id ?? "");
+  const { messages, isLoading, isError, sendMessage } = useChatMessages(
+    currentWorkspace?.id ?? "",
+    user?.id ?? ""
+  );
   const { bottomRef } = useChatViewport(messages);
 
-  /** 현재 입력값을 전송하고 입력바를 비운다 */
+  /** 현재 입력값을 전송하고 입력바를 비운다 (전송 실패 시 입력값 복원) */
   const handleSend = () => {
-    sendMessage(inputText);
+    const textToSend = inputText;
+    sendMessage(textToSend, () => setInputText(textToSend));
     setInputText("");
   };
 
@@ -34,8 +38,11 @@ export const ChatView = () => {
 
         <MessageList
           messages={messages}
+          isLoading={isLoading}
+          isError={isError}
           partnerName={partner.name}
           partnerAvatar={partner.avatar}
+          members={currentWorkspace?.members}
           bottomRef={bottomRef}
           className={styles.messages}
         />

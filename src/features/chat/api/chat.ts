@@ -16,6 +16,7 @@ export const rowToChatMessage = (row: MessageRow, userId: string): ChatMessage =
   id: row.id,
   text: row.text,
   sender: row.sender_id === userId ? "me" : "partner",
+  senderId: row.sender_id,
   time: formatChatTime(row.created_at),
 });
 
