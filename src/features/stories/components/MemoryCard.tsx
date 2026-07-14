@@ -1,5 +1,8 @@
 "use client";
+import { memo } from "react";
+
 import { MapPin, X } from "lucide-react";
+import Image from "next/image";
 
 import { cx } from "@/utils/cn";
 import { formatDate } from "@/utils/date";
@@ -16,7 +19,15 @@ interface MemoryCardProps {
   isShell?: boolean; // 예시(껍데기) 카드 여부 — 점선 표시로 구분
 }
 
-export const MemoryCard = ({ story, isExpanded, onClose, showDate, isShell }: MemoryCardProps) => {
+// StoryBoardView에서 드래그 등으로 currentIndex/focus가 자주 바뀌어도, story 등 props가 그대로면
+// 최대 20장의 카드(이미지 포함)가 함께 리렌더되는 것을 방지한다
+const MemoryCardComponent = ({
+  story,
+  isExpanded,
+  onClose,
+  showDate,
+  isShell,
+}: MemoryCardProps) => {
   const cardTitle = story.title || story.description || "제목 없음";
 
   if (isExpanded) {
@@ -36,7 +47,7 @@ export const MemoryCard = ({ story, isExpanded, onClose, showDate, isShell }: Me
         <div className={styles.expandedContent}>
           {story.thumbnailUrl ? (
             <div className={styles.expandedImageWrap}>
-              <img src={story.thumbnailUrl} alt="" className={styles.expandedPhoto} />
+              <Image src={story.thumbnailUrl} alt="" fill className={styles.expandedPhoto} />
             </div>
           ) : (
             <div className={styles.expandedPlaceholder}>
@@ -59,12 +70,9 @@ export const MemoryCard = ({ story, isExpanded, onClose, showDate, isShell }: Me
   }
 
   return (
-    <div
-      className={cx(styles.card, isShell && styles.shell)}
-      aria-label={`기억, ${cardTitle}`}
-    >
+    <div className={cx(styles.card, isShell && styles.shell)} aria-label={`기억, ${cardTitle}`}>
       {story.thumbnailUrl ? (
-        <img src={story.thumbnailUrl} alt="" aria-hidden="true" className={styles.photo} />
+        <Image src={story.thumbnailUrl} alt="" aria-hidden="true" fill className={styles.photo} />
       ) : (
         <div className={styles.photoPlaceholder}>
           <MapPin size={24} className={styles.photoPlaceholderIcon} />
@@ -80,3 +88,7 @@ export const MemoryCard = ({ story, isExpanded, onClose, showDate, isShell }: Me
     </div>
   );
 };
+
+/** 기억(스토리) 카드 — 축소/확대 상태에 따라 요약 또는 상세 정보를 표시 */
+export const MemoryCard = memo(MemoryCardComponent);
+MemoryCard.displayName = "MemoryCard";

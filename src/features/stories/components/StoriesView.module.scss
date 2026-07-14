@@ -4,7 +4,7 @@
 .page {
   @include page-base;
   background:
-    radial-gradient(at 0% 0%, rgba(var(--primary-rgb), 0.15) 0px, transparent 65%),
+    radial-gradient(at 0% 0%, rgba(var(--theme-accent-rgb), 0.15) 0px, transparent 65%),
     radial-gradient(at 100% 0%, rgba(var(--theme-accent-rgb), 0.15) 0px, transparent 65%),
     radial-gradient(at 50% 100%, rgba(var(--theme-tertiary-rgb), 0.1) 0px, transparent 75%),
     linear-gradient(180deg, var(--grey-50) 0%, var(--white) 100%);
@@ -50,23 +50,16 @@
   padding: 6px 6px 6px 20px;
   height: 56px;
   border-radius: 28px;
-  background-color: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  background-color: var(--white);
+  border: 1px solid var(--grey-200);
   color: var(--grey-400);
   transition:
-    box-shadow 0.25s ease,
     border-color 0.25s ease,
     transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 
   &:focus-within {
     transform: scale(1.015);
-    border-color: rgba(var(--primary-rgb), 0.35);
-    box-shadow:
-      0 0 0 4px rgba(var(--primary-rgb), 0.12),
-      0 8px 32px rgba(0, 0, 0, 0.08);
+    border-color: var(--primary);
   }
 }
 

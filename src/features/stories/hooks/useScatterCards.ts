@@ -64,6 +64,7 @@ export const useScatterCards = (
   const physics = useRef<CardPhysics[]>([]);
   const dragIndex = useRef<number | null>(null);
   const dragPointer = useRef<DragPointer | null>(null);
+  const dragBounds = useRef<ReturnType<typeof getBounds>>(null); // 드래그 시작 시 캐시한 벽 경계(pointermove마다 재계산 방지)
   const focusedIndex = useRef<number | null>(null); // 보드 중앙으로 이동한 카드 인덱스(없으면 null)
   const rafId = useRef<number | null>(null);
 
@@ -227,6 +228,7 @@ export const useScatterCards = (
     el.setPointerCapture(event.pointerId);
     dragIndex.current = index;
     dragPointer.current = { x: event.clientX, y: event.clientY, t: performance.now(), distance: 0 };
+    dragBounds.current = getBounds(index); // 드래그 중엔 보드 크기가 바뀌지 않으므로 시작 시점에만 계산
     p.vx = 0;
     p.vy = 0;
   };
@@ -234,7 +236,7 @@ export const useScatterCards = (
   const handlePointerMove = (index: number) => (event: React.PointerEvent<HTMLElement>) => {
     if (dragIndex.current !== index || !dragPointer.current) return;
 
-    const bounds = getBounds(index);
+    const bounds = dragBounds.current;
     const p = physics.current[index];
     if (!bounds || !p) return;
 
@@ -265,6 +267,7 @@ export const useScatterCards = (
     el?.releasePointerCapture(event.pointerId);
     dragIndex.current = null;
     dragPointer.current = null;
+    dragBounds.current = null;
     startPhysicsLoop();
 
     // 던지는 동작으로 판단되면 뒤이어 발생하는 클릭(상세 진입)을 1회 차단

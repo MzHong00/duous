@@ -35,10 +35,7 @@
 }
 
 .photo {
-  width: 100%;
-  height: 100%;
   object-fit: cover;
-  display: block;
   -webkit-user-drag: none; /* 카드 드래그(던지기) 시 이미지 네이티브 고스트 드래그 방지 */
   user-select: none;
 }
@@ -132,6 +129,7 @@
 }
 
 .expandedImageWrap {
+  position: relative;
   width: 100%;
   aspect-ratio: 16 / 11;
   overflow: hidden;
@@ -139,8 +137,6 @@
 }
 
 .expandedPhoto {
-  width: 100%;
-  height: 100%;
   object-fit: cover;
 }
 
