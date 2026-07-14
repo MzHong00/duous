@@ -119,24 +119,6 @@
   padding: 14px;
 }
 
-.cardHeader {
-  @include flex-between;
-  align-items: center;
-  width: 100%;
-}
-
-.recentStoryLabel {
-  font-size: 11px;
-  font-weight: 800;
-  color: rgba(255, 255, 255, 0.85);
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  padding: 4px 12px;
-  border-radius: 9999px;
-  letter-spacing: 0.02em;
-}
-
 .cardBody {
   @include flex-col(2px);
   width: 100%;

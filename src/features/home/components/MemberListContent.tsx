@@ -11,12 +11,18 @@ interface MemberListContentProps {
 
 // 참여자 목록 모달에 표시되는 멤버 리스트 UI
 export const MemberListContent = ({ members }: MemberListContentProps) => {
+  if (members.length === 0) {
+    return <p className={styles.empty}>참여자가 없어요</p>;
+  }
+
   return (
     <ul className={styles.list}>
       {members.map((member) => (
         <li key={member.id} className={styles.row}>
-          <ProfileImage uri={member.avatar} name={member.name} size={44} />
-          <div>
+          <span className={styles.avatarRing}>
+            <ProfileImage uri={member.avatar} name={member.name} size={36} />
+          </span>
+          <div className={styles.info}>
             <p className={styles.name}>{member.name}</p>
             <p className={styles.email}>{member.email}</p>
           </div>

@@ -1,4 +1,6 @@
 "use client";
+import { useMemo } from "react";
+
 import { useQuery } from "@tanstack/react-query";
 
 import { authQueries } from "@/features/auth/queries/authQueries";
@@ -18,6 +20,11 @@ import styles from "./MemoryFeed.module.scss";
 export const MemoryFeed = () => {
   const { currentWorkspace } = useCurrentWorkspace();
   const { data: user } = useQuery(authQueries.user());
+  // 참여자 아바타 스택은 역순으로 표시하므로 members 참조가 바뀔 때만 재계산한다
+  const reversedMembers = useMemo(
+    () => [...(currentWorkspace?.members ?? [])].reverse(),
+    [currentWorkspace?.members]
+  );
 
   if (!currentWorkspace || !user) return null;
 
@@ -38,32 +45,32 @@ export const MemoryFeed = () => {
   return (
     <div className={styles.feed}>
       <div className={styles.board}>
-        {/* 상단 프레임리스 헤더: 워크스페이스명 + 그라데이션 D-day + 참여자 아바타 스택 */}
-        <header className={styles.header}>
-          <div className={styles.headerInfo}>
-            <span className={styles.workspaceName}>{currentWorkspace.name}</span>
-            <div className={styles.dDayRow}>
-              <span className={styles.dDayPrefix}>함께한 지</span>
-              <span className={styles.dDayValue}>{days}</span>
-              <span className={styles.dDayUnit}>일</span>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={handleMembersClick}
-            className={styles.membersStack}
-            aria-label={`참여자 ${currentWorkspace.members?.length ?? 0}명 보기`}
-          >
-            {[...(currentWorkspace.members ?? [])].reverse().map((member) => (
-              <div key={member.id} className={styles.memberAvatar}>
-                <ProfileImage uri={member.avatar} name={member.name} size={28} />
-              </div>
-            ))}
-          </button>
-        </header>
-
-        {/* 중앙 스크롤 영역: 인사말 + 기념일 스포트라이트 + 일정·할 일 다이제스트 + 활동 대시보드 */}
+        {/* 중앙 스크롤 영역: 프레임리스 헤더 + 인사말 + 기념일 스포트라이트 + 일정·할 일 다이제스트 + 활동 대시보드 */}
         <div className={styles.content}>
+          {/* 상단 프레임리스 헤더: 워크스페이스명 + 그라데이션 D-day + 참여자 아바타 스택 (스크롤에 함께 흘러감) */}
+          <header className={styles.header}>
+            <div className={styles.headerInfo}>
+              <span className={styles.workspaceName}>{currentWorkspace.name}</span>
+              <div className={styles.dDayRow}>
+                <span className={styles.dDayPrefix}>함께한 지</span>
+                <span className={styles.dDayValue}>{days}</span>
+                <span className={styles.dDayUnit}>일</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleMembersClick}
+              className={styles.membersStack}
+              aria-label={`참여자 ${currentWorkspace.members?.length ?? 0}명 보기`}
+            >
+              {reversedMembers.map((member) => (
+                <div key={member.id} className={styles.memberAvatar}>
+                  <ProfileImage uri={member.avatar} name={member.name} size={28} />
+                </div>
+              ))}
+            </button>
+          </header>
+
           <AnniversarySpotlight />
           <UpcomingDigest />
           <ActivityDashboard />

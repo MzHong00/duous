@@ -1,4 +1,5 @@
 "use client";
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
@@ -22,23 +23,37 @@ export const useHomeDigest = () => {
 
   const today = getTodayDateString();
 
-  // 아직 끝나지 않은 일정을 시작일 임박순으로 정렬해 상위 N개만 노출
-  const upcomingEvents = events
-    .filter((event) => event.endDate.slice(0, 10) >= today)
-    .sort((a, b) => a.startDate.localeCompare(b.startDate))
-    .slice(0, UPCOMING_EVENT_DISPLAY_COUNT);
+  // 아직 끝나지 않은 일정을 시작일 임박순으로 정렬해 상위 N개만 노출 (events/today가 그대로면 재계산 생략)
+  const upcomingEvents = useMemo(
+    () =>
+      events
+        .filter((event) => event.endDate.slice(0, 10) >= today)
+        .sort((a, b) => a.startDate.localeCompare(b.startDate))
+        .slice(0, UPCOMING_EVENT_DISPLAY_COUNT),
+    [events, today]
+  );
 
   // 오늘이 기간에 포함된 미완료 할 일 전체 (노출은 상위 N개, 카운트는 전체)
-  const todayTodos = todos.filter(
-    (todo) =>
-      !todo.isCompleted &&
-      todo.startDate.slice(0, 10) <= today &&
-      todo.endDate.slice(0, 10) >= today
+  const todayTodos = useMemo(
+    () =>
+      todos.filter(
+        (todo) =>
+          !todo.isCompleted &&
+          todo.startDate.slice(0, 10) <= today &&
+          todo.endDate.slice(0, 10) >= today
+      ),
+    [todos, today]
+  );
+
+  // 노출용 상위 N개 (todayTodos가 그대로면 재계산 생략)
+  const displayedTodayTodos = useMemo(
+    () => todayTodos.slice(0, TODAY_TODO_DISPLAY_COUNT),
+    [todayTodos]
   );
 
   return {
     upcomingEvents,
-    todayTodos: todayTodos.slice(0, TODAY_TODO_DISPLAY_COUNT),
+    todayTodos: displayedTodayTodos,
     todayTodoTotal: todayTodos.length, // 오늘 할 일 전체 개수 (더보기 카운트용)
   };
 };
