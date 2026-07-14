@@ -13,38 +13,46 @@ import type { CSSProperties } from "react";
 const HEART_ICON_SIZE = 11; // 오늘 위치 하트 마커 아이콘 크기(px)
 const JOURNEY_STOP_COUNT = 3; // 레일에 표시할 다가오는 기념일 정거장 수
 
-/** 오늘(하트)에서 다가오는 기념일 정거장들로 이어지는 여정 레일 */
+/** 이전 기념일(또는 시작일)에서 다가오는 기념일 정거장들로 이어지는 여정 레일 — 하트가 실제 경과일 비율 위치에 떠 있다 */
 export const AnniversaryJourney = () => {
   const router = useRouter();
-  const { days, anniversaries } = useAnniversaries();
+  const { days, anniversaries, previousAnniversary } = useAnniversaries();
 
   const stops = anniversaries.slice(0, JOURNEY_STOP_COUNT); // 레일에 올릴 임박순 기념일 정거장들
   if (!stops.length) return null;
 
-  // 시작일→다음 기념일 구간에서 오늘이 어디쯤인지(0~1) — 레일 첫 구간 안에서만 차오르도록 정거장 수로 나눈다
-  const progressInFirstSegment = Math.min(1, days / (days + stops[0].daysLeft));
-  const fillRatio = progressInFirstSegment / stops.length;
+  // 이전 기념일 이후 경과일 — 지난 기념일이 없으면 시작일 기준 함께한 일수 사용
+  const elapsedDays = previousAnniversary ? -previousAnniversary.daysLeft : days;
+  // 이전 기념일 → 다음 기념일 구간에서 오늘 위치(0~1)
+  const segmentProgress = Math.min(1, elapsedDays / (elapsedDays + stops[0].daysLeft));
+  // 하트·프로그레스는 전체 레일의 첫 구간(정거장 수 분의 1) 안에서만 움직인다
+  const heartRatio = segmentProgress / stops.length;
 
   return (
     <button
       type="button"
       onClick={() => router.push(ROUTES.ANNIVERSARY.path)}
       className={styles.journey}
-      // 진행률은 런타임 값이라 CSS 변수로만 주입한다 (스타일 선언은 SCSS 모듈에 위치)
-      style={{ "--fill-ratio": fillRatio } as CSSProperties}
+      // 하트·프로그레스 위치는 런타임 값이라 CSS 변수로만 주입한다 (스타일 선언은 SCSS 모듈에 위치)
+      style={{ "--heart-ratio": heartRatio } as CSSProperties}
       aria-label={`다음 기념일 ${stops[0].title}까지 ${stops[0].daysLeft}일 남음, 기념일 페이지로 이동`}
     >
       <div className={styles.railLine} />
-      <div className={styles.railFill} />
+      {/* 진행 게이지 — 하트 마커를 게이지 끝에 앵커링해 둘이 항상 같이 움직인다 */}
+      <div className={styles.railFill}>
+        <span className={styles.todayDot}>
+          <Heart size={HEART_ICON_SIZE} className={styles.todayHeart} />
+        </span>
+      </div>
 
       <div className={styles.nodes}>
-        {/* 오늘 위치: 하트 마커 */}
-        <div className={styles.node}>
-          <span className={styles.todayDot}>
-            <Heart size={HEART_ICON_SIZE} className={styles.todayHeart} />
+        {/* 여정의 출발점: 가장 최근에 지난 기념일 (없으면 시작일) */}
+        <div className={cx(styles.node, styles.passedNode)}>
+          <span className={styles.dot} />
+          <span className={styles.nodeLabel}>{previousAnniversary?.title ?? "시작"}</span>
+          <span className={styles.nodeSub}>
+            {previousAnniversary ? `${elapsedDays}일 전` : "0일"}
           </span>
-          <span className={styles.nodeLabel}>오늘</span>
-          <span className={styles.nodeSub}>{days}일째</span>
         </div>
 
         {/* 다가오는 기념일 정거장들 (첫 정거장이 다음 목적지) */}

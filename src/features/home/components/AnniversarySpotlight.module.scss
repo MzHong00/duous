@@ -8,6 +8,7 @@
 
 .polaroid {
   position: relative;
+  margin-top: 12px; // 상단 마스킹 테이프가 헤더와 겹치지 않도록 여백 확보
   @include flex-col(10px);
   align-items: stretch;
   padding: 12px 12px 16px;
@@ -65,7 +66,7 @@
   overflow: hidden;
   position: relative;
   background:
-    radial-gradient(at 10% 15%, rgba(var(--primary-rgb), 0.28) 0px, transparent 65%),
+    radial-gradient(at 10% 15%, rgba(var(--theme-primary-rgb), 0.28) 0px, transparent 65%),
     radial-gradient(at 90% 10%, rgba(var(--theme-accent-rgb), 0.26) 0px, transparent 65%),
     radial-gradient(at 50% 100%, rgba(var(--theme-tertiary-rgb), 0.2) 0px, transparent 75%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(249, 250, 251, 0.9) 100%);
@@ -99,7 +100,7 @@
   font-weight: 900;
   letter-spacing: -0.05em;
   line-height: 1.05;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--theme-accent) 100%);
+  background: linear-gradient(135deg, var(--theme-primary) 0%, var(--theme-accent) 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
