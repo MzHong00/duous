@@ -33,14 +33,10 @@
   color: var(--item-accent);
 }
 
-// 프라이머리→테마 액센트 그라데이션 타이포 (MemoryFeed.dDayValue 패턴 재사용)
 .workspaceName {
   font-size: 24px;
   font-weight: 700;
-  background: linear-gradient(120deg, var(--primary) 10%, var(--item-accent) 90%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--grey-900);
 }
 
 .sectionLabel {

@@ -1,7 +1,11 @@
 @use "styles/mixins" as *;
 
+// 여러 라이프룸을 나열하는 중립 화면이므로 특정 테마 색 대신 라벤더·블루그레이 뉴트럴 오로라 배경 사용
 .page {
-  background-color: var(--grey-100);
+  background:
+    radial-gradient(120% 55% at 18% -12%, rgba(129, 140, 248, 0.1) 0%, transparent 62%),
+    radial-gradient(110% 50% at 88% 4%, rgba(148, 163, 184, 0.12) 0%, transparent 65%),
+    linear-gradient(180deg, var(--grey-50) 0%, var(--white) 100%);
   min-height: 100vh;
 }
 

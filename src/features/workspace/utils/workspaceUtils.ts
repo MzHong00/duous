@@ -43,4 +43,7 @@ export const buildInviteLink = (code: string) =>
 export const WORKSPACE_THEME_ACCENT: Record<ThemeColor, string> = {
   pink: "#ec4899",
   blue: "#38bdf8",
+  twilight: "#fb7185",
+  yellow: "#facc15",
+  green: "#4ade80",
 };

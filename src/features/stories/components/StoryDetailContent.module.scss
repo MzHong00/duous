@@ -35,7 +35,7 @@
   flex-direction: column;
   gap: 10px;
   text-align: left;
-  background: var(--white);
+  background: transparent; // 페이지의 오로라 틴트가 비치도록 투명 처리
 }
 
 .metaRow {
