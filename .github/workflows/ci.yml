@@ -11,10 +11,15 @@ on:
       - main
       - develop
 
+# 같은 브랜치/PR에 새 푸시가 오면 진행 중이던 이전 실행을 취소해 러너 낭비 방지
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  # CI 가동: 타입 체크, 린트(코드 스타일), 빌드 테스트
-  ci:
-    name: 🧪 CI (Type Check · Lint · Build)
+  # 품질 게이트: 포맷 → 타입 → 린트 → 테스트 (빌드보다 빠른 검사들을 먼저 실행해 빠른 실패 유도)
+  quality:
+    name: 🔎 Quality (Format · Type · Lint · Test)
     runs-on: ubuntu-latest
 
     steps:
@@ -30,11 +35,43 @@ jobs:
       - name: 📦 Install dependencies # 패키지 설치
         run: npm ci
 
+      - name: 🎨 Format check # prettier 포맷 검증 (CI는 수정하지 않고 검사만)
+        run: npx prettier --check "src/**/*.{ts,tsx,scss}"
+
       - name: 🔎 Type check # TypeScript 타입 검사
         run: npx tsc --noEmit
 
       - name: 🧹 Lint # 코드 스타일 검사
         run: npm run lint
+
+      - name: 🧪 Test # vitest 유닛 테스트
+        run: npm run test
+
+  # 프로덕션 빌드 검증: 품질 게이트와 병렬 실행해 전체 CI 시간 단축
+  build:
+    name: 🛠️ Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout # 소스 코드 체크아웃
+        uses: actions/checkout@v5
+
+      - name: ⚙️ Setup Node.js # Node.js 환경 구축
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm # npm 의존성 캐시 활용 (속도 향상)
+
+      - name: 📦 Install dependencies # 패키지 설치
+        run: npm ci
+
+      - name: 🗂️ Cache Next.js build # 이전 빌드 산출물을 재사용해 증분 빌드 속도 향상
+        uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: nextjs-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**/*.{ts,tsx,scss}') }}
+          restore-keys: |
+            nextjs-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
 
       - name: 🛠️ Build # 프로덕션 빌드 테스트
         run: npm run build
