@@ -5,6 +5,8 @@ import type { WorkspaceMember } from "@/features/workspace/types/workspace";
 
 import styles from "./MemberListContent.module.scss";
 
+const AVATAR_SIZE = 36; // 멤버 아바타 크기(px) — 컴팩트한 리스트 밀도 유지
+
 interface MemberListContentProps {
   members: WorkspaceMember[];
 }
@@ -20,7 +22,7 @@ export const MemberListContent = ({ members }: MemberListContentProps) => {
       {members.map((member) => (
         <li key={member.id} className={styles.row}>
           <span className={styles.avatarRing}>
-            <ProfileImage uri={member.avatar} name={member.name} size={36} />
+            <ProfileImage uri={member.avatar} name={member.name} size={AVATAR_SIZE} />
           </span>
           <div className={styles.info}>
             <p className={styles.name}>{member.name}</p>

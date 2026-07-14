@@ -88,11 +88,13 @@ export const useWorkspaceSetupWizard = () => {
     }
   };
 
+  const inviteLink = inviteCode ? buildInviteLink(inviteCode) : ""; // 발급된 초대 코드 기반 초대 링크
+
   /** 초대 링크를 클립보드에 복사한다 */
   const copyInviteLink = async () => {
-    if (!inviteCode) return;
+    if (!inviteLink) return;
     try {
-      await navigator.clipboard.writeText(buildInviteLink(inviteCode));
+      await navigator.clipboard.writeText(inviteLink);
       toastActions.showToast("초대 링크를 복사했어요.", "success");
     } catch {
       toastActions.showToast("복사에 실패했어요. 코드를 직접 전달해주세요.", "error");
@@ -126,7 +128,7 @@ export const useWorkspaceSetupWizard = () => {
     isMain,
     setIsMain,
     inviteCode,
-    inviteLink: inviteCode ? buildInviteLink(inviteCode) : "",
+    inviteLink,
     isSaving: createWorkspace.isPending || createInviteCode.isPending,
     startCreate: () => setStep("create"),
     goToNameStep,

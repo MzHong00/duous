@@ -60,6 +60,8 @@ export const useTodoForm = (todoId: string | null, initialDate: string | null) =
   }
 
   const members = currentWorkspace?.members || [];
+  // 로드 완료 후에도 현재 워크스페이스 목록에 없는 todoId(다른 워크스페이스 등 조작된 요청) 여부
+  const isExistingTodoMissing = !!todoId && !isTodosPending && !existingTodo;
 
   /** 시작일을 변경하고 종료일이 앞서면 종료일도 같은 날짜로 보정한다 */
   const handleStartDateChange = (date: string) => {
@@ -76,8 +78,7 @@ export const useTodoForm = (todoId: string | null, initialDate: string | null) =
   /** 삭제 확인 모달을 띄우고 확인 시 서버에서 항목을 제거한다 */
   const handleDelete = () => {
     if (!todoId) return;
-    // 현재 워크스페이스 목록에 없는 todoId(다른 워크스페이스 등)로 조작된 요청은 차단
-    if (!isTodosPending && !existingTodo) {
+    if (isExistingTodoMissing) {
       toastActions.showToast("항목을 찾을 수 없습니다.", "error");
       return;
     }
@@ -106,8 +107,7 @@ export const useTodoForm = (todoId: string | null, initialDate: string | null) =
       return;
     }
     if (!currentWorkspace) return;
-    // 현재 워크스페이스 목록에 없는 todoId(다른 워크스페이스 등)로 조작된 요청은 차단
-    if (todoId && !isTodosPending && !existingTodo) {
+    if (isExistingTodoMissing) {
       toastActions.showToast("항목을 찾을 수 없습니다.", "error");
       return;
     }

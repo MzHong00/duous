@@ -33,6 +33,7 @@ const BOUNCE_DAMPING = 0.55; // 벽에 부딪힐 때 반사되는 속도 감쇠 
 const STOP_VELOCITY = 0.03; // 이 값 이하로 속도가 떨어지면 정지 처리
 const VELOCITY_FRAME_MS = 16; // 속도를 프레임 단위(약 16ms)로 환산하는 기준
 const CLICK_DRAG_THRESHOLD = 6; // 이 값(px) 이상 이동하면 던진 것으로 보고 클릭(상세 진입)을 막음
+const FOCUSED_Z_INDEX = "50"; // 중앙으로 이동한 카드가 다른 카드 위에 보이도록 하는 z-index
 
 interface CardPhysics {
   x: number; // 부모 기준 현재 x좌표(px)
@@ -68,6 +69,7 @@ export const useScatterCards = (
   const focusedIndex = useRef<number | null>(null); // 보드 중앙으로 이동한 카드 인덱스(없으면 null)
   const rafId = useRef<number | null>(null);
 
+  /** index번째 카드 DOM 엘리먼트를 ref 배열에 등록하는 콜백을 만든다 */
   const setCardRef = useCallback(
     (index: number) => (el: HTMLElement | null) => {
       cardRefs.current[index] = el;
@@ -75,6 +77,7 @@ export const useScatterCards = (
     []
   );
 
+  /** 물리 상태(x·y·rotate)를 해당 카드의 transform 스타일에 반영한다 */
   const applyTransform = (index: number) => {
     const el = cardRefs.current[index];
     const p = physics.current[index];
@@ -82,6 +85,7 @@ export const useScatterCards = (
     el.style.transform = `translate3d(${p.x}px, ${p.y}px, 0) rotate(${p.rotate}deg)`;
   };
 
+  /** 카드가 이동 가능한 벽 경계(px)를 컨테이너·벽·카드 실측 크기로 계산한다 */
   const getBounds = (index: number) => {
     const offsetParent = offsetParentRef.current;
     const wall = wallRef.current;
@@ -150,10 +154,11 @@ export const useScatterCards = (
     p.rotate = 0;
     focusedIndex.current = index;
     el.style.transition = FOCUS_TRANSITION;
-    el.style.zIndex = "50";
+    el.style.zIndex = FOCUSED_Z_INDEX;
     applyTransform(index);
   };
 
+  /** 마운트·카드 수 변경·리사이즈 시 모든 카드를 슬롯 위치로 재배치한다 */
   useEffect(() => {
     const offsetParent = offsetParentRef.current;
     if (!offsetParent) return;
@@ -166,6 +171,7 @@ export const useScatterCards = (
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cardCount]);
 
+  /** 매 프레임 관성 이동·마찰 감속·벽 반사를 계산하고 움직임이 남아 있으면 다음 프레임을 예약한다 */
   const stepPhysics = () => {
     let stillMoving = false;
 
@@ -209,12 +215,14 @@ export const useScatterCards = (
     rafId.current = stillMoving ? requestAnimationFrame(stepPhysics) : null;
   };
 
+  /** 물리 루프가 돌고 있지 않을 때만 rAF 루프를 시작한다 */
   const startPhysicsLoop = () => {
     if (rafId.current === null) {
       rafId.current = requestAnimationFrame(stepPhysics);
     }
   };
 
+  /** 카드를 잡는 순간 드래그 상태를 초기화하고 포인터를 캡처한다 */
   const handlePointerDown = (index: number) => (event: React.PointerEvent<HTMLElement>) => {
     const el = cardRefs.current[index];
     const p = physics.current[index];
@@ -233,6 +241,7 @@ export const useScatterCards = (
     p.vy = 0;
   };
 
+  /** 드래그 이동량을 위치에 반영하고 놓았을 때 쓸 순간 속도를 갱신한다 */
   const handlePointerMove = (index: number) => (event: React.PointerEvent<HTMLElement>) => {
     if (dragIndex.current !== index || !dragPointer.current) return;
 
@@ -259,6 +268,7 @@ export const useScatterCards = (
     };
   };
 
+  /** 드래그를 끝내고 관성 물리 루프를 시작하며, 던진 경우 후속 클릭을 1회 차단한다 */
   const handlePointerUp = (index: number) => (event: React.PointerEvent<HTMLElement>) => {
     if (dragIndex.current !== index) return;
 
@@ -280,6 +290,7 @@ export const useScatterCards = (
     }
   };
 
+  /** 언마운트 시 진행 중인 rAF 물리 루프를 취소한다 */
   useEffect(
     () => () => {
       if (rafId.current !== null) cancelAnimationFrame(rafId.current);

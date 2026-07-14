@@ -19,6 +19,11 @@ import { useResetOnChange } from "@/hooks/useResetOnChange";
 
 import type { LocationPoint } from "@/features/stories/types/story";
 
+/** blob 미리보기 URL이면 메모리 누수 방지를 위해 해제한다 */
+const revokeIfBlobUrl = (url: string | undefined) => {
+  if (url && url.startsWith("blob:")) URL.revokeObjectURL(url);
+};
+
 /**
  * 스토리 작성/수정 폼의 모든 상태와 저장 로직을 담당하는 훅.
  * 컴포넌트는 이 훅이 반환하는 상태·핸들러만 사용해 UI 렌더링에 집중한다.
@@ -66,11 +71,7 @@ export const useStoryForm = () => {
 
   /** 컴포넌트 언마운트 시(저장/제거 없이 화면 이탈) 남아있는 blob 미리보기 URL을 해제한다 */
   useEffect(() => {
-    return () => {
-      if (previewUrlRef.current && previewUrlRef.current.startsWith("blob:")) {
-        URL.revokeObjectURL(previewUrlRef.current);
-      }
-    };
+    return () => revokeIfBlobUrl(previewUrlRef.current);
   }, []);
 
   // 수정 모드에서 스토리 쿼리 로드가 초기 렌더보다 늦을 수 있어, 로드 완료(existingStory.id 등장) 시 렌더 중 즉시 폼 값을 채운다
@@ -97,9 +98,7 @@ export const useStoryForm = () => {
     // 리사이징 도중 다른 이미지가 다시 선택되었다면 이 결과는 폐기한다(최신 선택 덮어쓰기 방지)
     if (requestId !== imageSelectRequestIdRef.current) return;
 
-    if (previewUrlRef.current && previewUrlRef.current.startsWith("blob:")) {
-      URL.revokeObjectURL(previewUrlRef.current);
-    }
+    revokeIfBlobUrl(previewUrlRef.current);
     const blobUrl = URL.createObjectURL(resizedFile);
     setPendingFile(resizedFile);
     setPreviewUrl(blobUrl);
@@ -107,9 +106,7 @@ export const useStoryForm = () => {
 
   /** 선택한 이미지 제거 및 blob URL 정리 */
   const handleRemoveImage = () => {
-    if (previewUrl && previewUrl.startsWith("blob:")) {
-      URL.revokeObjectURL(previewUrl);
-    }
+    revokeIfBlobUrl(previewUrl);
     if (fileInputRef.current) {
       fileInputRef.current.value = ""; // 동일 파일 재선택 시에도 onChange가 발생하도록 초기화
     }
