@@ -31,7 +31,7 @@
 
 // 도구함 열렸을 때 플러스 버튼 강조
 .plusButtonActive {
-  background-color: var(--primary);
+  background-color: var(--theme-accent);
   color: var(--white);
   transform: rotate(45deg);
 }
@@ -56,7 +56,7 @@
 }
 
 .sendButtonActive {
-  background-color: var(--primary);
+  background-color: var(--theme-accent);
   color: var(--white);
 }
 .sendButtonInactive {
