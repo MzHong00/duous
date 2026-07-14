@@ -52,41 +52,19 @@
   text-align: left;
 }
 
-.workspaceName {
-  font-size: 15px;
+// 헤더 타이틀 역할의 시간대별 인사말
+.greetingLine {
+  font-size: 19px;
   font-weight: 800;
-  color: var(--grey-700);
-  letter-spacing: -0.01em;
+  color: var(--grey-900);
+  letter-spacing: -0.02em;
   @include text-ellipsis;
 }
 
-.dDayRow {
-  @include flex-row(5px);
-  align-items: baseline;
-}
-
-.dDayPrefix {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--grey-700);
-}
-
-// 프라이머리→핑크 그라데이션 타이포로 오로라 배경과 톤을 맞춘 D-day 숫자
-.dDayValue {
-  font-size: 28px;
-  font-weight: 850;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-  background: linear-gradient(120deg, var(--primary) 10%, var(--theme-accent) 90%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.dDayUnit {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--grey-800);
+.greetingSub {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--grey-500);
 }
 
 // 중앙 스크롤 콘텐츠 영역 (인사말 + 기념일 스포트라이트 + 다이제스트)

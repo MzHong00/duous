@@ -1,0 +1,117 @@
+@use "styles/mixins" as *;
+
+// 레일 지오메트리 상수
+$dot-size: 10px; // 정거장 도트 지름
+$today-dot-size: 22px; // 오늘 하트 마커 지름
+$rail-top: 11px; // 레일 세로 위치(오늘 마커 중심선)
+$rail-inset: 24px; // 첫/마지막 노드 중심에 레일 끝을 맞추기 위한 좌우 여백
+
+// 오늘 → 기념일 정거장들을 잇는 여정 레일 (프레임리스, 오로라 배경 위에 직접 배치)
+.journey {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 4px 8px 2px;
+  text-align: left;
+  transition: opacity 0.15s ease;
+
+  &:active {
+    opacity: 0.7;
+  }
+}
+
+// 전체 여정 베이스 라인
+.railLine {
+  position: absolute;
+  top: $rail-top;
+  left: $rail-inset;
+  right: $rail-inset;
+  height: 3px;
+  border-radius: 9999px;
+  background: rgba(var(--primary-rgb), 0.12);
+}
+
+// 오늘까지 차오른 진행 구간 — 시그니처 그라데이션 (--fill-ratio 0~1은 컴포넌트에서 주입)
+.railFill {
+  position: absolute;
+  top: $rail-top;
+  left: $rail-inset;
+  width: calc((100% - #{$rail-inset * 2}) * var(--fill-ratio, 0));
+  height: 3px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--theme-accent) 100%);
+  box-shadow: 0 0 8px rgba(var(--theme-accent-rgb), 0.4);
+}
+
+// 노드(오늘 + 정거장)들을 레일 위에 균등 배치
+.nodes {
+  position: relative;
+  @include flex-between;
+  align-items: flex-start;
+}
+
+.node {
+  @include flex-col-center(4px);
+  min-width: 0;
+}
+
+// 오늘 위치의 글라스 하트 마커
+.todayDot {
+  @include flex-center;
+  width: $today-dot-size;
+  height: $today-dot-size;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(var(--theme-accent-rgb), 0.35);
+  box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.18);
+}
+
+.todayHeart {
+  color: var(--theme-accent);
+  fill: var(--theme-accent);
+}
+
+// 기념일 정거장 도트 (기본: 아직 먼 정거장)
+.dot {
+  width: $dot-size;
+  height: $dot-size;
+  margin: calc(($today-dot-size - $dot-size) / 2) 0; // 오늘 마커와 세로 중심선 정렬
+  border-radius: 9999px;
+  background: var(--white);
+  border: 2px solid rgba(var(--primary-rgb), 0.25);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.nodeLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--grey-700);
+  letter-spacing: -0.01em;
+  @include text-ellipsis;
+  max-width: 72px;
+}
+
+.nodeSub {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--grey-500);
+}
+
+// 다음 목적지 정거장: 그라데이션 도트 + D-day 강조
+.nextNode {
+  .dot {
+    border: none;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--theme-accent) 100%);
+    box-shadow: 0 0 8px rgba(var(--theme-accent-rgb), 0.45);
+  }
+
+  .nodeSub {
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--theme-accent) 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
