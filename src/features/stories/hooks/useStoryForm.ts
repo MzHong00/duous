@@ -14,8 +14,15 @@ import {
   useCreateStoryMutation,
   useUpdateStoryMutation,
 } from "@/features/stories/queries/storyMutations";
+import { resizeImageFile } from "@/utils/imageResize";
+import { useResetOnChange } from "@/hooks/useResetOnChange";
 
 import type { LocationPoint } from "@/features/stories/types/story";
+
+/** blob 미리보기 URL이면 메모리 누수 방지를 위해 해제한다 */
+const revokeIfBlobUrl = (url: string | undefined) => {
+  if (url && url.startsWith("blob:")) URL.revokeObjectURL(url);
+};
 
 /**
  * 스토리 작성/수정 폼의 모든 상태와 저장 로직을 담당하는 훅.
@@ -30,7 +37,9 @@ export const useStoryForm = () => {
   const { data: user } = useQuery(authQueries.user());
   const { currentWorkspace } = useCurrentWorkspace();
   const workspaceId = currentWorkspace?.id ?? "";
-  const { data: stories = [] } = useQuery(storyQueries.list(workspaceId));
+  const { data: stories = [], isPending: isStoriesPending } = useQuery(
+    storyQueries.list(workspaceId)
+  );
   const createStory = useCreateStoryMutation(workspaceId);
   const updateStory = useUpdateStoryMutation(workspaceId);
 
@@ -57,19 +66,17 @@ export const useStoryForm = () => {
   // 언마운트 시점에 최신 previewUrl을 참조하기 위한 ref (blob URL 정리용)
   const previewUrlRef = useRef(previewUrl);
   previewUrlRef.current = previewUrl;
+  // 진행 중인 이미지 선택 요청을 식별해 오래된 리사이징 결과를 무시하기 위한 토큰
+  const imageSelectRequestIdRef = useRef(0);
 
   /** 컴포넌트 언마운트 시(저장/제거 없이 화면 이탈) 남아있는 blob 미리보기 URL을 해제한다 */
   useEffect(() => {
-    return () => {
-      if (previewUrlRef.current && previewUrlRef.current.startsWith("blob:")) {
-        URL.revokeObjectURL(previewUrlRef.current);
-      }
-    };
+    return () => revokeIfBlobUrl(previewUrlRef.current);
   }, []);
 
-  /** 수정 모드에서 스토리 쿼리 로드가 초기 렌더보다 늦을 수 있어, 로드 완료 시 폼 값을 채운다 */
-  useEffect(() => {
-    if (!existingStory) return;
+  // 수정 모드에서 스토리 쿼리 로드가 초기 렌더보다 늦을 수 있어, 로드 완료(existingStory.id 등장) 시 렌더 중 즉시 폼 값을 채운다
+  const existingStoryChanged = useResetOnChange(existingStory?.id);
+  if (existingStoryChanged && existingStory) {
     setTitle(existingStory.title || "");
     setDescription(existingStory.description || "");
     setDate(formatDate(existingStory.date, "YYYY-MM-DD"));
@@ -77,27 +84,29 @@ export const useStoryForm = () => {
     setPreviewUrl(existingStory.thumbnailUrl);
     setPathColor(existingStory.pathColor ?? PATH_COLORS[0]);
     setPath(existingStory.path || []);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [existingStory?.id]);
+  }
 
-  /** 파일 선택 시 미리보기 blob URL 생성 (기존 blob은 해제 후 교체) */
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  /** 파일 선택 시 리사이징 후 미리보기 blob URL 생성 (기존 blob은 해제 후 교체) */
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (previewUrl && previewUrl.startsWith("blob:")) {
-      URL.revokeObjectURL(previewUrl);
-    }
-    const blobUrl = URL.createObjectURL(file);
-    setPendingFile(file);
-    setPreviewUrl(blobUrl);
     e.target.value = ""; // 동일 파일 재선택 시에도 onChange가 발생하도록 초기화
+
+    const requestId = ++imageSelectRequestIdRef.current;
+    const resizedFile = await resizeImageFile(file);
+
+    // 리사이징 도중 다른 이미지가 다시 선택되었다면 이 결과는 폐기한다(최신 선택 덮어쓰기 방지)
+    if (requestId !== imageSelectRequestIdRef.current) return;
+
+    revokeIfBlobUrl(previewUrlRef.current);
+    const blobUrl = URL.createObjectURL(resizedFile);
+    setPendingFile(resizedFile);
+    setPreviewUrl(blobUrl);
   };
 
   /** 선택한 이미지 제거 및 blob URL 정리 */
   const handleRemoveImage = () => {
-    if (previewUrl && previewUrl.startsWith("blob:")) {
-      URL.revokeObjectURL(previewUrl);
-    }
+    revokeIfBlobUrl(previewUrl);
     if (fileInputRef.current) {
       fileInputRef.current.value = ""; // 동일 파일 재선택 시에도 onChange가 발생하도록 초기화
     }
@@ -116,6 +125,11 @@ export const useStoryForm = () => {
   /** 폼 내용을 서버 뮤테이션으로 저장(실패 시 로컬 스토어로 폴백) */
   const handleSave = async () => {
     if (isSaving) return;
+    // 현재 워크스페이스 목록에 없는 storyId(다른 워크스페이스 등)로 조작된 요청은 차단
+    if (isEditMode && !isStoriesPending && !existingStory) {
+      toastActions.showToast("스토리를 찾을 수 없습니다.", "error");
+      return;
+    }
     setIsSaving(true);
 
     try {
@@ -125,8 +139,12 @@ export const useStoryForm = () => {
         try {
           finalThumbnailUrl = await storageApi.uploadImage(pendingFile, user.id);
         } catch {
-          finalThumbnailUrl = previewUrl;
-          toastActions.showToast("이미지 업로드 실패: 로컬 미리보기로 저장됩니다.", "warning");
+          // blob URL은 이 탭에서만 유효해 서버에 영구 저장할 수 없으므로, 업로드 전 썸네일로 되돌린다
+          toastActions.showToast(
+            "이미지 업로드에 실패했습니다. 사진 없이 저장하거나 다시 시도해주세요.",
+            "error"
+          );
+          return;
         }
       }
 

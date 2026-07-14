@@ -96,7 +96,7 @@
   z-index: 1;
   background: linear-gradient(
     135deg,
-    rgba(var(--primary-rgb), 0.75) 0%,
+    rgba(var(--theme-primary-rgb), 0.75) 0%,
     rgba(var(--theme-accent-rgb), 0.7) 60%,
     rgba(var(--theme-tertiary-rgb), 0.8) 100%
   );
@@ -115,31 +115,15 @@
   z-index: 2;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-end; // 타이틀·날짜를 카드 왼쪽 아래에 배치
   padding: 14px;
-}
-
-.cardHeader {
-  @include flex-between;
-  align-items: center;
-  width: 100%;
-}
-
-.recentStoryLabel {
-  font-size: 11px;
-  font-weight: 800;
-  color: rgba(255, 255, 255, 0.85);
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  padding: 4px 12px;
-  border-radius: 9999px;
-  letter-spacing: 0.02em;
 }
 
 .cardBody {
   @include flex-col(2px);
+  align-items: flex-start;
   width: 100%;
+  text-align: left;
 }
 
 .recentStoryTitle {

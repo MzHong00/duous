@@ -4,7 +4,7 @@ import { ROUTES } from "@/constants/routes";
 import { Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { todoQueries } from "@/features/todo/queries/todoQueries";
-import { useToggleTodoMutation } from "@/features/todo/queries/todoMutations";
+import { useTodoToggle } from "@/features/todo/hooks/useTodoToggle";
 import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
 import { useQueryParams } from "@/hooks/useQueryParams";
 import { AppHeader } from "@/components/AppHeader";
@@ -17,19 +17,11 @@ export const TodoView = () => {
   const router = useRouter();
   const [params, setParams] = useQueryParams();
   const { currentWorkspace } = useCurrentWorkspace();
-  const { data: todos = [] } = useQuery(todoQueries.list(currentWorkspace?.id ?? ""));
-  const toggleTodo = useToggleTodoMutation(currentWorkspace?.id ?? "");
+  const { data: todos = [], isPending } = useQuery(todoQueries.list(currentWorkspace?.id ?? ""));
+  const { toggleTodo: handleToggle } = useTodoToggle(currentWorkspace?.id ?? "", todos);
 
   const rawFilter = params.get("filter");
-  const filter: Filter = FILTERS.includes(rawFilter as Filter)
-    ? (rawFilter as Filter)
-    : "all";
-
-  /** 완료 여부를 서버에 토글 반영한다 */
-  const handleToggle = (id: string) => {
-    const target = todos.find((t) => t.id === id);
-    if (target) toggleTodo.mutate({ id, isCompleted: !target.isCompleted });
-  };
+  const filter: Filter = FILTERS.includes(rawFilter as Filter) ? (rawFilter as Filter) : "all";
 
   const handleFilterChange = (f: Filter) => {
     if (f === "all") {
@@ -52,6 +44,7 @@ export const TodoView = () => {
         todos={todos}
         currentWorkspace={currentWorkspace}
         filter={filter}
+        isPending={isPending}
         onFilterChange={handleFilterChange}
         onToggle={handleToggle}
       />

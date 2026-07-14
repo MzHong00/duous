@@ -1,6 +1,7 @@
 "use client";
 
 import { Heart } from "lucide-react";
+import Image from "next/image";
 
 import { AppHeader } from "@/components/AppHeader";
 import { formatDate } from "@/utils/date";
@@ -10,6 +11,7 @@ import { AnniversaryItem } from "./AnniversaryItem";
 
 import styles from "./AnniversaryView.module.scss";
 
+/** 기념일 화면 — 시작일 히어로 배너와 다가오는 기념일 목록 */
 export const AnniversaryView = () => {
   const { startDate, days, anniversaries } = useAnniversaries();
   const { currentWorkspace } = useCurrentWorkspace();
@@ -23,7 +25,13 @@ export const AnniversaryView = () => {
       <div className={styles.heroSection}>
         <div className={styles.heroCard}>
           {heroImage && (
-            <img src={heroImage} alt="anniversary hero" className={styles.heroBgImage} />
+            <Image
+              src={heroImage}
+              alt="anniversary hero"
+              fill
+              sizes="100vw"
+              className={styles.heroBgImage}
+            />
           )}
           <div className={styles.heroBgOverlay} />
           <div className={styles.heroContent}>

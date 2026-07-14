@@ -34,7 +34,7 @@ export function PathPreview({ path, pathColor, onEdit, onClear }: PathPreviewPro
     }));
   }, [path]);
 
-  const polylineStr = points.map((p) => `${p.x},${p.y}`).join(" ");
+  const polylineStr = useMemo(() => points.map((p) => `${p.x},${p.y}`).join(" "), [points]);
 
   return (
     <div className={styles.card}>
@@ -138,6 +138,7 @@ export function PathPreview({ path, pathColor, onEdit, onClear }: PathPreviewPro
         {path.map((point, i) => {
           const isFirst = i === 0;
           const isLast = i === path.length - 1;
+          const isEndpoint = isFirst || isLast; // 시작/도착 정점 여부 (강조 스타일 적용 기준)
           const label = getWaypointLabel(i, path.length);
           return (
             <div key={point.timestamp} className={styles.waypointRow}>
@@ -146,10 +147,10 @@ export function PathPreview({ path, pathColor, onEdit, onClear }: PathPreviewPro
                 <div
                   className={styles.trackDot}
                   style={{
-                    backgroundColor: isFirst || isLast ? pathColor : "var(--grey-300)",
-                    width: isFirst || isLast ? 10 : 7,
-                    height: isFirst || isLast ? 10 : 7,
-                    outline: isFirst || isLast ? `2px solid ${pathColor}` : "none",
+                    backgroundColor: isEndpoint ? pathColor : "var(--grey-300)",
+                    width: isEndpoint ? 10 : 7,
+                    height: isEndpoint ? 10 : 7,
+                    outline: isEndpoint ? `2px solid ${pathColor}` : "none",
                     outlineOffset: 2,
                   }}
                 />
@@ -165,7 +166,7 @@ export function PathPreview({ path, pathColor, onEdit, onClear }: PathPreviewPro
               <div className={styles.waypointContent}>
                 <span
                   className={styles.waypointLabel}
-                  style={{ color: isFirst || isLast ? pathColor : "var(--grey-700)" }}
+                  style={{ color: isEndpoint ? pathColor : "var(--grey-700)" }}
                 >
                   {label}
                 </span>

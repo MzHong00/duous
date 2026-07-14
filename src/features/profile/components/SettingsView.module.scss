@@ -1,11 +1,12 @@
 @use "styles/mixins" as *;
 
 .page {
-  @include page-base(var(--grey-100));
+  @include page-base;
+  @include aurora-tint; // 워크스페이스 테마 오로라 배경 적용
 }
 
 .profileSection {
-  background-color: var(--grey-100);
+  background-color: transparent; // 페이지의 오로라 틴트가 비치도록 투명 처리
   padding: 32px 32px 24px;
   @include flex-col-center;
 }

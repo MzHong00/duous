@@ -2,6 +2,7 @@
 
 .page {
   @include page-base;
+  @include aurora-tint; // 워크스페이스 테마 오로라 배경 적용
 }
 
 .notFound {

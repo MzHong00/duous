@@ -7,6 +7,7 @@ import type { WorkspaceRow, MemberRow } from "@/features/workspace/utils/workspa
 
 const INVITE_CODE_LENGTH = 8; // 초대 코드 길이
 const INVITE_CODE_TTL_MS = 1000 * 60 * 60 * 24 * 7; // 초대 코드 유효 기간 (7일)
+const UNIQUE_VIOLATION_CODE = "23505"; // Postgres unique constraint 위반 에러 코드
 
 export const workspacesApi = {
   // 내가 속한 워크스페이스 목록 (멤버 포함)
@@ -132,7 +133,8 @@ export const workspacesApi = {
         email: user.email,
         avatar_url: user.profileImage,
       });
-      if (error) throw error;
+      // 다른 탭에서 동시에 참여를 시도해 이미 멤버로 추가된 경우(unique 제약 위반)는 참여 성공으로 간주한다
+      if (error && error.code !== UNIQUE_VIOLATION_CODE) throw error;
     }
 
     const { data: ws, error: wsError } = await supabase

@@ -5,21 +5,31 @@ import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
 import { useHomeStats } from "@/features/home/hooks/useHomeStats";
 import { formatDate } from "@/utils/date";
+import { Skeleton } from "@/components/Skeleton";
 
 import styles from "./ActivityDashboard.module.scss";
 
 const PLUS_ICON_SIZE = 16; // 추가 버튼 아이콘 크기(px)
+const RECENT_STORY_SKELETON_COUNT = 3; // 최근 스토리 로딩 시 표시할 스켈레톤 카드 개수
 
 /** 홈 하단에 두 사람의 최근 추억들을 35mm 필름 스트립 롤 형태로 가로 스냅 스크롤하는 아날로그 감성 위젯 */
 export const ActivityDashboard = () => {
   const router = useRouter();
-  const { recentStories } = useHomeStats();
+  const { recentStories, isLoading } = useHomeStats();
 
   return (
     <div className={styles.dashboard}>
       <h3 className={styles.sectionTitle}>최근 기록한 순간</h3>
 
-      {recentStories && recentStories.length > 0 ? (
+      {isLoading ? (
+        <ul className={styles.storyList}>
+          {Array.from({ length: RECENT_STORY_SKELETON_COUNT }).map((_, index) => (
+            <li key={index} className={styles.storyItem}>
+              <Skeleton height={140} radius={24} />
+            </li>
+          ))}
+        </ul>
+      ) : recentStories && recentStories.length > 0 ? (
         <ul className={styles.storyList}>
           {recentStories.map((story) => (
             <li key={story.id} className={styles.storyItem}>
@@ -39,9 +49,6 @@ export const ActivityDashboard = () => {
                 )}
 
                 <div className={styles.cardContent}>
-                  <div className={styles.cardHeader}>
-                    <span className={styles.recentStoryLabel}>최근 스토리</span>
-                  </div>
                   <div className={styles.cardBody}>
                     <h4 className={styles.recentStoryTitle}>{story.title || "제목 없는 순간"}</h4>
                     <span className={styles.recentStoryDate}>

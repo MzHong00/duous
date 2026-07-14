@@ -1,5 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Map, MapPin, Plus } from "lucide-react";
 
 import { ROUTES } from "@/constants/routes";
@@ -36,7 +37,14 @@ export const StoryDetailContent = ({ story }: StoryDetailContentProps) => {
     <div className={styles.content}>
       {story.thumbnailUrl ? (
         <div className={styles.imageWrap}>
-          <img src={story.thumbnailUrl} alt="" className={styles.photo} draggable={false} />
+          <Image
+            src={story.thumbnailUrl}
+            alt=""
+            fill
+            sizes="100vw"
+            className={styles.photo}
+            draggable={false}
+          />
         </div>
       ) : (
         <div className={styles.placeholder}>

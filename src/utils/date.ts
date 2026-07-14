@@ -83,7 +83,7 @@ export const getISOTimestamp = (): string => {
 };
 
 export const getDaysUntil = (dateString: string): number => {
-  return dayjs(dateString).diff(dayjs(), "day");
+  return dayjs(dateString).startOf("day").diff(dayjs().startOf("day"), "day");
 };
 
 export const addYears = (dateString: string, years: number): string => {

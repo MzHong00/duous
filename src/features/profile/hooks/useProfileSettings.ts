@@ -10,6 +10,7 @@ import { workspaceActions } from "@/features/workspace/stores/useWorkspaceStore"
 import { storageApi } from "@/api/storage";
 
 import { modalActions } from "@/stores/useModalStore";
+import { resizeImageFile } from "@/utils/imageResize";
 import { toastActions } from "@/stores/useToastStore";
 import { ROUTES } from "@/constants/routes";
 
@@ -83,7 +84,8 @@ export const useProfileSettings = (): UseProfileSettingsResult => {
       updateUserCache({ profileImage: previewUrl });
 
       try {
-        const uploadedUrl = await storageApi.uploadImage(file, user.id);
+        const resizedFile = await resizeImageFile(file);
+        const uploadedUrl = await storageApi.uploadImage(resizedFile, user.id);
         await authApi.updateProfile({ profileImage: uploadedUrl });
         updateUserCache({ profileImage: uploadedUrl });
         toastActions.showToast("프로필 사진이 변경되었습니다", "success");

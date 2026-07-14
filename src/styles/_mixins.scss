@@ -86,6 +86,84 @@
   padding-bottom: 80px;
 }
 
+// ─── 오로라 보드 배경 ─────────────────────────────────────────────────────────
+
+/// 홈/채팅/스토리 공통 캔버스 배경 — 파스텔 오로라 커튼(정적 광원 + 드리프트 베일) + 필름 노이즈 오버레이
+// 정적 오로라 틴트 — 베일 애니메이션 없이 파스텔 광원 베이스만 (스크롤 페이지 배경용)
+@mixin aurora-tint {
+  background:
+    radial-gradient(120% 55% at 18% -12%, rgba(var(--theme-accent-rgb), 0.14) 0%, transparent 62%),
+    radial-gradient(110% 50% at 88% 4%, rgba(var(--theme-tertiary-rgb), 0.1) 0%, transparent 65%),
+    radial-gradient(90% 45% at 50% 108%, rgba(var(--theme-primary-rgb), 0.06) 0%, transparent 70%),
+    linear-gradient(180deg, var(--grey-50) 0%, var(--white) 100%);
+}
+
+@mixin aurora-board {
+  position: relative;
+  overflow: hidden;
+
+  // 1. 정적 베이스 레이어 — 상단 좌/우 기울어진 타원 광원 + 하단 프라이머리 잔광으로
+  //    북극광처럼 색이 서로 스며들며 겹치는 파스텔 커튼 배치
+  @include aurora-tint;
+
+  box-shadow: inset 0 -2px 10px rgba(var(--theme-primary-rgb), 0.02);
+
+  // 2. 살아 움직이는 오로라 베일 레이어 (마크업 없이 가상 요소로 구현)
+  //    — soft edge radial 3개를 transform만으로 드리프트해 GPU 합성만 타는 저비용 애니메이션
+  //    (filter: blur 대신 gradient 자체의 soft edge로 흐릿함 표현)
+  &::after {
+    content: "";
+    position: absolute;
+    inset: -30%; /* 드리프트해도 가장자리가 비지 않게 보드보다 크게 확보 */
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(45% 30% at 30% 25%, rgba(var(--theme-accent-rgb), 0.1) 0%, transparent 70%),
+      radial-gradient(
+        50% 32% at 72% 62%,
+        rgba(var(--theme-tertiary-rgb), 0.08) 0%,
+        transparent 70%
+      ),
+      radial-gradient(38% 26% at 55% 42%, rgba(var(--theme-primary-rgb), 0.05) 0%, transparent 70%);
+    will-change: transform;
+    animation: auroraFlow 32s ease-in-out infinite alternate;
+  }
+
+  /* 오로라 베일 드리프트 — 이동·미세 회전·스케일을 섞어 색 경계가 천천히 겹쳤다 풀리는 흐름 연출 */
+  @at-root {
+    @keyframes auroraFlow {
+      0% {
+        transform: translate3d(-3%, -2%, 0) rotate(-2deg) scale(1);
+      }
+      50% {
+        transform: translate3d(2%, 3%, 0) rotate(1deg) scale(1.06);
+      }
+      100% {
+        transform: translate3d(4%, -3%, 0) rotate(3deg) scale(1);
+      }
+    }
+  }
+
+  // 모션 최소화 설정 시 드리프트 제거(정적 오로라로 대체)
+  @media (prefers-reduced-motion: reduce) {
+    &::after {
+      animation: none;
+    }
+  }
+
+  // 3. 아날로그 필름 노이즈 텍스처 오버레이 (마크업 없이 가상 요소로 구현)
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.04; /* 입자가 과하지 않게 아주 은은하게 조절 */
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+}
+
 // ─── 폼 요소 ──────────────────────────────────────────────────────────────────
 
 @mixin form-input {

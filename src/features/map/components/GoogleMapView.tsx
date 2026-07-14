@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { GoogleMap, Polyline } from "@react-google-maps/api";
 import { useGoogleMap } from "@/features/map/hooks/useGoogleMap";
 import {
@@ -56,6 +56,20 @@ export function GoogleMapView({
     }
   }, [focusLocation, mapRef]);
 
+  // 경로가 2개 이상인 스토리만 폴리라인으로 표시 (memberLocations 등 잦은 리렌더에도 재계산 방지)
+  const storyPolylines = useMemo(
+    () =>
+      stories
+        .filter((story) => story.path.length > 1)
+        .map((story) => ({
+          id: story.id,
+          path: toLatLngPath(story.path),
+          isSelected: story.id === selectedStoryId,
+          pathColor: story.pathColor,
+        })),
+    [stories, selectedStoryId]
+  );
+
   if (status !== "ready") {
     return <MapLoadState status={status} errorMessage={loadErrorMessage} />;
   }
@@ -70,24 +84,19 @@ export function GoogleMapView({
         onLoad={onMapLoad}
       >
         {/* 스토리 경로 폴리라인 */}
-        {stories
-          .filter((story) => story.path.length > 1)
-          .map((story) => {
-            const isSelected = story.id === selectedStoryId;
-            return (
-              <Polyline
-                key={story.id}
-                path={toLatLngPath(story.path)}
-                options={{
-                  strokeColor: story.pathColor,
-                  strokeOpacity: isSelected ? 1 : UNSELECTED_STROKE_OPACITY,
-                  strokeWeight: isSelected ? SELECTED_STROKE_WEIGHT : UNSELECTED_STROKE_WEIGHT,
-                  clickable: true,
-                }}
-                onClick={() => onStoryClick(story.id)}
-              />
-            );
-          })}
+        {storyPolylines.map(({ id, path, isSelected, pathColor }) => (
+          <Polyline
+            key={id}
+            path={path}
+            options={{
+              strokeColor: pathColor,
+              strokeOpacity: isSelected ? 1 : UNSELECTED_STROKE_OPACITY,
+              strokeWeight: isSelected ? SELECTED_STROKE_WEIGHT : UNSELECTED_STROKE_WEIGHT,
+              clickable: true,
+            }}
+            onClick={() => onStoryClick(id)}
+          />
+        ))}
 
         {/* 실시간 기록 중인 경로 (점선) */}
         {isRecording && recordingPath.length > 0 && (

@@ -1,75 +1,45 @@
 "use client";
-import { useState } from "react";
 import { Route, Square, Search } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
 import { cx } from "@/utils/cn";
-import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
-import { authQueries } from "@/features/auth/queries/authQueries";
-import { useStoryStore, storyActions } from "@/features/stories/stores/useStoryStore";
-import { storyQueries } from "@/features/stories/queries/storyQueries";
-import { useStoryRecording } from "@/features/map/hooks/useStoryRecording";
+import { useMapView } from "@/features/map/hooks/useMapView";
 import { GoogleMapView } from "@/features/map/components/GoogleMapView";
 import { MapEmptyState } from "@/features/map/components/MapEmptyState";
 import { MapPartnerInfo } from "@/features/map/components/MapPartnerInfo";
 import { MapStoryInfo } from "@/features/map/components/MapStoryInfo";
 import { ProfileImage } from "@/components/ProfileImage";
 import { BottomDrawer } from "@/components/BottomDrawer";
-import { toastActions } from "@/stores/useToastStore";
 
-import type { MemberLocation } from "@/features/map/types/map";
 import styles from "./MapView.module.scss";
 
-const DIRECTIONS_BASE_URL = "https://www.google.com/maps/dir/?api=1";
-
 export const MapView = () => {
-  const { currentWorkspace } = useCurrentWorkspace();
-  const { data: user } = useQuery(authQueries.user());
-  const { data: stories = [] } = useQuery(storyQueries.list(currentWorkspace?.id ?? ""));
-  const selectedStoryId = useStoryStore((s) => s.selectedStoryId);
-
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  const [focusLocation, setFocusLocation] = useState<{ lat: number; lng: number } | null>(null);
-
-  const myUserId = user?.id ?? "";
-  const { myLocation, isRecording, recordingPath, toggleRecording } = useStoryRecording({
-    workspaceId: currentWorkspace?.id ?? "",
-    userId: myUserId,
-  });
-
-  const memberLocations = (currentWorkspace?.members ?? []).flatMap<MemberLocation>((member) => {
-    // 실시간 위치 공유(presence) 연동 전까지는 본인 위치만 표시한다
-    if (member.id !== myUserId) return [];
-    return [{ member, lat: myLocation.lat, lng: myLocation.lng }];
-  });
-
-  const selectedStory = stories.find((s) => s.id === selectedStoryId);
-  const selectedUser = currentWorkspace?.members?.find((m) => m.id === selectedUserId);
-
-  const openDirections = () => {
-    const partner = memberLocations.find((m) => m.member.id !== myUserId);
-    if (!partner) {
-      toastActions.showToast("상대방의 위치를 아직 확인할 수 없어요.", "error");
-      return;
-    }
-    const url = `${DIRECTIONS_BASE_URL}&destination=${partner.lat},${partner.lng}&travelmode=driving`;
-    window.open(url, "_blank");
-  };
+  const {
+    currentWorkspace,
+    myUserId,
+    myLocation,
+    isRecording,
+    recordingPath,
+    toggleRecording,
+    stories,
+    memberLocations,
+    selectedStoryId,
+    selectedStory,
+    selectedUser,
+    focusLocation,
+    selectMember,
+    selectStory,
+    openDirections,
+  } = useMapView();
 
   return (
     <div className={styles.page}>
       <div className={styles.memberHeader}>
         {currentWorkspace?.members?.map((member) => {
-          const isSelected = selectedUserId === member.id;
+          const isSelected = selectedUser?.id === member.id;
           return (
             <button
               key={member.id}
               type="button"
-              onClick={() => {
-                const loc = memberLocations.find((m) => m.member.id === member.id);
-                if (loc) setFocusLocation({ lat: loc.lat, lng: loc.lng });
-                setSelectedUserId(isSelected ? null : member.id);
-                storyActions.setSelectedStoryId(null);
-              }}
+              onClick={() => selectMember(member.id)}
               className={cx(styles.memberButton, isSelected && styles.memberButtonActive)}
             >
               <div className={cx(styles.memberAvatarWrap, isSelected && styles.memberAvatarActive)}>
@@ -95,14 +65,8 @@ export const MapView = () => {
         recordingPath={recordingPath}
         isRecording={isRecording}
         selectedStoryId={selectedStoryId}
-        onMemberClick={(memberId) => {
-          setSelectedUserId((prev) => (prev === memberId ? null : memberId));
-          storyActions.setSelectedStoryId(null);
-        }}
-        onStoryClick={(storyId) => {
-          storyActions.setSelectedStoryId(storyId);
-          setSelectedUserId(null);
-        }}
+        onMemberClick={selectMember}
+        onStoryClick={selectStory}
       />
 
       <div className={styles.recordFab}>

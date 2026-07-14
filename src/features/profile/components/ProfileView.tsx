@@ -10,6 +10,7 @@ import { PROFILE_MENU_ITEMS } from "@/features/profile/constants/profileMenu";
 import { APP_VERSION } from "@/features/profile/constants/profile";
 import { ProfileQuickCards } from "./ProfileQuickCards";
 import { ProfileMenuRow } from "./ProfileMenuRow";
+import { ProfileHeroSkeleton } from "./ProfileHeroSkeleton";
 import styles from "./ProfileView.module.scss";
 
 const SETTINGS_ICON_SIZE = 20; // 설정 버튼 아이콘 크기(px)
@@ -17,7 +18,7 @@ const HERO_AVATAR_SIZE = 84; // 히어로 영역 아바타 크기(px)
 
 export const ProfileView = () => {
   const router = useRouter();
-  const { user, email, displayName } = useProfileUser();
+  const { user, email, displayName, isLoading } = useProfileUser();
 
   return (
     <div className={styles.page}>
@@ -29,14 +30,20 @@ export const ProfileView = () => {
         >
           <Settings size={SETTINGS_ICON_SIZE} />
         </button>
-        <ProfileImage
-          uri={user?.profileImage}
-          name={displayName}
-          size={HERO_AVATAR_SIZE}
-          className={styles.heroAvatar}
-        />
-        <h1 className={styles.heroName}>{displayName}</h1>
-        <p className={styles.heroEmail}>{email}</p>
+        {isLoading ? (
+          <ProfileHeroSkeleton />
+        ) : (
+          <>
+            <ProfileImage
+              uri={user?.profileImage}
+              name={displayName}
+              size={HERO_AVATAR_SIZE}
+              className={styles.heroAvatar}
+            />
+            <h1 className={styles.heroName}>{displayName}</h1>
+            <p className={styles.heroEmail}>{email}</p>
+          </>
+        )}
       </header>
 
       <ProfileQuickCards />

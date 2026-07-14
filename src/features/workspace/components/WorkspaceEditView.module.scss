@@ -29,8 +29,8 @@
 }
 
 .badgeGroup {
-  background-color: rgba(var(--primary-rgb), 0.1);
-  color: var(--primary);
+  background-color: color-mix(in srgb, var(--item-accent) 12%, var(--white));
+  color: var(--item-accent);
 }
 
 .workspaceName {
@@ -83,8 +83,8 @@
 }
 
 .settingIconPrimary {
-  background-color: rgba(var(--primary-rgb), 0.1);
-  color: var(--primary);
+  background-color: color-mix(in srgb, var(--item-accent) 12%, var(--white));
+  color: var(--item-accent);
 }
 
 .settingIconGreen {

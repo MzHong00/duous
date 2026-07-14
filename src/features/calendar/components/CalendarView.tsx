@@ -25,6 +25,7 @@ export const CalendarView = () => {
     markedDates,
     calendarDays,
     selectedDateTodos,
+    isTodosPending,
     currentWorkspace,
     selectDate,
     moveMonth,
@@ -62,6 +63,7 @@ export const CalendarView = () => {
           currentWorkspace={currentWorkspace}
           initialDate={selectedDate}
           filter={filter}
+          isPending={isTodosPending}
           onFilterChange={setFilter}
           onToggle={toggleTodo}
         />

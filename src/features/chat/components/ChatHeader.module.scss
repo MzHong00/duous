@@ -12,6 +12,20 @@
   align-items: center;
 }
 
+// 참여자 전원의 아바타를 겹쳐 보여주는 스택
+.avatarStack {
+  @include flex-row(0);
+}
+
+.stackedAvatar {
+  border: 2px solid var(--white);
+  border-radius: 9999px;
+
+  &:not(:first-child) {
+    margin-left: -10px; // 아바타 크기 36px에 맞춘 겹침 폭
+  }
+}
+
 .partnerName {
   font-size: 17px;
   font-weight: 800;

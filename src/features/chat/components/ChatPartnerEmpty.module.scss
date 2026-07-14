@@ -1,0 +1,37 @@
+@use "styles/mixins" as *;
+
+// 보드 전체를 채우며 수직 중앙에 배치되는 빈 상태 컨테이너
+.wrap {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  @include flex-col-center(8px);
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+}
+
+// 은은한 테마 액센트 배경의 원 안에 이모지를 띄워 일러스트 느낌을 낸다
+.emojiCircle {
+  @include flex-col-center;
+  justify-content: center;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  font-size: 38px;
+  background-color: rgba(var(--theme-accent-rgb), 0.08);
+  margin-bottom: 8px;
+}
+
+.title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--grey-900);
+  letter-spacing: -0.01em;
+}
+
+.subtitle {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--grey-500);
+}

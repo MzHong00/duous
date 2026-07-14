@@ -27,11 +27,13 @@ export const StoriesView = () => {
     );
   }, [stories, searchQuery]);
 
-  // 2단 지그재그 레이아웃: 짝수 인덱스는 왼쪽, 홀수 인덱스는 오른쪽 컬럼
-  const columns = [
-    filteredStories.filter((_, i) => i % 2 === 0),
-    filteredStories.filter((_, i) => i % 2 !== 0),
-  ];
+  // 2단 지그재그 레이아웃: 짝수 인덱스는 왼쪽, 홀수 인덱스는 오른쪽 컬럼 (단일 순회로 분배)
+  const columns = useMemo(() => {
+    const left: typeof filteredStories = [];
+    const right: typeof filteredStories = [];
+    filteredStories.forEach((story, i) => (i % 2 === 0 ? left : right).push(story));
+    return [left, right];
+  }, [filteredStories]);
 
   const handleSearchChange = (value: string) => {
     if (value) {

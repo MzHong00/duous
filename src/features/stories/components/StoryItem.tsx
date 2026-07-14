@@ -1,4 +1,5 @@
 import { MapPin } from "lucide-react";
+import Image from "next/image";
 
 import { formatDate } from "@/utils/date";
 import { cx } from "@/utils/cn";
@@ -12,6 +13,7 @@ interface StoryItemProps {
   onPress: (id: string) => void;
 }
 
+/** 스토리 목록의 썸네일 카드 아이템 */
 export const StoryItem = ({ story, onPress }: StoryItemProps) => {
   const hasThumbnail = !!story.thumbnailUrl; // 썸네일 이미지 존재 여부
 
@@ -25,7 +27,13 @@ export const StoryItem = ({ story, onPress }: StoryItemProps) => {
         style={{ backgroundColor: `${story.pathColor}20` }}
       >
         {hasThumbnail ? (
-          <img src={story.thumbnailUrl} alt={story.title} className={styles.thumbnailImage} />
+          <Image
+            src={story.thumbnailUrl as string}
+            alt={story.title ?? ""}
+            fill
+            sizes="(max-width: 768px) 50vw, 240px"
+            className={styles.thumbnailImage}
+          />
         ) : (
           <MapPin size={32} style={{ color: story.pathColor }} />
         )}

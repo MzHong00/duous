@@ -1,10 +1,12 @@
 "use client";
+import type { CSSProperties } from "react";
 import { useSearchParams } from "next/navigation";
 import { ChevronRight, Trash2, User, UserPlus } from "lucide-react";
 
 import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
 import { useWorkspaceEditActions } from "@/features/workspace/hooks/useWorkspaceEditActions";
 import { WorkspaceThemePicker } from "@/features/workspace/components/WorkspaceThemePicker";
+import { WORKSPACE_THEME_ACCENT } from "@/features/workspace/utils/workspaceUtils";
 import { modalActions } from "@/stores/useModalStore";
 import { AppHeader } from "@/components/AppHeader";
 import { APP_WORKSPACE } from "@/constants/config";
@@ -120,7 +122,10 @@ export const WorkspaceEditView = () => {
   };
 
   return (
-    <div className={styles.page}>
+    <div
+      className={styles.page}
+      style={{ "--item-accent": WORKSPACE_THEME_ACCENT[workspace.themeColor] } as CSSProperties}
+    >
       <AppHeader />
       <div className={styles.content}>
         <div className={styles.pageHeader}>

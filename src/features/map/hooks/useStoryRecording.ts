@@ -43,6 +43,7 @@ export const useStoryRecording = ({
   const isRecording = useStoryStore((s) => s.isRecording);
   const recordingPath = useStoryStore((s) => s.recordingPath);
 
+  /** 지오로케이션 watch를 시작해 위치 변화를 경로에 누적하고 내 위치를 갱신한다 */
   const startWatchPosition = useCallback(() => {
     if (!navigator.geolocation) {
       toastActions.showToast("이 기기에서는 위치 기록을 지원하지 않습니다.", "error");
@@ -67,6 +68,7 @@ export const useStoryRecording = ({
     );
   }, []);
 
+  /** 진행 중인 지오로케이션 watch를 해제한다 */
   const stopWatchPosition = useCallback(() => {
     if (watchIdRef.current !== null) {
       navigator.geolocation.clearWatch(watchIdRef.current);
@@ -74,6 +76,7 @@ export const useStoryRecording = ({
     }
   }, []);
 
+  /** 마운트 시 현재 위치를 1회 조회해 초기 지도 중심으로 사용한다(실패 시 기본 중심 유지) */
   useEffect(() => {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
@@ -93,6 +96,7 @@ export const useStoryRecording = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /** 기록 시작/종료를 토글한다. 종료 시 경로가 충분하면 스토리로 저장 후 편집 화면으로 이동한다 */
   const toggleRecording = async () => {
     if (!isRecording) {
       storyActions.startRecording();

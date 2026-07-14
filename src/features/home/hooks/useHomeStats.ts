@@ -9,9 +9,9 @@ export const useHomeStats = () => {
   const { currentWorkspace } = useCurrentWorkspace();
   const workspaceId = currentWorkspace?.id ?? "";
 
-  const { data: stories = [] } = useQuery(storyQueries.list(workspaceId));
+  const { data: stories = [], isLoading } = useQuery(storyQueries.list(workspaceId));
 
   const recentStories = stories.slice(0, 3); // 최신 스토리 최대 3개
 
-  return { recentStories };
+  return { recentStories, isLoading };
 };

@@ -1,0 +1,18 @@
+@use "styles/mixins" as *;
+
+.errorText {
+  @include flex-center;
+  height: 100%;
+  color: var(--grey-400);
+  font-size: 14px;
+}
+
+.skeletonRowMe {
+  @include flex-end;
+  margin-bottom: 10px;
+}
+
+.skeletonRowPartner {
+  @include flex-row(8px);
+  margin-bottom: 10px;
+}

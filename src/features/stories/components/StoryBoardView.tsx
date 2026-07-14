@@ -39,6 +39,11 @@ export const StoryBoardView = () => {
   const dragStartXRef = useRef<number | null>(null); // 부채꼴 카드 드래그 시작 X 좌표
   const dragStartIndexRef = useRef<number>(0); // 드래그 시작 당시의 활성화 인덱스
   const didDragRef = useRef<boolean>(false); // 드래그로 인덱스가 바뀌었는지(직후 클릭 되튐 방지용)
+  const detailTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined); // 중앙 이동 완료 후 상세를 여는 예약 타이머
+
+  const [currentIndex, setCurrentIndex] = useState(0); // 부채꼴 최상단(활성) 카드 인덱스
+  const [focus, setFocus] = useState<{ id: string; dx: number; dy: number } | null>(null); // 보드 정중앙으로 이동한 카드 id와 이동량(px)
+  const [detailId, setDetailId] = useState<string | null>(null); // 상세 오버레이로 펼쳐진 스토리 id(없으면 null)
 
   const router = useRouter();
   const { currentWorkspace } = useCurrentWorkspace();
@@ -59,10 +64,6 @@ export const StoryBoardView = () => {
     [stories, currentWorkspace?.id]
   );
   const { bigItems, smallItems } = useMemoryBoard(boardStories);
-  const [currentIndex, setCurrentIndex] = useState(0); // 부채꼴 최상단(활성) 카드 인덱스
-  const [focus, setFocus] = useState<{ id: string; dx: number; dy: number } | null>(null); // 보드 정중앙으로 이동한 카드 id와 이동량(px)
-  const [detailId, setDetailId] = useState<string | null>(null); // 상세 오버레이로 펼쳐진 스토리 id(없으면 null)
-  const detailTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined); // 중앙 이동 완료 후 상세를 여는 예약 타이머
   const {
     setCardRef,
     handlePointerDown,

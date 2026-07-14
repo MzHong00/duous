@@ -13,8 +13,9 @@ import type { ChatMessage } from "@/features/chat/types/chat";
 interface UseChatMessagesResult {
   messages: ChatMessage[];
   isLoading: boolean;
-  /** 빈 문자열·공백은 무시하고, 내 메시지를 전송한다 (실시간 구독이 목록에 반영) */
-  sendMessage: (text: string) => void;
+  isError: boolean;
+  /** 빈 문자열·공백은 무시하고, 내 메시지를 전송한다 (실시간 구독이 목록에 반영, 실패 시 onError로 알림) */
+  sendMessage: (text: string, onError?: () => void) => void;
 }
 
 /**
@@ -24,8 +25,8 @@ interface UseChatMessagesResult {
 export const useChatMessages = (workspaceId: string, userId: string): UseChatMessagesResult => {
   const queryClient = useQueryClient();
   const listQuery = chatQueries.list(workspaceId, userId);
-  const { data: messages = [], isLoading } = useQuery(listQuery);
-  const sendMutation = useSendMessageMutation();
+  const { data: messages = [], isLoading, isError } = useQuery(listQuery);
+  const { mutate: sendMutate } = useSendMessageMutation();
 
   // Realtime: 이 워크스페이스의 messages INSERT를 구독해 캐시에 append
   useEffect(() => {
@@ -55,14 +56,19 @@ export const useChatMessages = (workspaceId: string, userId: string): UseChatMes
     };
   }, [workspaceId, userId, queryClient, listQuery.queryKey]);
 
-  /** 입력 텍스트를 검증해 전송한다 */
-  const sendMessage = (text: string) => {
+  /** 입력 텍스트를 검증해 전송하고, 실패 시 onError로 입력 복원을 알린다 */
+  const sendMessage = (text: string, onError?: () => void) => {
     if (!text.trim() || !workspaceId || !userId) return;
-    sendMutation.mutate(
+    sendMutate(
       { workspaceId, senderId: userId, text: text.trim() },
-      { onError: () => toastActions.showToast("메시지 전송에 실패했어요.", "error") }
+      {
+        onError: () => {
+          toastActions.showToast("메시지 전송에 실패했어요.", "error");
+          onError?.();
+        },
+      }
     );
   };
 
-  return { messages, isLoading, sendMessage };
+  return { messages, isLoading, isError, sendMessage };
 };

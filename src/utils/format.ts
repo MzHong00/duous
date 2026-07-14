@@ -14,6 +14,7 @@ export const joinValuesWithDot = <T extends object>(
 };
 
 export const getInitials = (name: string): string => {
-  if (!name) return "?";
-  return name.charAt(0).toUpperCase();
+  const trimmed = name.trim(); // 공백만 있는 이름도 빈 값으로 취급해 "?" 폴백을 노출
+  if (!trimmed) return "?";
+  return trimmed.charAt(0).toUpperCase();
 };
