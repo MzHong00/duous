@@ -1,12 +1,13 @@
 @use "styles/mixins" as *;
 
 .list {
-  @include flex-col(8px);
-  padding-top: 12px;
+  @include flex-col(2px);
+  // 공용 모달 셸의 넉넉한 패딩(28px 24px)을 이 모달에서만 상쇄해 컴팩트하게
+  margin: -14px -14px -6px;
+  padding-top: 2px;
   max-height: 320px;
   overflow-y: auto;
   list-style: none;
-  margin: 0;
   padding-left: 0;
 
   &::-webkit-scrollbar {
@@ -19,16 +20,22 @@
   }
 }
 
-// 토스 스타일 플랫 리스트 — 여백과 hover만으로 구분
+// 컴팩트 리스트 아이템 — 테마 액센트 톤으로 hover/active 강조
 .row {
   @include flex-row(10px);
   align-items: center;
-  padding: 8px 10px;
-  border-radius: 10px;
-  transition: background-color 0.15s ease;
+  padding: 6px 8px;
+  border-radius: 12px;
+  transition:
+    background-color 0.15s ease,
+    transform 0.15s ease;
 
   &:hover {
-    background-color: var(--grey-50);
+    background-color: rgba(var(--theme-accent-rgb), 0.06);
+  }
+
+  &:active {
+    transform: scale(0.98);
   }
 }
 
@@ -36,29 +43,34 @@
   flex-shrink: 0;
   display: inline-flex;
   border-radius: 50%;
+  padding: 2px;
+  background: linear-gradient(
+    135deg,
+    rgba(var(--theme-accent-rgb), 0.35),
+    rgba(var(--theme-accent-rgb), 0.05)
+  );
 }
 
 .info {
-  @include flex-col(2px);
+  @include flex-col(1px);
   min-width: 0;
 }
 
 .name {
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--grey-900);
+  letter-spacing: -0.01em;
 }
 
 .email {
   font-size: 12px;
-  color: var(--grey-500);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  color: var(--grey-400);
+  @include text-ellipsis;
 }
 
 .empty {
-  padding: 32px 0;
+  padding: 28px 0;
   font-size: 14px;
   color: var(--grey-500);
   text-align: center;
