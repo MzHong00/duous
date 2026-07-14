@@ -1,8 +1,10 @@
 "use client";
 import { Heart } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
 import { useGoogleLoginMutation } from "@/features/auth/queries/authMutations";
 import { toastActions } from "@/stores/useToastStore";
+import { isSafeRedirectPath } from "@/utils/route";
 import { KakaoIcon } from "@/assets/icons/KakaoIcon";
 import { GoogleIcon } from "@/assets/icons/GoogleIcon";
 import styles from "./LoginView.module.scss";
@@ -12,9 +14,10 @@ const GOOGLE_LOGIN_ERROR_MESSAGE = "구글 로그인에 실패했어요. 잠시 
 const KAKAO_LOGIN_PENDING_MESSAGE = "카카오 로그인은 준비 중이에요.";
 
 export const LoginView = () => {
-  const googleLoginMutation = useGoogleLoginMutation();
-
-  const isGoogleLoginPending = googleLoginMutation.isPending; // 구글 로그인 진행 여부
+  const searchParams = useSearchParams();
+  const rawRedirectPath = searchParams.get("redirect");
+  const redirectPath = isSafeRedirectPath(rawRedirectPath) ? rawRedirectPath : undefined; // 로그인 후 복귀할 원래 경로(오픈 리다이렉트 방지)
+  const { mutate: loginWithGoogle, isPending: isGoogleLoginPending } = useGoogleLoginMutation();
 
   /** 카카오 로그인 (준비 중) */
   const handleKakaoLogin = () => {
@@ -23,13 +26,20 @@ export const LoginView = () => {
 
   /** 구글 OAuth 로그인 처리 */
   const handleGoogleLogin = () => {
-    googleLoginMutation.mutate(undefined, {
+    loginWithGoogle(redirectPath, {
       onError: () => toastActions.showToast(GOOGLE_LOGIN_ERROR_MESSAGE, "error"),
     });
   };
 
   return (
     <main className={styles.main}>
+      {/* 배경 데코레이션: 은은하게 떠다니는 폴라로이드 카드 (장식용) */}
+      <div className={styles.decoLayer} aria-hidden="true">
+        <div className={styles.polaroid} />
+        <div className={styles.polaroid} />
+        <div className={styles.polaroid} />
+      </div>
+
       <div className={styles.inner}>
         <div className={styles.logoSection}>
           <div className={styles.logoWrap}>
