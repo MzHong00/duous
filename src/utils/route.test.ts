@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { withParams, withQuery } from "./route";
+import { isSafeRedirectPath, withParams, withQuery } from "./route";
 
 describe("withParams", () => {
   it("base 뒤에 파라미터를 이어붙인다", () => {
@@ -35,5 +35,35 @@ describe("withQuery", () => {
 
   it("쿼리 값을 URI 인코딩한다", () => {
     expect(withQuery("/list", { q: "a b" })).toBe("/list?q=a%20b");
+  });
+});
+
+describe("isSafeRedirectPath", () => {
+  it("내부 상대 경로는 안전하다고 판단한다", () => {
+    expect(isSafeRedirectPath("/todo")).toBe(true);
+  });
+
+  it("null/undefined/빈 문자열은 안전하지 않다고 판단한다", () => {
+    expect(isSafeRedirectPath(null)).toBe(false);
+    expect(isSafeRedirectPath(undefined)).toBe(false);
+    expect(isSafeRedirectPath("")).toBe(false);
+  });
+
+  it("프로토콜 상대 경로(//)는 안전하지 않다고 판단한다", () => {
+    expect(isSafeRedirectPath("//evil.com")).toBe(false);
+  });
+
+  it("백슬래시로 시작하는 프로토콜 상대 경로(/\\)는 안전하지 않다고 판단한다", () => {
+    expect(isSafeRedirectPath("/\\evil.com")).toBe(false);
+  });
+
+  it("절대 URL은 안전하지 않다고 판단한다", () => {
+    expect(isSafeRedirectPath("https://evil.com")).toBe(false);
+  });
+
+  it("탭/개행 문자로 브라우저의 // 정규화를 우회하려는 경로는 안전하지 않다고 판단한다", () => {
+    expect(isSafeRedirectPath("/\t/evil.com")).toBe(false);
+    expect(isSafeRedirectPath("/\n/evil.com")).toBe(false);
+    expect(isSafeRedirectPath("/\r/evil.com")).toBe(false);
   });
 });
