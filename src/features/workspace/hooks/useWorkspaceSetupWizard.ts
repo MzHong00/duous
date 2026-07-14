@@ -64,7 +64,7 @@ export const useWorkspaceSetupWizard = () => {
       let workspaceId = createdWorkspaceId;
       if (!workspaceId) {
         const { workspace } = await createWorkspace.mutateAsync({
-          name: workspaceName,
+          name: workspaceName.trim(),
           type: roomType,
           startDate,
           user,

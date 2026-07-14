@@ -31,18 +31,31 @@
 .workspaceCard {
   position: relative;
   padding: 16px;
+  padding-left: 20px;
+  overflow: hidden;
+
+  // 워크스페이스 고유 테마색(--item-accent)을 좌측 포인트 바로 표시
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 4px;
+    background-color: var(--item-accent);
+  }
 }
 
 .cardTop {
   @include flex-row(12px);
   align-items: flex-start;
-  padding-right: 76px; /* 우상단 아이콘 버튼 2개와 겹치지 않도록 여백 확보 */
+  padding-right: 44px; /* 우상단 아이콘 버튼과 겹치지 않도록 여백 확보 */
 }
 
 .wsIcon {
   @include icon-box(48px, 16px);
-  background-color: rgba(var(--primary-rgb), 0.1);
-  color: var(--primary);
+  background-color: color-mix(in srgb, var(--item-accent) 14%, var(--white));
+  color: var(--item-accent);
 }
 
 .wsInfo {
@@ -60,8 +73,8 @@
 
 .mainBadge {
   font-size: 10px;
-  background-color: rgba(var(--primary-rgb), 0.1);
-  color: var(--primary);
+  background-color: color-mix(in srgb, var(--item-accent) 14%, var(--white));
+  color: var(--item-accent);
   font-weight: 700;
   padding: 2px 8px;
   border-radius: 9999px;
@@ -87,14 +100,8 @@
 
 .setMainButton {
   @include icon-box(32px, 10px);
-  background-color: rgba(var(--primary-rgb), 0.1);
-  color: var(--primary);
-}
-
-.settingsButton {
-  @include icon-box(32px, 10px);
-  background-color: var(--grey-100);
-  color: var(--grey-700);
+  background-color: color-mix(in srgb, var(--item-accent) 14%, var(--white));
+  color: var(--item-accent);
 }
 
 .cardMembers {
@@ -119,6 +126,18 @@
   &:not(:last-child) {
     margin-left: -8px; /* 크기 24px에 맞춰 겹침 폭 조절 */
   }
+}
+
+.skeletonCard {
+  @include flex-col(8px);
+  padding: 16px;
+}
+
+.errorText {
+  padding: 40px 0;
+  text-align: center;
+  font-size: 15px;
+  color: var(--grey-400);
 }
 
 .addButton {

@@ -8,6 +8,7 @@ import { modalActions } from "@/stores/useModalStore";
 import { toastActions } from "@/stores/useToastStore";
 import { authQueries } from "@/features/auth/queries/authQueries";
 import { workspaceActions } from "@/features/workspace/stores/useWorkspaceStore";
+import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
 import {
   useUpdateWorkspaceNameMutation,
   useUpdateWorkspaceStartDateMutation,
@@ -26,6 +27,7 @@ import type { ThemeColor } from "@/features/workspace/types/workspace";
 export const useWorkspaceEditActions = (workspaceId: string) => {
   const router = useRouter();
   const { data: user } = useQuery(authQueries.user());
+  const { currentWorkspace } = useCurrentWorkspace();
   const updateName = useUpdateWorkspaceNameMutation();
   const updateStartDate = useUpdateWorkspaceStartDateMutation();
   const updateTheme = useUpdateWorkspaceThemeMutation();
@@ -90,7 +92,9 @@ export const useWorkspaceEditActions = (workspaceId: string) => {
     if (!user) return;
     await runWithErrorAlert(async () => {
       await leaveWorkspace.mutateAsync({ workspaceId, userId: user.id });
-      workspaceActions.setCurrentWorkspaceId(null);
+      if (workspaceId === currentWorkspace?.id) {
+        workspaceActions.setCurrentWorkspaceId(null);
+      }
       router.replace(ROUTES.WORKSPACE.LIST.path);
     }, "나가기에 실패했습니다.");
   };
