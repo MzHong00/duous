@@ -5,10 +5,11 @@ import { useQuery } from "@tanstack/react-query";
 
 import { calendarQueries } from "@/features/calendar/queries/calendarQueries";
 import { todoQueries } from "@/features/todo/queries/todoQueries";
-import { useToggleTodoMutation } from "@/features/todo/queries/todoMutations";
+import { useTodoToggle } from "@/features/todo/hooks/useTodoToggle";
 import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
 import { COLORS } from "@/constants/theme";
 import { useQueryParams } from "@/hooks/useQueryParams";
+import { useResetOnChange } from "@/hooks/useResetOnChange";
 import { addMonths, getCalendarDays, getTodayDateString } from "@/utils/date";
 import { buildMarkedDates } from "@/features/calendar/utils/calendarUtils";
 
@@ -27,11 +28,20 @@ export const useCalendar = () => {
   const [selectedDate, setSelectedDate] = useState(dateParam); // 현재 선택된 날짜
   const [currentMonth, setCurrentMonth] = useState(dateParam.substring(0, MONTH_KEY_LENGTH)); // 표시 중인 월
   const [filter, setFilter] = useState<Filter>("all"); // 할 일 목록 필터
+  const dateParamChanged = useResetOnChange(dateParam);
+
+  // 브라우저 뒤로가기/앞으로가기 등 훅 외부 요인으로 URL의 date가 바뀌면, 표시 중인 선택일/월이 그대로 남는 것을 방지
+  if (dateParamChanged) {
+    setSelectedDate(dateParam);
+    setCurrentMonth(dateParam.substring(0, MONTH_KEY_LENGTH));
+  }
 
   const { currentWorkspace } = useCurrentWorkspace();
   const { data: events = [] } = useQuery(calendarQueries.list(currentWorkspace?.id ?? ""));
-  const { data: todos = [] } = useQuery(todoQueries.list(currentWorkspace?.id ?? ""));
-  const toggleTodoMutation = useToggleTodoMutation(currentWorkspace?.id ?? "");
+  const { data: todos = [], isPending: isTodosPending } = useQuery(
+    todoQueries.list(currentWorkspace?.id ?? "")
+  );
+  const { toggleTodo } = useTodoToggle(currentWorkspace?.id ?? "", todos);
 
   // 이벤트·할 일을 날짜별 색상 점 맵으로 변환
   const markedDates = useMemo(
@@ -69,15 +79,6 @@ export const useCalendar = () => {
   /** 표시 월을 delta만큼 이동한다 */
   const moveMonth = useCallback((delta: number) => setCurrentMonth((m) => addMonths(m, delta)), []);
 
-  /** 할 일 완료 여부를 서버에 토글 반영한다 */
-  const toggleTodo = useCallback(
-    (id: string) => {
-      const target = todos.find((t) => t.id === id);
-      if (target) toggleTodoMutation.mutate({ id, isCompleted: !target.isCompleted });
-    },
-    [todos, toggleTodoMutation]
-  );
-
   return {
     today,
     selectedDate,
@@ -87,6 +88,7 @@ export const useCalendar = () => {
     markedDates,
     calendarDays,
     selectedDateTodos,
+    isTodosPending,
     currentWorkspace,
     selectDate,
     moveMonth,
