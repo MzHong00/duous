@@ -30,8 +30,6 @@ export const generateAnniversaries = (startDate: string): Anniversary[] =>
 
 /** 가장 최근에 지난 기념일을 반환 (지난 기념일이 없으면 null) */
 export const getPreviousAnniversary = (startDate: string): Anniversary | null => {
-  const passed = generateAllMilestones(startDate).filter(
-    (anniversary) => anniversary.daysLeft < 0
-  );
+  const passed = generateAllMilestones(startDate).filter((anniversary) => anniversary.daysLeft < 0);
   return passed.at(-1) ?? null; // 임박순 정렬이므로 마지막 원소가 가장 최근에 지난 기념일
 };

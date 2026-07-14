@@ -10,7 +10,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "format": "prettier --write \"src/**/*.{ts,tsx,scss}\"",
-    "check": "next build && eslint src && prettier --check \"src/**/*.{ts,tsx,scss}\" && vitest run"
+    "check": "npm run format && next build && eslint src && vitest run"
   },
   "dependencies": {
     "@react-google-maps/api": "^2.20.8",

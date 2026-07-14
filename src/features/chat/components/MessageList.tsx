@@ -82,7 +82,9 @@ const MessageListComponent = ({
             sender={msg.sender}
             time={msg.time}
             avatar={msg.sender === "partner" ? senderMember?.avatar : undefined}
-            name={msg.sender === "partner" ? (senderMember?.name ?? UNKNOWN_SENDER_NAME) : undefined}
+            name={
+              msg.sender === "partner" ? (senderMember?.name ?? UNKNOWN_SENDER_NAME) : undefined
+            }
             isFirstInGroup={isFirstInGroup}
             isLastInGroup={isLastInGroup}
           />

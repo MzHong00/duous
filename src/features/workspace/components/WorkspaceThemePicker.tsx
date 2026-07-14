@@ -36,7 +36,11 @@ export const WorkspaceThemePicker = ({ value, onChange }: WorkspaceThemePickerPr
             key={option.value}
             type="button"
             onClick={() => onChange(option.value)}
-            className={cx(styles.card, CARD_STYLES[option.value], isSelected && styles.cardSelected)}
+            className={cx(
+              styles.card,
+              CARD_STYLES[option.value],
+              isSelected && styles.cardSelected
+            )}
             aria-label={option.label}
           >
             {/* 앱 오로라 배경과 동일한 색감의 그라데이션 미리보기 (선택 표시는 카드 테두리로) */}
