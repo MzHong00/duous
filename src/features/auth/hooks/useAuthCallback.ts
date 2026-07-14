@@ -28,7 +28,8 @@ export const useAuthCallback = (redirectPath: string | null) => {
           workspaceActions.setCurrentWorkspaceId(workspaces[0].id);
         }
         router.replace(
-          safeRedirectPath || (workspaces.length > 0 ? ROUTES.HOME.path : ROUTES.WORKSPACE.LANDING.path)
+          safeRedirectPath ||
+            (workspaces.length > 0 ? ROUTES.HOME.path : ROUTES.WORKSPACE.LANDING.path)
         );
       } catch {
         router.replace(safeRedirectPath || ROUTES.WORKSPACE.LANDING.path);

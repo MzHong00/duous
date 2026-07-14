@@ -74,9 +74,9 @@ describe("useAuthCallback", () => {
     vi.mocked(authApi.getSession).mockResolvedValue({
       access_token: "token",
     } as unknown as Awaited<ReturnType<typeof authApi.getSession>>);
-    vi.mocked(workspacesApi.listMine).mockResolvedValue([
-      { id: "ws-1" },
-    ] as unknown as Awaited<ReturnType<typeof workspacesApi.listMine>>);
+    vi.mocked(workspacesApi.listMine).mockResolvedValue([{ id: "ws-1" }] as unknown as Awaited<
+      ReturnType<typeof workspacesApi.listMine>
+    >);
 
     renderHook(() => useAuthCallback("/todo"));
 
