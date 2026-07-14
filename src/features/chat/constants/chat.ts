@@ -2,17 +2,10 @@ import { Image, Camera, MapPin, Gift } from "lucide-react";
 
 import type { LucideIcon } from "lucide-react";
 
-// 워크스페이스에 파트너 멤버가 없을 때 사용하는 기본값
-export const DEFAULT_PARTNER = {
-  id: "partner",
-  name: "파트너",
-  avatar: undefined as string | undefined,
-  email: "",
-} as const;
-
 export const PARTNER_AVATAR_SIZE = 36; // 헤더 프로필 이미지 크기(px)
 export const BUBBLE_AVATAR_SIZE = 32; // 말풍선 옆 프로필 이미지 크기(px)
 export const AVATAR_FALLBACK_NAME = "?"; // 이름 없는 멤버의 아바타 이니셜 대체값
+export const UNKNOWN_SENDER_NAME = "알 수 없음"; // 워크스페이스를 나간 멤버 등 발신자를 찾지 못했을 때 표시명
 
 interface ChatActionItem {
   id: string;

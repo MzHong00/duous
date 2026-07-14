@@ -2,6 +2,7 @@ import { memo, useMemo } from "react";
 
 import { Skeleton } from "@/components/Skeleton";
 import { MessageBubble } from "@/features/chat/components/MessageBubble";
+import { UNKNOWN_SENDER_NAME } from "@/features/chat/constants/chat";
 
 import type { ChatMessage } from "@/features/chat/types/chat";
 import type { WorkspaceMember } from "@/features/workspace/types/workspace";
@@ -12,8 +13,6 @@ interface MessageListProps {
   messages: ChatMessage[];
   isLoading?: boolean; // 메시지 목록 로딩 여부(true면 스켈레톤 버블 표시)
   isError?: boolean; // 메시지 목록 조회 실패 여부(true면 에러 안내 표시)
-  partnerName: string;
-  partnerAvatar?: string;
   // 그룹 워크스페이스에서 메시지별 실제 발신자 이름·아바타를 조회하기 위한 멤버 목록(couple에선 partner 하나만 있어도 무방)
   members?: WorkspaceMember[];
   bottomRef: React.RefObject<HTMLDivElement | null>;
@@ -36,8 +35,6 @@ const MessageListComponent = ({
   messages,
   isLoading = false,
   isError = false,
-  partnerName,
-  partnerAvatar,
   members,
   bottomRef,
   className,
@@ -84,8 +81,8 @@ const MessageListComponent = ({
             text={msg.text}
             sender={msg.sender}
             time={msg.time}
-            avatar={msg.sender === "partner" ? (senderMember?.avatar ?? partnerAvatar) : undefined}
-            name={msg.sender === "partner" ? (senderMember?.name ?? partnerName) : undefined}
+            avatar={msg.sender === "partner" ? senderMember?.avatar : undefined}
+            name={msg.sender === "partner" ? (senderMember?.name ?? UNKNOWN_SENDER_NAME) : undefined}
             isFirstInGroup={isFirstInGroup}
             isLastInGroup={isLastInGroup}
           />
