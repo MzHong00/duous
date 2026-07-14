@@ -1,4 +1,5 @@
 "use client";
+import { memo } from "react";
 import { CheckCircle2 } from "lucide-react";
 
 import { ProfileImage } from "@/components/ProfileImage";
@@ -7,21 +8,20 @@ import { getRelativeDateLabel, isPastDate, isToday } from "@/utils/date";
 import { cx } from "@/utils/cn";
 
 import type { Todo } from "@/features/todo/types/todo";
-import type { Workspace } from "@/features/workspace/types/workspace";
+import type { WorkspaceMember } from "@/features/workspace/types/workspace";
 
 import styles from "./TodoItem.module.scss";
 
 interface TodoItemProps {
   item: Todo;
-  currentWorkspace: Workspace | null;
+  assignee?: WorkspaceMember;
   /** 완료 토글 핸들러 */
   onToggle: (id: string) => void;
   /** 항목 클릭(상세/수정 이동) 핸들러 */
   onPress: (id: string) => void;
 }
 
-export const TodoItem = ({ item, currentWorkspace, onToggle, onPress }: TodoItemProps) => {
-  const assignee = currentWorkspace?.members?.find((m) => m.id === item.assigneeId);
+export const TodoItem = memo(({ item, assignee, onToggle, onPress }: TodoItemProps) => {
   const dateLabel = getRelativeDateLabel(item.endDate); // 종료일 기준 상대 날짜 라벨
   const markerColor = item.color || COLORS.primary; // 완료 표시 마커 색상
   // 미완료 상태에서 마감이 지났거나 오늘인 경우 마감 임박을 시각적으로 강조한다
@@ -61,4 +61,6 @@ export const TodoItem = ({ item, currentWorkspace, onToggle, onPress }: TodoItem
       {assignee && <ProfileImage uri={assignee.avatar} name={assignee.name} size={28} />}
     </div>
   );
-};
+});
+
+TodoItem.displayName = "TodoItem";

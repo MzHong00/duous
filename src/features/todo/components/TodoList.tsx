@@ -1,8 +1,10 @@
 "use client";
+import { useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 
 import { ROUTES } from "@/constants/routes";
 import { cx } from "@/utils/cn";
+import { Skeleton } from "@/components/Skeleton";
 
 import { FILTERS, useFilteredTodos } from "@/features/todo/hooks/useFilteredTodos";
 import { TodoItem } from "@/features/todo/components/TodoItem";
@@ -22,6 +24,8 @@ const FILTER_LABELS: Record<Filter, string> = {
   completed: "완료",
 };
 
+const SKELETON_ROW_KEYS = ["todo-skeleton-1", "todo-skeleton-2", "todo-skeleton-3"]; // 로딩 스켈레톤 행 개수(3개)
+
 interface TodoListProps {
   todos: Todo[];
   currentWorkspace: Workspace | null;
@@ -29,6 +33,7 @@ interface TodoListProps {
   initialDate?: string;
   // 현재 활성 필터. 부모(페이지)에서 URL 쿼리스트링과 동기화해 관리한다.
   filter: Filter;
+  isPending?: boolean; // 할 일 목록 로딩 여부(true면 스켈레톤 표시)
   /** 필터 변경 핸들러 */
   onFilterChange: (filter: Filter) => void;
   /** 완료 여부 토글 핸들러 */
@@ -40,6 +45,7 @@ export const TodoList = ({
   currentWorkspace,
   initialDate,
   filter,
+  isPending = false,
   onFilterChange,
   onToggle,
 }: TodoListProps) => {
@@ -47,8 +53,21 @@ export const TodoList = ({
 
   const displayedTodos = useFilteredTodos(todos, filter);
 
+  // 항목별 담당자 조회를 O(n) find 대신 O(1) 조회로 처리하기 위해 id -> member 맵을 미리 구성한다
+  const memberMap = useMemo(
+    () => new Map(currentWorkspace?.members?.map((member) => [member.id, member])),
+    [currentWorkspace]
+  );
+
+  /** 항목 클릭 시 상세/수정 화면으로 이동한다 */
+  const handlePress = useCallback(
+    (id: string) => router.push(ROUTES.TODO.CREATE.query({ todoId: id })),
+    [router]
+  );
+
   // initialDate가 있으면 해당 날짜를 기본값으로 세팅한 채로 생성 화면으로 이동한다.
   const addHref = initialDate ? ROUTES.TODO.CREATE.query({ initialDate }) : ROUTES.TODO.CREATE.path;
+  const isEmpty = !isPending && displayedTodos.length === 0;
 
   return (
     <div className={styles.container}>
@@ -66,7 +85,18 @@ export const TodoList = ({
       </div>
 
       <div className={styles.list}>
-        {displayedTodos.length === 0 ? (
+        {isPending &&
+          SKELETON_ROW_KEYS.map((key) => (
+            <div key={key} className={styles.skeletonRow} aria-hidden="true">
+              <Skeleton width={26} height={26} radius="50%" />
+              <div className={styles.skeletonTextGroup}>
+                <Skeleton width="60%" height={16} />
+                <Skeleton width="30%" height={13} />
+              </div>
+            </div>
+          ))}
+
+        {isEmpty && (
           <div className={styles.empty}>
             <p className={styles.emptyText}>
               {filter === "completed" ? "완료된 할 일이 없습니다." : "할 일이 없습니다."}
@@ -78,17 +108,19 @@ export const TodoList = ({
               </button>
             )}
           </div>
-        ) : (
+        )}
+
+        {!isPending &&
+          !isEmpty &&
           displayedTodos.map((todo) => (
             <TodoItem
               key={todo.id}
               item={todo}
-              currentWorkspace={currentWorkspace}
+              assignee={memberMap.get(todo.assigneeId ?? "")}
               onToggle={onToggle}
-              onPress={(id) => router.push(ROUTES.TODO.CREATE.query({ todoId: id }))}
+              onPress={handlePress}
             />
-          ))
-        )}
+          ))}
       </div>
     </div>
   );

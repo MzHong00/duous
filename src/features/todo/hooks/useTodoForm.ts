@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 
@@ -6,6 +6,7 @@ import { modalActions } from "@/stores/useModalStore";
 import { toastActions } from "@/stores/useToastStore";
 import { TODO_COLORS } from "@/constants/theme";
 import { getTodayDateString } from "@/utils/date";
+import { useResetOnChange } from "@/hooks/useResetOnChange";
 
 import { todoQueries } from "@/features/todo/queries/todoQueries";
 import {
@@ -23,7 +24,7 @@ export const useTodoForm = (todoId: string | null, initialDate: string | null) =
   const router = useRouter();
   const { currentWorkspace } = useCurrentWorkspace();
   const workspaceId = currentWorkspace?.id ?? "";
-  const { data: todos = [] } = useQuery(todoQueries.list(workspaceId));
+  const { data: todos = [], isPending: isTodosPending } = useQuery(todoQueries.list(workspaceId));
   const createTodo = useCreateTodoMutation(workspaceId);
   const updateTodo = useUpdateTodoMutation(workspaceId);
   const deleteTodo = useDeleteTodoMutation(workspaceId);
@@ -47,17 +48,16 @@ export const useTodoForm = (todoId: string | null, initialDate: string | null) =
     () => existingTodo?.color || TODO_COLORS[Math.floor(Math.random() * TODO_COLORS.length)]
   ); // 선택된 색상
 
-  /** 수정 모드에서 할 일 쿼리 로드가 초기 렌더보다 늦을 수 있어, 로드 완료 시 폼 값을 채운다 */
-  useEffect(() => {
-    if (!existingTodo) return;
+  // 수정 모드에서 할 일 쿼리 로드가 초기 렌더보다 늦을 수 있어, 로드 완료(existingTodo.id 등장) 시 렌더 중 즉시 폼 값을 채운다
+  const existingTodoChanged = useResetOnChange(existingTodo?.id);
+  if (existingTodoChanged && existingTodo) {
     setTitle(existingTodo.title || "");
     setDescription(existingTodo.description || "");
     setAssigneeId(existingTodo.assigneeId);
     setStartDate(existingTodo.startDate);
     setEndDate(existingTodo.endDate);
     setSelectedColor(existingTodo.color || TODO_COLORS[0]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [existingTodo?.id]);
+  }
 
   const members = currentWorkspace?.members || [];
 
@@ -76,6 +76,11 @@ export const useTodoForm = (todoId: string | null, initialDate: string | null) =
   /** 삭제 확인 모달을 띄우고 확인 시 서버에서 항목을 제거한다 */
   const handleDelete = () => {
     if (!todoId) return;
+    // 현재 워크스페이스 목록에 없는 todoId(다른 워크스페이스 등)로 조작된 요청은 차단
+    if (!isTodosPending && !existingTodo) {
+      toastActions.showToast("항목을 찾을 수 없습니다.", "error");
+      return;
+    }
     modalActions.showModal({
       type: "confirm",
       title: "삭제",
@@ -91,13 +96,21 @@ export const useTodoForm = (todoId: string | null, initialDate: string | null) =
     });
   };
 
+  const isSaving = createTodo.isPending || updateTodo.isPending; // 저장(생성/수정) 진행 중 여부
+
   /** 입력값을 검증한 뒤 서버에 생성/수정하고 이전 화면으로 돌아간다 */
   const handleSave = async () => {
+    if (isSaving) return;
     if (!title.trim()) {
       toastActions.showToast("제목을 입력해주세요.", "error");
       return;
     }
     if (!currentWorkspace) return;
+    // 현재 워크스페이스 목록에 없는 todoId(다른 워크스페이스 등)로 조작된 요청은 차단
+    if (todoId && !isTodosPending && !existingTodo) {
+      toastActions.showToast("항목을 찾을 수 없습니다.", "error");
+      return;
+    }
 
     const todoData = {
       workspaceId: currentWorkspace.id,
@@ -137,6 +150,7 @@ export const useTodoForm = (todoId: string | null, initialDate: string | null) =
     selectedColor,
     setSelectedColor,
     members,
+    isSaving,
     handleSave,
     handleDelete,
   };

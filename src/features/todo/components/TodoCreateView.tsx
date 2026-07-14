@@ -36,6 +36,7 @@ export const TodoCreateView = () => {
     selectedColor,
     setSelectedColor,
     members,
+    isSaving,
     handleSave,
     handleDelete,
   } = useTodoForm(todoId, initialDate);
@@ -120,7 +121,7 @@ export const TodoCreateView = () => {
       </div>
 
       <div className={styles.footer}>
-        <button onClick={handleSave} className={styles.saveButton}>
+        <button onClick={handleSave} disabled={isSaving} className={styles.saveButton}>
           {todoId ? "저장하기" : "추가하기"}
         </button>
       </div>
