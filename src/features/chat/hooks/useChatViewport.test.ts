@@ -4,24 +4,24 @@ import { describe, expect, it, vi } from "vitest";
 import { useChatViewport } from "./useChatViewport";
 
 describe("useChatViewport", () => {
-  it("scrollDep이 바뀌면 bottomRef를 부드럽게 스크롤한다", () => {
-    const scrollIntoView = vi.fn();
+  it("scrollDep이 바뀌면 메시지 컨테이너를 부드럽게 스크롤한다", () => {
+    const scrollTo = vi.fn();
     const { result, rerender } = renderHook(({ dep }) => useChatViewport(dep), {
       initialProps: { dep: 0 },
     });
 
     Object.defineProperty(result.current.bottomRef, "current", {
-      value: { scrollIntoView },
+      value: { parentElement: { scrollTo, scrollHeight: 100 } },
       writable: true,
     });
 
     rerender({ dep: 1 });
 
-    expect(scrollIntoView).toHaveBeenCalledWith({ behavior: "smooth" });
+    expect(scrollTo).toHaveBeenCalledWith({ top: 100, behavior: "smooth" });
   });
 
   it("visualViewport의 resize 이벤트에서 즉시 스크롤한다", () => {
-    const scrollIntoView = vi.fn();
+    const scrollTo = vi.fn();
     const listeners: Record<string, () => void> = {};
     const mockViewport = {
       addEventListener: (event: string, handler: () => void) => {
@@ -34,13 +34,13 @@ describe("useChatViewport", () => {
     const { result, unmount } = renderHook(() => useChatViewport(0));
 
     Object.defineProperty(result.current.bottomRef, "current", {
-      value: { scrollIntoView },
+      value: { parentElement: { scrollTo, scrollHeight: 100 } },
       writable: true,
     });
 
     listeners.resize?.();
 
-    expect(scrollIntoView).toHaveBeenCalledWith({ behavior: "instant" });
+    expect(scrollTo).toHaveBeenCalledWith({ top: 100, behavior: "instant" });
 
     unmount();
     vi.unstubAllGlobals();
