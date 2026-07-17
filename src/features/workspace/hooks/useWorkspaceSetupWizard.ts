@@ -50,11 +50,7 @@ export const useWorkspaceSetupWizard = () => {
   /** 워크스페이스를 생성하고 초대 단계로 이동한다 */
   const completeCreate = async () => {
     if (!workspaceName.trim()) {
-      modalActions.showModal({
-        type: "alert",
-        title: "알림",
-        message: `${APP_WORKSPACE.KR} 이름을 입력해주세요.`,
-      });
+      toastActions.showToast(`${APP_WORKSPACE.KR} 이름을 입력해주세요.`, "error");
       return;
     }
     if (!user) return;
@@ -95,9 +91,9 @@ export const useWorkspaceSetupWizard = () => {
     if (!inviteLink) return;
     try {
       await navigator.clipboard.writeText(inviteLink);
-      toastActions.showToast("초대 링크를 복사했어요.", "success");
+      toastActions.showToast("초대 링크를 복사했습니다.", "success");
     } catch {
-      toastActions.showToast("복사에 실패했어요. 코드를 직접 전달해주세요.", "error");
+      toastActions.showToast("복사에 실패했습니다. 코드를 직접 전달해주세요.", "error");
     }
   };
 

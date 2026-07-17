@@ -67,12 +67,6 @@ export const useUpdateWorkspaceMemberMutation = () =>
     }) => workspacesApi.updateMember(workspaceId, userId, updates)
   );
 
-export const useUpdateWorkspaceBackgroundMutation = () =>
-  useInvalidateMineMutation(
-    ({ workspaceId, imageUrl }: { workspaceId: string; imageUrl: string }) =>
-      workspacesApi.updateBackground(workspaceId, imageUrl)
-  );
-
 export const useCreateInviteCodeMutation = () =>
   useMutation({
     mutationFn: ({ workspaceId, userId }: { workspaceId: string; userId: string }) =>

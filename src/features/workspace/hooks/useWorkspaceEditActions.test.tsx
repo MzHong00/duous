@@ -198,7 +198,7 @@ describe("useWorkspaceEditActions", () => {
 
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith("https://duous.app/invite/abc123");
     expect(toastActions.showToast).toHaveBeenCalledWith(
-      "초대 링크를 복사했어요. 파트너에게 공유해보세요.",
+      "초대 링크를 복사했습니다. 파트너에게 공유해보세요.",
       "success"
     );
   });
@@ -209,7 +209,7 @@ describe("useWorkspaceEditActions", () => {
 
     await result.current.invite();
 
-    expect(toastActions.showToast).toHaveBeenCalledWith("초대 링크 생성에 실패했어요.", "error");
+    expect(toastActions.showToast).toHaveBeenCalledWith("초대 링크 생성에 실패했습니다.", "error");
   });
 
   it("leave 성공 시 현재 워크스페이스면 store를 초기화하고 목록 화면으로 이동한다", async () => {

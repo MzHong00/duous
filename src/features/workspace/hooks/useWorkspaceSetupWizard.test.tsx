@@ -103,18 +103,17 @@ describe("useWorkspaceSetupWizard", () => {
     expect(result.current.workspaceName).toBe("");
   });
 
-  it("completeCreate: 이름이 비어있으면 알림 모달을 띄우고 뮤테이션을 호출하지 않는다", async () => {
+  it("completeCreate: 이름이 비어있으면 토스트를 띄우고 뮤테이션을 호출하지 않는다", async () => {
     const { result } = renderHook(() => useWorkspaceSetupWizard());
 
     await act(async () => {
       await result.current.completeCreate();
     });
 
-    expect(modalActions.showModal).toHaveBeenCalledWith({
-      type: "alert",
-      title: "알림",
-      message: expect.stringContaining("이름을 입력해주세요."),
-    });
+    expect(toastActions.showToast).toHaveBeenCalledWith(
+      expect.stringContaining("이름을 입력해주세요."),
+      "error"
+    );
     expect(createWorkspaceMutateAsync).not.toHaveBeenCalled();
   });
 
@@ -234,7 +233,7 @@ describe("useWorkspaceSetupWizard", () => {
     });
 
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith("https://duous.app/invite/abc123");
-    expect(toastActions.showToast).toHaveBeenCalledWith("초대 링크를 복사했어요.", "success");
+    expect(toastActions.showToast).toHaveBeenCalledWith("초대 링크를 복사했습니다.", "success");
   });
 
   it("copyInviteLink 실패 시 에러 토스트를 띄운다", async () => {
@@ -252,7 +251,7 @@ describe("useWorkspaceSetupWizard", () => {
     });
 
     expect(toastActions.showToast).toHaveBeenCalledWith(
-      "복사에 실패했어요. 코드를 직접 전달해주세요.",
+      "복사에 실패했습니다. 코드를 직접 전달해주세요.",
       "error"
     );
   });

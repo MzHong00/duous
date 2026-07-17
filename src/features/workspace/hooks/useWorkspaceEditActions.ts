@@ -81,9 +81,9 @@ export const useWorkspaceEditActions = (workspaceId: string) => {
     try {
       const code = await createInviteCode.mutateAsync({ workspaceId, userId: user.id });
       await navigator.clipboard.writeText(buildInviteLink(code));
-      toastActions.showToast("초대 링크를 복사했어요. 파트너에게 공유해보세요.", "success");
+      toastActions.showToast("초대 링크를 복사했습니다. 파트너에게 공유해보세요.", "success");
     } catch {
-      toastActions.showToast("초대 링크 생성에 실패했어요.", "error");
+      toastActions.showToast("초대 링크 생성에 실패했습니다.", "error");
     }
   };
 
