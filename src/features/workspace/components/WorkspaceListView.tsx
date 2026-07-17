@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { Plus, Users, Heart, Star } from "lucide-react";
+import { Plus, Users, Heart, Settings } from "lucide-react";
 
 import { ROUTES } from "@/constants/routes";
 import { workspaceActions } from "@/features/workspace/stores/useWorkspaceStore";
@@ -24,13 +24,23 @@ export const WorkspaceListView = () => {
   const { workspaces, currentWorkspace, isPending, isError } = useCurrentWorkspace();
   const isEmpty = !isPending && !isError && workspaces.length === 0;
 
-  const handleSetMain = (id: string, event: React.MouseEvent) => {
-    event.stopPropagation();
+  /** 카드 탭 → 해당 워크스페이스를 메인으로 선택한다 (이미 메인이면 안내 토스트만 표시) */
+  const handleSelectWorkspace = (id: string) => {
+    if (id === currentWorkspace?.id) {
+      toastActions.showToast("이미 선택된 라이프룸입니다", "info");
+      return;
+    }
     const workspace = workspaces.find((w) => w.id === id);
     if (workspace) {
       workspaceActions.setCurrentWorkspaceId(id);
       toastActions.showToast(`'${workspace.name}'이 메인 라이프룸으로 설정되었습니다`, "success");
     }
+  };
+
+  /** 설정 버튼 탭 → 카드 선택을 막고 해당 워크스페이스 설정(수정) 페이지로 이동한다 */
+  const handleGoSettings = (id: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    router.push(ROUTES.WORKSPACE.EDIT.query({ workspaceId: id }));
   };
 
   return (
@@ -75,21 +85,19 @@ export const WorkspaceListView = () => {
                 key={ws.id}
                 className={styles.workspaceCard}
                 style={{ "--item-accent": WORKSPACE_THEME_ACCENT[ws.themeColor] } as CSSProperties}
-                onClick={() => router.push(ROUTES.WORKSPACE.EDIT.query({ workspaceId: ws.id }))}
+                onClick={() => handleSelectWorkspace(ws.id)}
               >
-                {!isMain && (
-                  <div className={styles.cardIconActions}>
-                    <button
-                      type="button"
-                      onClick={(event) => handleSetMain(ws.id, event)}
-                      className={styles.setMainButton}
-                      aria-label={`${ws.name} 메인 라이프룸으로 설정`}
-                      title="메인 설정"
-                    >
-                      <Star size={16} />
-                    </button>
-                  </div>
-                )}
+                <div className={styles.cardIconActions}>
+                  <button
+                    type="button"
+                    onClick={(event) => handleGoSettings(ws.id, event)}
+                    className={styles.settingsButton}
+                    aria-label={`${ws.name} 설정 페이지로 이동`}
+                    title="설정"
+                  >
+                    <Settings size={16} />
+                  </button>
+                </div>
 
                 <div className={styles.cardTop}>
                   <div className={styles.wsIcon}>
