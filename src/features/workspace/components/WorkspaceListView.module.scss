@@ -132,9 +132,28 @@
   }
 }
 
+// 실제 워크스페이스 카드(cardTop 아이콘 48px + cardMembers 구분선 24px)와 동일한 높이를 갖도록
+// 구조를 맞춰 로딩 완료 시 레이아웃 시프트가 발생하지 않게 한다
 .skeletonCard {
-  @include flex-col(8px);
   padding: 16px;
+}
+
+.skeletonCardTop {
+  @include flex-row(12px);
+}
+
+.skeletonTextGroup {
+  @include flex-col(8px);
+  flex: 1;
+  justify-content: center;
+}
+
+.skeletonMembers {
+  @include flex-row(8px);
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--grey-100);
 }
 
 .errorText {
