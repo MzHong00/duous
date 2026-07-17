@@ -18,7 +18,7 @@ const HERO_AVATAR_SIZE = 84; // 히어로 영역 아바타 크기(px)
 
 export const ProfileView = () => {
   const router = useRouter();
-  const { user, email, displayName, isLoading } = useProfileUser();
+  const { user, email, displayName, isLoading, isError } = useProfileUser();
 
   return (
     <div className={styles.page}>
@@ -32,6 +32,8 @@ export const ProfileView = () => {
         </button>
         {isLoading ? (
           <ProfileHeroSkeleton />
+        ) : isError ? (
+          <p className={styles.errorText}>프로필 정보를 불러오지 못했습니다.</p>
         ) : (
           <>
             <ProfileImage
