@@ -35,7 +35,7 @@ export const AppHeader = ({
   return (
     <header className={cx(styles.header, isTransparent && styles.transparent)}>
       {isBackVisible ? (
-        <button onClick={handleBack} className={styles.backButton}>
+        <button onClick={handleBack} className={styles.backButton} aria-label="뒤로 가기">
           <ChevronLeft size={24} />
         </button>
       ) : (

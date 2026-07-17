@@ -22,6 +22,7 @@
 
 .plusButton {
   @include icon-box(32px);
+  @include expand-tap-target(32px);
   border-radius: 9999px;
   background-color: var(--grey-100);
   color: var(--grey-600);
@@ -50,6 +51,7 @@
 
 .sendButton {
   @include icon-box(32px);
+  @include expand-tap-target(32px);
   border-radius: 9999px;
   flex-shrink: 0;
   transition: all 0.2s;

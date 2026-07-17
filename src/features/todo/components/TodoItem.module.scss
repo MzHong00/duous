@@ -15,6 +15,7 @@
 
 .toggleButton {
   flex-shrink: 0;
+  @include expand-tap-target(26px);
 }
 
 .circle {
