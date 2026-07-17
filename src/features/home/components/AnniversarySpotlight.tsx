@@ -10,7 +10,7 @@ import styles from "./AnniversarySpotlight.module.scss";
 
 const SPARKLE_ICON_SIZE = 13; // 함께한 지 라벨 옆 반짝임 아이콘 크기(px)
 
-/** 홈 중앙의 폴라로이드 감성 "함께한 지 N일째" 스포트라이트 */
+/** 홈 중앙의 폴라로이드 감성 "함께한 지 N일" 스포트라이트 */
 export const AnniversarySpotlight = () => {
   const router = useRouter();
   const { startDate, days } = useAnniversaries();
@@ -23,14 +23,14 @@ export const AnniversarySpotlight = () => {
         type="button"
         onClick={() => router.push(ROUTES.ANNIVERSARY.path)}
         className={styles.polaroid}
-        aria-label={`함께한 지 ${days}일째, 기념일 페이지로 이동`}
+        aria-label={`함께한 지 ${days}일, 기념일 페이지로 이동`}
       >
         <div className={styles.polaroidInner}>
           <span className={styles.eventLabel}>
             <Sparkles size={SPARKLE_ICON_SIZE} className={styles.sparkle} />
             함께한 지
           </span>
-          <span className={styles.eventDDay}>{days}일째</span>
+          <span className={styles.eventDDay}>{days}일</span>
         </div>
         <span className={styles.polaroidCaption}>
           {formatDate(startDate, "YYYY. MM. DD (ddd)")}부터

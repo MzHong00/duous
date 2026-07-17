@@ -63,7 +63,12 @@ export const AnniversaryJourney = () => {
         {stops.map((stop, index) => (
           <div
             key={stop.id}
-            className={cx(styles.node, index === 0 && styles.nextNode)}
+            // D-Day 당일에는 프로그레스가 도트까지 닿으므로 채워진 도트(passedNode)로 표시
+            className={cx(
+              styles.node,
+              index === 0 && styles.nextNode,
+              index === 0 && stop.daysLeft === 0 && styles.passedNode,
+            )}
             style={{ "--node-ratio": (index + 1) / stops.length } as CSSProperties}
           >
             <span className={styles.dot} />
