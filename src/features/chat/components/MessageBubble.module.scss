@@ -50,9 +50,11 @@
   border-bottom-right-radius: 4px;
 }
 
-// 중립 라이트 그레이 단색 카드로 내 말풍선(테마색)과 명확히 구분
+// 오로라 배경 위에 떠 있는 글라스 화이트 카드 — 내 말풍선(테마 틴트)과 명확히 구분
 .bubblePartner {
-  background-color: var(--grey-100);
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.05); // 밝은 배경에서도 윤곽이 보이도록 뉴트럴 헤어라인
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
   padding: 10px 14px;
   border-radius: 16px;
   border-bottom-left-radius: 4px;

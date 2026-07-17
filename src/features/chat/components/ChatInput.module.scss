@@ -90,10 +90,11 @@
   }
 }
 
+// 워크스페이스 테마 액센트를 따라가는 도구함 아이콘
 .actionIcon {
   @include icon-box(44px, 13px);
-  background-color: var(--primary-light);
-  color: var(--primary);
+  background-color: rgba(var(--theme-accent-rgb), 0.12);
+  color: var(--theme-accent);
   border-radius: 14px;
 }
 
