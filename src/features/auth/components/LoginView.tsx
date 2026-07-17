@@ -10,8 +10,8 @@ import { GoogleIcon } from "@/assets/icons/GoogleIcon";
 import styles from "./LoginView.module.scss";
 
 const LOGO_ICON_SIZE = 40; // 로고 하트 아이콘 크기(px)
-const GOOGLE_LOGIN_ERROR_MESSAGE = "구글 로그인에 실패했어요. 잠시 후 다시 시도해주세요.";
-const KAKAO_LOGIN_PENDING_MESSAGE = "카카오 로그인은 준비 중이에요.";
+const GOOGLE_LOGIN_ERROR_MESSAGE = "구글 로그인에 실패했습니다. 잠시 후 다시 시도해주세요.";
+const KAKAO_LOGIN_PENDING_MESSAGE = "카카오 로그인은 준비 중입니다.";
 
 export const LoginView = () => {
   const searchParams = useSearchParams();

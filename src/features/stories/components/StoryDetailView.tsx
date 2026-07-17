@@ -14,9 +14,9 @@ import { useDeleteStoryMutation } from "@/features/stories/queries/storyMutation
 import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
 import { StoryDetailContent } from "@/features/stories/components/StoryDetailContent";
 
-import type { Story } from "@/features/stories/types/story";
-
 import styles from "./StoryDetailView.module.scss";
+
+import type { Story } from "@/features/stories/types/story";
 
 export const StoryDetailView = () => {
   const router = useRouter();
@@ -52,7 +52,7 @@ export const StoryDetailView = () => {
   if (!story) {
     return (
       <div className={styles.notFound}>
-        <p>스토리를 찾을 수 없어요.</p>
+        <p>스토리를 찾을 수 없습니다.</p>
       </div>
     );
   }

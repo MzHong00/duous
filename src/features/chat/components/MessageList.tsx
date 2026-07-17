@@ -4,10 +4,10 @@ import { Skeleton } from "@/components/Skeleton";
 import { MessageBubble } from "@/features/chat/components/MessageBubble";
 import { UNKNOWN_SENDER_NAME } from "@/features/chat/constants/chat";
 
+import styles from "./MessageList.module.scss";
+
 import type { ChatMessage } from "@/features/chat/types/chat";
 import type { WorkspaceMember } from "@/features/workspace/types/workspace";
-
-import styles from "./MessageList.module.scss";
 
 interface MessageListProps {
   messages: ChatMessage[];
@@ -45,7 +45,7 @@ const MessageListComponent = ({
   if (isError) {
     return (
       <div className={className}>
-        <p className={styles.errorText}>메시지를 불러오지 못했어요.</p>
+        <p className={styles.errorText}>메시지를 불러오지 못했습니다.</p>
       </div>
     );
   }
