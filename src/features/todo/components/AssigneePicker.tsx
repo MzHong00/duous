@@ -4,9 +4,9 @@ import { Users, Check } from "lucide-react";
 import { ProfileImage } from "@/components/ProfileImage";
 import { cx } from "@/utils/cn";
 
-import type { WorkspaceMember } from "@/features/workspace/types/workspace";
-
 import styles from "./AssigneePicker.module.scss";
+
+import type { WorkspaceMember } from "@/features/workspace/types/workspace";
 
 interface AssigneePickerProps {
   members: WorkspaceMember[];

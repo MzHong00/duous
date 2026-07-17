@@ -7,10 +7,10 @@ import { COLORS } from "@/constants/theme";
 import { getRelativeDateLabel, isPastDate, isToday } from "@/utils/date";
 import { cx } from "@/utils/cn";
 
+import styles from "./TodoItem.module.scss";
+
 import type { Todo } from "@/features/todo/types/todo";
 import type { WorkspaceMember } from "@/features/workspace/types/workspace";
-
-import styles from "./TodoItem.module.scss";
 
 interface TodoItemProps {
   item: Todo;

@@ -4,9 +4,9 @@ import { ProfileImage } from "@/components/ProfileImage";
 import { cx } from "@/utils/cn";
 import { AVATAR_FALLBACK_NAME, BUBBLE_AVATAR_SIZE } from "@/features/chat/constants/chat";
 
-import type { ChatMessage } from "@/features/chat/types/chat";
-
 import styles from "./MessageBubble.module.scss";
+
+import type { ChatMessage } from "@/features/chat/types/chat";
 
 interface MessageBubbleProps {
   text: string;

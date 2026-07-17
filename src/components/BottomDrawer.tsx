@@ -32,10 +32,6 @@ export const BottomDrawer = ({
   const [drawerHeight, setDrawerHeight] = useState(minHeight);
   const [isDraggingState, setIsDraggingState] = useState(false);
 
-  useEffect(() => {
-    drawerHeightRef.current = drawerHeight;
-  }, [drawerHeight]);
-
   const snapHeight = useCallback(
     (currentHeight: number, delta: number) => {
       const midHeight = window.innerHeight * initialHeightRatio;
@@ -94,6 +90,10 @@ export const BottomDrawer = ({
     const delta = currentHeight - initialDrawerHeight.current;
     setDrawerHeight(snapHeight(currentHeight, delta));
   }, [snapHeight]);
+
+  useEffect(() => {
+    drawerHeightRef.current = drawerHeight;
+  }, [drawerHeight]);
 
   // 전역 mouse 이벤트
   useEffect(() => {

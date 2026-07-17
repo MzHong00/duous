@@ -31,6 +31,9 @@ export const StoryEditView = () => {
     handleSave,
   } = useStoryForm();
 
+  let saveButtonLabel = isEditMode ? "수정하기" : "기록하기";
+  if (isSaving) saveButtonLabel = "저장 중...";
+
   return (
     <>
       <div className={styles.page}>
@@ -91,7 +94,7 @@ export const StoryEditView = () => {
 
         <div className={styles.footer}>
           <button onClick={handleSave} className={styles.saveButton} disabled={isSaving}>
-            {isSaving ? "저장 중..." : isEditMode ? "수정하기" : "기록하기"}
+            {saveButtonLabel}
           </button>
         </div>
       </div>
