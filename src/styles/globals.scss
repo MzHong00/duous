@@ -43,6 +43,17 @@
   --overlay-scrim: rgba(0, 0, 0, 0.5);
 }
 
+/* 워크스페이스 테마가 'pink'일 때: :root 기본값 명시적 재선언 — 상위 요소의 활성 테마 상속을 차단 */
+[data-theme="pink"] {
+  --theme-primary: #f43f5e;
+  --theme-primary-rgb: 244, 63, 94;
+  --theme-accent: var(--pink);
+  --theme-accent-rgb: 236, 72, 153;
+  --theme-accent-light: var(--pink-light);
+  --theme-tertiary: #d946ef;
+  --theme-tertiary-rgb: 217, 70, 239;
+}
+
 /* 워크스페이스 테마가 'blue'일 때 액센트 토큰을 코어 블루 단독 톤으로 오버라이드 */
 [data-theme="blue"] {
   --theme-primary: var(--primary);
