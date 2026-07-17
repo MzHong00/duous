@@ -16,10 +16,8 @@ const TOAST_DURATION_MS = 3000; // 토스트 자동 제거까지의 시간(ms)
 
 const toastStore = create<ToastState>()(() => ({ toasts: [] }));
 
-/** 토스트 상태 셀렉터 훅. selector 생략 시 전체 상태를 반환한다 */
-export const useToastStore = <T = ToastState>(
-  selector: (state: ToastState) => T = (state) => state as unknown as T
-) => toastStore(selector);
+/** 토스트 상태 셀렉터 훅 */
+export const useToastStore = <T>(selector: (state: ToastState) => T) => toastStore(selector);
 
 export const toastActions = {
   /** 토스트를 추가하고 TOAST_DURATION_MS 후 자동 제거한다 */
