@@ -63,7 +63,12 @@ export const StoryBoardView = () => {
     handlePointerUp,
     bringToCenter,
     resetFocus,
-  } = useScatterCards(collageRef, boardRef, smallItems.length);
+  } = useScatterCards(
+    collageRef,
+    boardRef,
+    smallItems.length,
+    !isStoriesPending && !isStoriesError // 카드 DOM이 렌더링된 뒤에 슬롯 배치가 실행되도록 전달
+  );
 
   // 언마운트 시 상세 열기 예약 타이머 정리
   useEffect(() => () => clearTimeout(detailTimerRef.current), []);
