@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase/client";
+import { ApiError } from "@/lib/errors/apiError";
 
 import type { User } from "@/types/user";
 
@@ -17,12 +18,12 @@ export const authApi = {
         scopes: GOOGLE_OAUTH_SCOPES,
       },
     });
-    if (error) throw error;
+    if (error) throw new ApiError("구글 로그인에 실패했습니다.", error);
   },
 
   signOut: async (): Promise<void> => {
     const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    if (error) throw new ApiError("로그아웃에 실패했습니다.", error);
   },
 
   getSession: async () => {
@@ -30,7 +31,7 @@ export const authApi = {
       data: { session },
       error,
     } = await supabase.auth.getSession();
-    if (error) throw error;
+    if (error) throw new ApiError("세션 조회에 실패했습니다.", error);
     return session;
   },
 
@@ -56,6 +57,6 @@ export const authApi = {
         ...(updates.profileImage !== undefined && { avatar_url: updates.profileImage }),
       },
     });
-    if (error) throw error;
+    if (error) throw new ApiError("프로필 수정에 실패했습니다.", error);
   },
 };

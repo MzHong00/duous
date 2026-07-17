@@ -56,7 +56,7 @@ describe("todosApi.list", () => {
     mockSelect.mockReturnValue({ eq: mockEq });
     mockFrom.mockReturnValue({ select: mockSelect });
 
-    await expect(todosApi.list("workspace-1")).rejects.toThrow("list failed");
+    await expect(todosApi.list("workspace-1")).rejects.toThrow("할 일 목록 조회에 실패했습니다.");
   });
 });
 
@@ -106,7 +106,7 @@ describe("todosApi.create", () => {
         startDate: "2026-07-01",
         endDate: "2026-07-02",
       })
-    ).rejects.toThrow("create failed");
+    ).rejects.toThrow("할 일 생성에 실패했습니다.");
   });
 });
 
@@ -142,7 +142,7 @@ describe("todosApi.update", () => {
     mockFrom.mockReturnValue({ update: mockUpdate });
 
     await expect(todosApi.update("todo-1", { title: "수정된 제목" })).rejects.toThrow(
-      "update failed"
+      "할 일 수정에 실패했습니다."
     );
   });
 });
@@ -169,7 +169,9 @@ describe("todosApi.toggle", () => {
     mockUpdate.mockReturnValue({ eq: mockEq });
     mockFrom.mockReturnValue({ update: mockUpdate });
 
-    await expect(todosApi.toggle("todo-1", true)).rejects.toThrow("toggle failed");
+    await expect(todosApi.toggle("todo-1", true)).rejects.toThrow(
+      "할 일 상태 변경에 실패했습니다."
+    );
   });
 });
 
@@ -191,6 +193,6 @@ describe("todosApi.delete", () => {
     mockDelete.mockReturnValue({ eq: mockEq });
     mockFrom.mockReturnValue({ delete: mockDelete });
 
-    await expect(todosApi.delete("todo-1")).rejects.toThrow("delete failed");
+    await expect(todosApi.delete("todo-1")).rejects.toThrow("할 일 삭제에 실패했습니다.");
   });
 });

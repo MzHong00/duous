@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase/client";
 import { formatChatTime } from "@/utils/date";
+import { ApiError } from "@/lib/errors/apiError";
 
 import type { ChatMessage } from "@/features/chat/types/chat";
 
@@ -28,7 +29,7 @@ export const chatApi = {
       .select("*")
       .eq("workspace_id", workspaceId)
       .order("created_at", { ascending: true });
-    if (error) throw error;
+    if (error) throw new ApiError("메시지 목록 조회에 실패했습니다.", error);
     return (data as MessageRow[]).map((row) => rowToChatMessage(row, userId));
   },
 
@@ -37,7 +38,7 @@ export const chatApi = {
     const { error } = await supabase
       .from("messages")
       .insert({ workspace_id: workspaceId, sender_id: senderId, text });
-    if (error) throw error;
+    if (error) throw new ApiError("메시지 전송에 실패했습니다.", error);
   },
 };
 

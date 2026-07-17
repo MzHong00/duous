@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase/client";
 import { rowToStory } from "@/features/stories/utils/storyUtils";
+import { ApiError } from "@/lib/errors/apiError";
 
 import type { Story } from "@/features/stories/types/story";
 import type { StoryRow } from "@/features/stories/utils/storyUtils";
@@ -11,7 +12,7 @@ export const storiesApi = {
       .select("*")
       .eq("workspace_id", workspaceId)
       .order("date", { ascending: false });
-    if (error) throw error;
+    if (error) throw new ApiError("스토리 목록 조회에 실패했습니다.", error);
     return (data as StoryRow[]).map(rowToStory);
   },
 
@@ -30,7 +31,7 @@ export const storiesApi = {
       })
       .select()
       .single();
-    if (error) throw error;
+    if (error) throw new ApiError("스토리 생성에 실패했습니다.", error);
     return rowToStory(data as StoryRow);
   },
 
@@ -53,12 +54,12 @@ export const storiesApi = {
       .eq("id", id)
       .select()
       .single();
-    if (error) throw error;
+    if (error) throw new ApiError("스토리 수정에 실패했습니다.", error);
     return rowToStory(updated as StoryRow);
   },
 
   delete: async (id: string): Promise<void> => {
     const { error } = await supabase.from("stories").delete().eq("id", id);
-    if (error) throw error;
+    if (error) throw new ApiError("스토리 삭제에 실패했습니다.", error);
   },
 };

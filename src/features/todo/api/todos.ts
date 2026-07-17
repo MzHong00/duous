@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase/client";
 import { rowToTodo } from "@/features/todo/utils/todoUtils";
+import { ApiError } from "@/lib/errors/apiError";
 
 import type { Todo } from "@/features/todo/types/todo";
 import type { TodoRow } from "@/features/todo/utils/todoUtils";
@@ -11,7 +12,7 @@ export const todosApi = {
       .select("*")
       .eq("workspace_id", workspaceId)
       .order("created_at", { ascending: false });
-    if (error) throw error;
+    if (error) throw new ApiError("할 일 목록 조회에 실패했습니다.", error);
     return (data as TodoRow[]).map(rowToTodo);
   },
 
@@ -30,7 +31,7 @@ export const todosApi = {
       })
       .select()
       .single();
-    if (error) throw error;
+    if (error) throw new ApiError("할 일 생성에 실패했습니다.", error);
     return rowToTodo(data as TodoRow);
   },
 
@@ -52,7 +53,7 @@ export const todosApi = {
       .eq("id", id)
       .select()
       .single();
-    if (error) throw error;
+    if (error) throw new ApiError("할 일 수정에 실패했습니다.", error);
     return rowToTodo(data as TodoRow);
   },
 
@@ -63,12 +64,12 @@ export const todosApi = {
       .eq("id", id)
       .select()
       .single();
-    if (error) throw error;
+    if (error) throw new ApiError("할 일 상태 변경에 실패했습니다.", error);
     return rowToTodo(data as TodoRow);
   },
 
   delete: async (id: string): Promise<void> => {
     const { error } = await supabase.from("todos").delete().eq("id", id);
-    if (error) throw error;
+    if (error) throw new ApiError("할 일 삭제에 실패했습니다.", error);
   },
 };

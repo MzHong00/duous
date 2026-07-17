@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase/client";
+import { ApiError } from "@/lib/errors/apiError";
 
 import type { CalendarEvent, CreateEventData } from "@/features/calendar/types/calendar";
 
@@ -37,7 +38,7 @@ export const calendarApi = {
       .select("*")
       .eq("workspace_id", workspaceId)
       .order("start_date", { ascending: true });
-    if (error) throw error;
+    if (error) throw new ApiError("일정 목록 조회에 실패했습니다.", error);
     return (data as CalendarEventRow[]).map(rowToEvent);
   },
 
@@ -57,7 +58,7 @@ export const calendarApi = {
       })
       .select()
       .single();
-    if (error) throw error;
+    if (error) throw new ApiError("일정 생성에 실패했습니다.", error);
     return rowToEvent(data as CalendarEventRow);
   },
 
@@ -80,12 +81,12 @@ export const calendarApi = {
       .eq("id", id)
       .select()
       .single();
-    if (error) throw error;
+    if (error) throw new ApiError("일정 수정에 실패했습니다.", error);
     return rowToEvent(data as CalendarEventRow);
   },
 
   delete: async (id: string): Promise<void> => {
     const { error } = await supabase.from("calendar_events").delete().eq("id", id);
-    if (error) throw error;
+    if (error) throw new ApiError("일정 삭제에 실패했습니다.", error);
   },
 };

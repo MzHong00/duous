@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase/client";
 import { rowToWorkspace } from "@/features/workspace/utils/workspaceUtils";
+import { ApiError } from "@/lib/errors/apiError";
 
 import type { User } from "@/types/user";
 import type { RoomType, ThemeColor, Workspace } from "@/features/workspace/types/workspace";
@@ -17,7 +18,7 @@ export const workspacesApi = {
       .select("workspace_id")
       .eq("user_id", (await supabase.auth.getUser()).data.user?.id ?? "");
 
-    if (memberError) throw memberError;
+    if (memberError) throw new ApiError("워크스페이스 목록 조회에 실패했습니다.", memberError);
     if (!memberRows?.length) return [];
 
     const workspaceIds = memberRows.map((r) => r.workspace_id);
@@ -27,14 +28,15 @@ export const workspacesApi = {
       .select("*")
       .in("id", workspaceIds);
 
-    if (wsError) throw wsError;
+    if (wsError) throw new ApiError("워크스페이스 목록 조회에 실패했습니다.", wsError);
 
     const { data: allMembers, error: allMembersError } = await supabase
       .from("workspace_members")
       .select("*")
       .in("workspace_id", workspaceIds);
 
-    if (allMembersError) throw allMembersError;
+    if (allMembersError)
+      throw new ApiError("워크스페이스 목록 조회에 실패했습니다.", allMembersError);
 
     return (wsRows as WorkspaceRow[]).map((ws) => {
       const members = (allMembers as (MemberRow & { workspace_id: string })[]).filter(
@@ -62,7 +64,7 @@ export const workspacesApi = {
       .select()
       .single();
 
-    if (wsError) throw wsError;
+    if (wsError) throw new ApiError("워크스페이스 생성에 실패했습니다.", wsError);
 
     const { error: memberError } = await supabase.from("workspace_members").insert({
       workspace_id: ws.id,
@@ -72,7 +74,7 @@ export const workspacesApi = {
       avatar_url: user.profileImage,
     });
 
-    if (memberError) throw memberError;
+    if (memberError) throw new ApiError("워크스페이스 생성에 실패했습니다.", memberError);
 
     const workspace = rowToWorkspace(ws as WorkspaceRow, [
       {
@@ -134,7 +136,8 @@ export const workspacesApi = {
         avatar_url: user.profileImage,
       });
       // 다른 탭에서 동시에 참여를 시도해 이미 멤버로 추가된 경우(unique 제약 위반)는 참여 성공으로 간주한다
-      if (error && error.code !== UNIQUE_VIOLATION_CODE) throw error;
+      if (error && error.code !== UNIQUE_VIOLATION_CODE)
+        throw new ApiError("워크스페이스 참여에 실패했습니다.", error);
     }
 
     const { data: ws, error: wsError } = await supabase
@@ -143,7 +146,7 @@ export const workspacesApi = {
       .eq("id", workspaceId)
       .single();
 
-    if (wsError) throw wsError;
+    if (wsError) throw new ApiError("워크스페이스 참여에 실패했습니다.", wsError);
 
     const { data: members } = await supabase
       .from("workspace_members")
@@ -156,7 +159,7 @@ export const workspacesApi = {
   // 워크스페이스 이름 수정
   updateName: async (workspaceId: string, name: string): Promise<void> => {
     const { error } = await supabase.from("workspaces").update({ name }).eq("id", workspaceId);
-    if (error) throw error;
+    if (error) throw new ApiError("워크스페이스 이름 수정에 실패했습니다.", error);
   },
 
   // 워크스페이스 시작일 수정
@@ -165,16 +168,7 @@ export const workspacesApi = {
       .from("workspaces")
       .update({ start_date: startDate })
       .eq("id", workspaceId);
-    if (error) throw error;
-  },
-
-  // 워크스페이스 배경 이미지 수정
-  updateBackground: async (workspaceId: string, imageUrl: string): Promise<void> => {
-    const { error } = await supabase
-      .from("workspaces")
-      .update({ background_image: imageUrl })
-      .eq("id", workspaceId);
-    if (error) throw error;
+    if (error) throw new ApiError("워크스페이스 시작일 수정에 실패했습니다.", error);
   },
 
   // 워크스페이스 색상 테마 수정
@@ -183,7 +177,7 @@ export const workspacesApi = {
       .from("workspaces")
       .update({ theme_color: themeColor })
       .eq("id", workspaceId);
-    if (error) throw error;
+    if (error) throw new ApiError("워크스페이스 테마 색상 수정에 실패했습니다.", error);
   },
 
   // 초대 코드 생성 (DB에 기록 후 코드 반환)
@@ -197,7 +191,7 @@ export const workspacesApi = {
       created_by: userId,
       expires_at: expiresAt,
     });
-    if (error) throw error;
+    if (error) throw new ApiError("초대 코드 생성에 실패했습니다.", error);
     return code;
   },
 
@@ -208,7 +202,7 @@ export const workspacesApi = {
       .delete()
       .eq("workspace_id", workspaceId)
       .eq("user_id", userId);
-    if (error) throw error;
+    if (error) throw new ApiError("워크스페이스 나가기에 실패했습니다.", error);
   },
 
   // 멤버 프로필 업데이트
@@ -222,6 +216,6 @@ export const workspacesApi = {
       .update(updates)
       .eq("workspace_id", workspaceId)
       .eq("user_id", userId);
-    if (error) throw error;
+    if (error) throw new ApiError("멤버 프로필 수정에 실패했습니다.", error);
   },
 };
