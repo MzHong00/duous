@@ -82,9 +82,10 @@
   padding: 16px 20px;
 }
 
+// 테마와 무관한 고정 색상 (테마 변경 시 아이콘 색이 함께 바뀌지 않도록)
 .settingIconPrimary {
-  background-color: color-mix(in srgb, var(--item-accent) 12%, var(--white));
-  color: var(--item-accent);
+  background-color: var(--purple-light);
+  color: var(--purple);
 }
 
 .settingIconGreen {
