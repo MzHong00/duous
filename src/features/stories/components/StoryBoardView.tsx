@@ -81,7 +81,9 @@ export const StoryBoardView = () => {
     dragStartXRef.current = e.clientX;
     dragStartIndexRef.current = currentIndex;
     didDragRef.current = false;
-    e.currentTarget.setPointerCapture(e.pointerId);
+    // currentTarget(부모 .bigStack)이 아닌 실제 눌린 카드에 캡처해야
+    // 이후 발생하는 click이 카드의 onClick으로 정상 전달된다(마우스에서 클릭이 씹히는 문제 방지)
+    (e.target as Element).setPointerCapture(e.pointerId);
   };
 
   const handleDragMove = (e: React.PointerEvent) => {
@@ -100,7 +102,7 @@ export const StoryBoardView = () => {
 
   const handleDragEnd = (e: React.PointerEvent) => {
     dragStartXRef.current = null;
-    e.currentTarget.releasePointerCapture(e.pointerId);
+    (e.target as Element).releasePointerCapture(e.pointerId);
   };
 
   // 카드를 중앙으로 보낸 뒤 이동이 끝나면 상세 오버레이를 펼침
