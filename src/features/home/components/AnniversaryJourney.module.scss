@@ -43,8 +43,12 @@ $nodes-rail-inset: $rail-inset - $journey-pad-x; // .nodes 기준 레일 끝 여
   width: calc((100% - #{$rail-inset * 2}) * var(--heart-ratio, 0));
   height: 3px;
   border-radius: 9999px;
-  background: linear-gradient(90deg, var(--theme-primary) 0%, var(--theme-accent) 100%);
-  box-shadow: 0 0 8px rgba(var(--theme-accent-rgb), 0.4);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--theme-primary) 55%, var(--white)) 0%,
+    color-mix(in srgb, var(--theme-accent) 55%, var(--white)) 100%
+  );
+  box-shadow: 0 0 8px rgba(var(--theme-accent-rgb), 0.2);
 }
 
 // 오늘 위치의 글라스 하트 마커 — 게이지(.railFill) 오른쪽 끝에 앵커링되어 게이지와 항상 함께 움직인다
@@ -116,7 +120,11 @@ $nodes-rail-inset: $rail-inset - $journey-pad-x; // .nodes 기준 레일 끝 여
 .passedNode {
   .dot {
     border: none;
-    background: linear-gradient(90deg, var(--theme-primary) 0%, var(--theme-accent) 100%);
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--theme-primary) 55%, var(--white)) 0%,
+      color-mix(in srgb, var(--theme-accent) 55%, var(--white)) 100%
+    );
     box-shadow: 0 0 4px rgba(var(--theme-primary-rgb), 0.12);
   }
 
