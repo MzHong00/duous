@@ -7,7 +7,7 @@ import { authApi } from "@/features/auth/api/auth";
 import { authQueries } from "@/features/auth/queries/authQueries";
 import { useSignOutMutation } from "@/features/auth/queries/authMutations";
 import { workspaceActions } from "@/features/workspace/stores/useWorkspaceStore";
-import { storageApi } from "@/api/storage";
+import { storageApi } from "@/lib/supabase/storage";
 
 import { modalActions } from "@/stores/useModalStore";
 import { resizeImageFile } from "@/utils/imageResize";

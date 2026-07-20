@@ -10,7 +10,7 @@ import {
 } from "@/features/stories/queries/storyMutations";
 import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
 import { toastActions } from "@/stores/useToastStore";
-import { storageApi } from "@/api/storage";
+import { storageApi } from "@/lib/supabase/storage";
 import { resizeImageFile } from "@/utils/imageResize";
 import { getTodayDateString } from "@/utils/date";
 import { useStoryForm } from "./useStoryForm";
@@ -53,7 +53,7 @@ vi.mock("@/features/stories/queries/storyMutations", () => ({
   useUpdateStoryMutation: vi.fn(),
 }));
 
-vi.mock("@/api/storage", () => ({
+vi.mock("@/lib/supabase/storage", () => ({
   storageApi: { uploadImage: vi.fn() },
 }));
 

@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { authQueries } from "@/features/auth/queries/authQueries";
 import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
 import { toastActions } from "@/stores/useToastStore";
-import { storageApi } from "@/api/storage";
+import { storageApi } from "@/lib/supabase/storage";
 import { PATH_COLORS } from "@/constants/theme";
 import { getTodayDateString, formatDate } from "@/utils/date";
 import { storyQueries } from "@/features/stories/queries/storyQueries";
