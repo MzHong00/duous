@@ -5,7 +5,7 @@ import { jsonError } from "@/server/http/response";
 import { getSessionUser } from "@/server/auth/session";
 
 import type { NextRequest } from "next/server";
-import type { RouteContext } from "@/server/http/routeContext";
+import type { RouteContext } from "@/server/http/types";
 
 const INVITE_CODE_LENGTH = 8; // 초대 코드 길이
 const INVITE_CODE_TTL_MS = 1000 * 60 * 60 * 24 * 7; // 초대 코드 유효 기간 (7일)

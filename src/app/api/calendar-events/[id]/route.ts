@@ -3,10 +3,11 @@ import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/server/db/supabase";
 import { jsonError, noContent } from "@/server/http/response";
 import { getSessionUser } from "@/server/auth/session";
+import { POSTGREST_ERROR_CODES } from "@/server/db/constants";
 import { rowToEvent } from "@/features/calendar/utils/calendarUtils";
 
 import type { NextRequest } from "next/server";
-import type { RouteContext } from "@/server/http/routeContext";
+import type { RouteContext } from "@/server/http/types";
 import type { CalendarEventRow } from "@/features/calendar/utils/calendarUtils";
 
 /** 일정 수정 요청 본문 (변경할 필드만 전달) */
@@ -45,7 +46,13 @@ export async function PATCH(request: NextRequest, context: RouteContext<{ id: st
     .eq("id", id)
     .select()
     .single();
-  if (error) return jsonError("일정 수정에 실패했습니다.", 500, error);
+  if (error) {
+    // 존재하지 않는 id를 수정하려 하면 PostgREST가 PGRST116을 던지므로 404로 구분한다
+    if (error.code === POSTGREST_ERROR_CODES.NOT_FOUND) {
+      return jsonError("일정을 찾을 수 없습니다.", 404, error);
+    }
+    return jsonError("일정 수정에 실패했습니다.", 500, error);
+  }
   return NextResponse.json(rowToEvent(data as CalendarEventRow));
 }
 
@@ -57,7 +64,9 @@ export async function DELETE(_request: NextRequest, context: RouteContext<{ id: 
   const sessionUser = await getSessionUser(supabase);
   if (!sessionUser) return jsonError("로그인이 필요합니다.", 401);
 
-  const { error } = await supabase.from("calendar_events").delete().eq("id", id);
+  // delete는 매칭 행이 없어도 에러를 던지지 않으므로 select로 실제 삭제 여부를 확인한다
+  const { data, error } = await supabase.from("calendar_events").delete().eq("id", id).select();
   if (error) return jsonError("일정 삭제에 실패했습니다.", 500, error);
+  if (!data || data.length === 0) return jsonError("일정을 찾을 수 없습니다.", 404);
   return noContent();
 }

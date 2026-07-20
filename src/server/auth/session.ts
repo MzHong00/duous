@@ -3,8 +3,6 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { User } from "@/types/user";
 
-const DEFAULT_USER_NAME = "사용자"; // 이름·이메일을 얻지 못했을 때의 표시 이름
-
 /** 세션 쿠키에서 검증된 사용자를 얻는다 — 클라이언트가 보낸 신원(body/query)은 신뢰하지 않는다 */
 export const getSessionUser = async (supabase: SupabaseClient): Promise<User | null> => {
   const {
@@ -16,7 +14,7 @@ export const getSessionUser = async (supabase: SupabaseClient): Promise<User | n
 
   return {
     id: user.id,
-    name: user.user_metadata?.full_name || user.email?.split("@")[0] || DEFAULT_USER_NAME,
+    name: user.user_metadata?.full_name || user.email?.split("@")[0] || "",
     email: user.email,
     profileImage: user.user_metadata?.avatar_url,
   };
