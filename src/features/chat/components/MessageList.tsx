@@ -1,6 +1,6 @@
 import { memo, useMemo } from "react";
 
-import { Skeleton } from "@/components/Skeleton";
+import { Spinner } from "@/components/Spinner";
 import { MessageBubble } from "@/features/chat/components/MessageBubble";
 import { UNKNOWN_SENDER_NAME } from "@/features/chat/constants/chat";
 
@@ -11,20 +11,13 @@ import type { WorkspaceMember } from "@/features/workspace/types/workspace";
 
 interface MessageListProps {
   messages: ChatMessage[];
-  isLoading?: boolean; // 메시지 목록 로딩 여부(true면 스켈레톤 버블 표시)
+  isLoading?: boolean; // 메시지 목록 로딩 여부(true면 스피너 표시)
   isError?: boolean; // 메시지 목록 조회 실패 여부(true면 에러 안내 표시)
   // 그룹 워크스페이스에서 메시지별 실제 발신자 이름·아바타를 조회하기 위한 멤버 목록(couple에선 partner 하나만 있어도 무방)
   members?: WorkspaceMember[];
   bottomRef: React.RefObject<HTMLDivElement | null>;
   className?: string;
 }
-
-// 좌우 교차 배치로 실제 대화 화면과 유사한 스켈레톤 형태를 만든다
-const SKELETON_BUBBLES = [
-  { key: "chat-skeleton-1", isMe: false, width: 160 },
-  { key: "chat-skeleton-2", isMe: true, width: 120 },
-  { key: "chat-skeleton-3", isMe: false, width: 190 },
-];
 
 /** 같은 발신자가 같은 분(time 문자열 동일)에 연속으로 보낸 메시지인지 판별(카카오톡 스타일 묶음 판단용) */
 const isSameGroup = (a: ChatMessage, b: ChatMessage) =>
@@ -52,16 +45,8 @@ const MessageListComponent = ({
 
   if (isLoading) {
     return (
-      <div className={className}>
-        {SKELETON_BUBBLES.map(({ key, isMe, width }) => (
-          <div
-            key={key}
-            className={isMe ? styles.skeletonRowMe : styles.skeletonRowPartner}
-            aria-hidden="true"
-          >
-            <Skeleton width={width} height={38} radius={16} />
-          </div>
-        ))}
+      <div className={styles.loadingWrap}>
+        <Spinner />
       </div>
     );
   }

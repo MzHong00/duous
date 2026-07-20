@@ -6,6 +6,7 @@ import { ROUTES } from "@/constants/routes";
 import { buildInviteLink } from "@/features/workspace/utils/workspaceUtils";
 import { modalActions } from "@/stores/useModalStore";
 import { toastActions } from "@/stores/useToastStore";
+import { globalLoadingActions } from "@/stores/useGlobalLoadingStore";
 import { authQueries } from "@/features/auth/queries/authQueries";
 import { workspaceActions } from "@/features/workspace/stores/useWorkspaceStore";
 import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
@@ -58,12 +59,18 @@ export const useWorkspaceEditActions = (workspaceId: string) => {
       "날짜 수정에 실패했습니다."
     );
 
-  /** 워크스페이스 전역 색상 테마를 수정한다 */
-  const changeThemeColor = (themeColor: ThemeColor) =>
-    runWithErrorAlert(
-      () => updateTheme.mutateAsync({ workspaceId, themeColor }),
-      "테마 수정에 실패했습니다."
-    );
+  /** 워크스페이스 전역 색상 테마를 수정한다 (반영되는 동안 전역 로딩 오버레이 표시) */
+  const changeThemeColor = async (themeColor: ThemeColor) => {
+    globalLoadingActions.show("테마를 바꾸는 중이에요");
+    try {
+      await runWithErrorAlert(
+        () => updateTheme.mutateAsync({ workspaceId, themeColor }),
+        "테마 수정에 실패했습니다."
+      );
+    } finally {
+      globalLoadingActions.hide();
+    }
+  };
 
   /** 내 활동 프로필(표시 이름)을 수정한다 */
   const changeProfileName = async (name: string) => {

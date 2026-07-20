@@ -3,6 +3,7 @@ import { QueryProvider } from "@/lib/QueryProvider";
 import { SessionProvider } from "@/lib/SessionProvider";
 import { Modal } from "@/components/Modal";
 import { Toast } from "@/components/Toast";
+import { GlobalLoadingOverlay } from "@/components/GlobalLoadingOverlay";
 import { NOINDEX_ROBOTS } from "@/constants/seo";
 import { APP_BRAND_NAME, SITE_URL } from "@/constants/config";
 
@@ -40,6 +41,7 @@ const RootLayout = ({
           <SessionProvider>{children}</SessionProvider>
           <Modal />
           <Toast />
+          <GlobalLoadingOverlay />
         </QueryProvider>
       </body>
     </html>

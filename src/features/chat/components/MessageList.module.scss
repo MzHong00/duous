@@ -7,12 +7,7 @@
   font-size: 14px;
 }
 
-.skeletonRowMe {
-  @include flex-end;
-  margin-bottom: 10px;
-}
-
-.skeletonRowPartner {
-  @include flex-row(8px);
-  margin-bottom: 10px;
+.loadingWrap {
+  @include flex-center;
+  height: 100%;
 }
