@@ -1,27 +1,15 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { type NextRequest } from "next/server";
 
-import { updateSession } from "@/lib/supabase/middleware";
-import { ROUTES } from "@/constants/routes";
+import { updateSession } from "@/server/auth/middleware";
+import { guardApiAuth, guardPageAuth } from "@/server/auth/guards";
 
-// 비로그인 상태로 접근 가능한 경로 접두사
-const PUBLIC_PATH_PREFIXES = [ROUTES.LOGIN.path, "/auth/callback", "/workspace/join"];
-
-/** 세션 쿠키 갱신 + 비로그인 사용자의 보호 라우트 접근 차단 */
+/** 세션 쿠키 갱신 후 guard를 순서대로 적용 — 차단되면 해당 응답, 모두 통과하면 세션 갱신 응답 */
 export async function proxy(request: NextRequest) {
   const { response, isAuthenticated } = await updateSession(request);
-  const { pathname } = request.nextUrl;
 
-  const isPublicPath =
-    pathname === "/" || PUBLIC_PATH_PREFIXES.some((prefix) => pathname.startsWith(prefix));
-
-  if (!isAuthenticated && !isPublicPath) {
-    const loginUrl = request.nextUrl.clone();
-    loginUrl.pathname = ROUTES.LOGIN.path;
-    loginUrl.search = `?redirect=${encodeURIComponent(pathname)}`;
-    return NextResponse.redirect(loginUrl);
-  }
-
-  return response;
+  return (
+    guardApiAuth(request, isAuthenticated) ?? guardPageAuth(request, isAuthenticated) ?? response
+  );
 }
 
 export const config = {

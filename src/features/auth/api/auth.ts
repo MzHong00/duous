@@ -1,15 +1,15 @@
 import { supabase } from "@/lib/supabase/client";
 import { ApiError } from "@/lib/errors/apiError";
+import { ROUTES } from "@/constants/routes";
 
 import type { User } from "@/types/user";
 
 const DEFAULT_USER_NAME = "사용자"; // 이름·이메일을 얻지 못했을 때의 표시 이름
-const OAUTH_CALLBACK_PATH = "/auth/callback"; // OAuth 리다이렉트 콜백 경로
 const GOOGLE_OAUTH_SCOPES = "openid email profile"; // 구글 OAuth 요청 스코프
 
 export const authApi = {
   signInWithGoogle: async (redirectPath?: string): Promise<void> => {
-    const callbackUrl = new URL(OAUTH_CALLBACK_PATH, window.location.origin);
+    const callbackUrl = new URL(ROUTES.AUTH.CALLBACK.path, window.location.origin);
     if (redirectPath) callbackUrl.searchParams.set("redirect", redirectPath);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",

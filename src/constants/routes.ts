@@ -5,6 +5,9 @@ export const ROUTES = {
     path: "/login",
     query: (params: { redirect?: string }) => withQuery("/login", params),
   },
+  AUTH: {
+    CALLBACK: { path: "/auth/callback" },
+  },
   HOME: { path: "/home" },
   CHAT: { path: "/chat" },
   MAP: { path: "/map" },
@@ -50,6 +53,14 @@ export const ROUTES = {
       path: "/workspace/edit",
       query: (params: { workspaceId?: string }) => withQuery("/workspace/edit", params),
     },
+    JOIN: { path: "/workspace/join" },
     join: (code: string) => withParams("/workspace/join", code),
   },
 } as const;
+
+// 비로그인 상태로 접근 가능한 경로 접두사 (proxy의 인증 guard가 참조)
+export const PUBLIC_PATH_PREFIXES = [
+  ROUTES.LOGIN.path,
+  ROUTES.AUTH.CALLBACK.path,
+  ROUTES.WORKSPACE.JOIN.path,
+] as const;
