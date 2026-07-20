@@ -67,7 +67,7 @@ export const AnniversaryJourney = () => {
             className={cx(
               styles.node,
               index === 0 && styles.nextNode,
-              index === 0 && stop.daysLeft === 0 && styles.passedNode,
+              index === 0 && stop.daysLeft === 0 && styles.passedNode
             )}
             style={{ "--node-ratio": (index + 1) / stops.length } as CSSProperties}
           >
