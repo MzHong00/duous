@@ -14,23 +14,20 @@ const TOAST_ICONS = {
 };
 
 export const Toast = () => {
-  const toasts = useToastStore((s) => s.toasts);
+  const toast = useToastStore((s) => s.toast);
 
-  if (toasts.length === 0) return null;
+  if (!toast) return null;
+
+  const Icon = TOAST_ICONS[toast.type];
 
   return (
     <div className={styles.container}>
-      {toasts.map((toast) => {
-        const Icon = TOAST_ICONS[toast.type];
-        return (
-          <div key={toast.id} className={styles.toast} data-type={toast.type}>
-            <span className={styles.iconWrap}>
-              <Icon size={16} className={styles.icon} />
-            </span>
-            <span className={styles.message}>{toast.message}</span>
-          </div>
-        );
-      })}
+      <div key={toast.id} className={styles.toast} data-type={toast.type}>
+        <span className={styles.iconWrap}>
+          <Icon size={16} className={styles.icon} />
+        </span>
+        <span className={styles.message}>{toast.message}</span>
+      </div>
     </div>
   );
 };

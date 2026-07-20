@@ -26,12 +26,12 @@ describe("Toast", () => {
     expect(container.querySelector('[data-type="error"]')).toBeInTheDocument();
   });
 
-  it("여러 토스트를 동시에 렌더링한다", () => {
+  it("새 토스트가 뜨면 이전 토스트를 대체하고 하나만 렌더링한다", () => {
     toastActions.showToast("정보 메시지", "info");
     toastActions.showToast("경고 메시지", "warning");
     render(<Toast />);
 
-    expect(screen.getByText("정보 메시지")).toBeInTheDocument();
+    expect(screen.queryByText("정보 메시지")).not.toBeInTheDocument();
     expect(screen.getByText("경고 메시지")).toBeInTheDocument();
   });
 });
