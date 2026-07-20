@@ -143,13 +143,9 @@ describe("useWorkspaceSetupWizard", () => {
       name: "우리집",
       type: "couple",
       startDate: result.current.startDate,
-      user: mockUser,
     });
     expect(workspaceActions.setCurrentWorkspaceId).toHaveBeenCalledWith("workspace-1");
-    expect(createInviteCodeMutateAsync).toHaveBeenCalledWith({
-      workspaceId: "workspace-1",
-      userId: "user-1",
-    });
+    expect(createInviteCodeMutateAsync).toHaveBeenCalledWith({ workspaceId: "workspace-1" });
     expect(result.current.inviteCode).toBe("abc123");
     expect(result.current.step).toBe("invite");
   });
@@ -202,10 +198,7 @@ describe("useWorkspaceSetupWizard", () => {
     });
 
     expect(createWorkspaceMutateAsync).toHaveBeenCalledTimes(1);
-    expect(createInviteCodeMutateAsync).toHaveBeenCalledWith({
-      workspaceId: "workspace-1",
-      userId: "user-1",
-    });
+    expect(createInviteCodeMutateAsync).toHaveBeenCalledWith({ workspaceId: "workspace-1" });
     expect(result.current.step).toBe("invite");
   });
 

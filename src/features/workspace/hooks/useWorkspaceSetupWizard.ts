@@ -63,16 +63,12 @@ export const useWorkspaceSetupWizard = () => {
           name: workspaceName.trim(),
           type: roomType,
           startDate,
-          user,
         });
         workspaceId = workspace.id;
         setCreatedWorkspaceId(workspaceId);
         if (isMain) workspaceActions.setCurrentWorkspaceId(workspaceId);
       }
-      const code = await createInviteCode.mutateAsync({
-        workspaceId,
-        userId: user.id,
-      });
+      const code = await createInviteCode.mutateAsync({ workspaceId });
       setInviteCode(code);
       setStep("invite");
     } catch {

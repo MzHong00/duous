@@ -66,7 +66,7 @@ export const useChatMessages = (workspaceId: string, userId: string): UseChatMes
   const sendMessage = (text: string, onError?: () => void) => {
     if (!text.trim() || !workspaceId || !userId) return;
     sendMutate(
-      { workspaceId, senderId: userId, text: text.trim() },
+      { workspaceId, text: text.trim() },
       {
         onError: () => {
           toastActions.showToast("메시지 전송에 실패했습니다.", "error");

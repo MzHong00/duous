@@ -27,7 +27,7 @@ export const WorkspaceJoinView = () => {
       return;
     }
     try {
-      const joined = await joinWorkspace.mutateAsync({ workspaceId: workspace.id, user });
+      const joined = await joinWorkspace.mutateAsync({ workspaceId: workspace.id });
       workspaceActions.setCurrentWorkspaceId(joined.id);
       router.replace(ROUTES.HOME.path);
     } catch {

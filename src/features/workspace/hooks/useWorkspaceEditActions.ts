@@ -70,7 +70,7 @@ export const useWorkspaceEditActions = (workspaceId: string) => {
     if (!user) return;
     await runWithErrorAlert(
       () =>
-        updateMember.mutateAsync({ workspaceId, userId: user.id, updates: { display_name: name } }),
+        updateMember.mutateAsync({ workspaceId, userId: user.id, updates: { displayName: name } }),
       "프로필 수정에 실패했습니다."
     );
   };
@@ -79,7 +79,7 @@ export const useWorkspaceEditActions = (workspaceId: string) => {
   const invite = async () => {
     if (!user) return;
     try {
-      const code = await createInviteCode.mutateAsync({ workspaceId, userId: user.id });
+      const code = await createInviteCode.mutateAsync({ workspaceId });
       await navigator.clipboard.writeText(buildInviteLink(code));
       toastActions.showToast("초대 링크를 복사했습니다. 파트너에게 공유해보세요.", "success");
     } catch {

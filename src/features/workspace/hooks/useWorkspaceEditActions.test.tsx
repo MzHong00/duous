@@ -186,7 +186,7 @@ describe("useWorkspaceEditActions", () => {
     expect(updateMemberMutateAsync).toHaveBeenCalledWith({
       workspaceId: "workspace-1",
       userId: "user-1",
-      updates: { display_name: "닉네임" },
+      updates: { displayName: "닉네임" },
     });
   });
 

@@ -95,7 +95,7 @@ describe("useChatMessages", () => {
     result.current.sendMessage("  안녕  ");
 
     expect(mutate).toHaveBeenCalledWith(
-      { workspaceId: "ws-1", senderId: "me", text: "안녕" },
+      { workspaceId: "ws-1", text: "안녕" },
       expect.objectContaining({ onError: expect.any(Function) })
     );
   });
