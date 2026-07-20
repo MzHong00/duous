@@ -2,8 +2,6 @@
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 
-import { cx } from "@/utils/cn";
-
 import styles from "./AppHeader.module.scss";
 
 interface AppHeaderProps {
@@ -12,7 +10,6 @@ interface AppHeaderProps {
   rightElement?: React.ReactNode;
   /** 뒤로가기 클릭 핸들러. 미지정 시 router.back() */
   onBack?: () => void;
-  isTransparent?: boolean; // 헤더 배경 투명 여부
 }
 
 export const AppHeader = ({
@@ -20,7 +17,6 @@ export const AppHeader = ({
   isBackVisible = true,
   rightElement,
   onBack,
-  isTransparent = true,
 }: AppHeaderProps) => {
   const router = useRouter();
 
@@ -33,7 +29,7 @@ export const AppHeader = ({
   };
 
   return (
-    <header className={cx(styles.header, isTransparent && styles.transparent)}>
+    <header className={styles.header}>
       {isBackVisible ? (
         <button onClick={handleBack} className={styles.backButton} aria-label="뒤로 가기">
           <ChevronLeft size={24} />
