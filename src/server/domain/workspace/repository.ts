@@ -5,8 +5,8 @@ import type { RoomType, Workspace, WorkspaceMember } from "@/features/workspace/
 
 // select 시 DB 컬럼(snake_case) → 프론트 타입(camelCase)으로 alias
 const WORKSPACE_COLUMNS =
-  "id, name, type, start_date:startDate, background_image:backgroundImage, theme_color:themeColor";
-const MEMBER_COLUMNS = "user_id:id, display_name:name, email, avatar_url:avatar";
+  "id, name, type, startDate:start_date, backgroundImage:background_image, themeColor:theme_color";
+const MEMBER_COLUMNS = "id:user_id, name:display_name, email, avatar:avatar_url";
 
 interface NewMember {
   userId: string;
