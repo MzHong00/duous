@@ -1,6 +1,6 @@
 "use client";
 import { useGlobalLoadingStore } from "@/stores/useGlobalLoadingStore";
-import { Spinner } from "@/components/Spinner";
+import { Spinner } from "@/components/feedback/Spinner";
 
 import styles from "./GlobalLoadingOverlay.module.scss";
 

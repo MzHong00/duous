@@ -1,5 +1,5 @@
 "use client";
-import { ProfileImage } from "@/components/ProfileImage";
+import { ProfileImage } from "@/components/ui/ProfileImage";
 
 import styles from "./MemberListContent.module.scss";
 

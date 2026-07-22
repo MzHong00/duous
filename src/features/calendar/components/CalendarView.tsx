@@ -8,7 +8,7 @@ import { CalendarGrid } from "@/features/calendar/components/CalendarGrid";
 import { CalendarHeader } from "@/features/calendar/components/CalendarHeader";
 import { useCalendar } from "@/features/calendar/hooks/useCalendar";
 import { TodoList } from "@/features/todo/components/TodoList";
-import { AppHeader } from "@/components/AppHeader";
+import { AppHeader } from "@/components/layout/AppHeader";
 import { ROUTES } from "@/constants/routes";
 import { formatDate } from "@/utils/date";
 

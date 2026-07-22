@@ -1,4 +1,4 @@
-import { AppHeader } from "@/components/AppHeader";
+import { AppHeader } from "@/components/layout/AppHeader";
 import { APP_BRAND_NAME } from "@/constants/config";
 import styles from "./PrivacyView.module.scss";
 

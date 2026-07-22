@@ -1,6 +1,6 @@
 "use client";
 
-import { ErrorFallback } from "@/components/ErrorFallback";
+import { ErrorFallback } from "@/components/fallback/ErrorFallback";
 
 interface ErrorPageProps {
   error: Error & { digest?: string }; // Next.js가 전달하는 렌더링 에러

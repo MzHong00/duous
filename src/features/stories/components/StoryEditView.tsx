@@ -1,6 +1,6 @@
 "use client";
 
-import { AppHeader } from "@/components/AppHeader";
+import { AppHeader } from "@/components/layout/AppHeader";
 import { PathPickerMap } from "@/features/map/components/PathPickerMap";
 import { useStoryForm } from "@/features/stories/hooks/useStoryForm";
 import { StoryImagePicker } from "@/features/stories/components/StoryImagePicker";

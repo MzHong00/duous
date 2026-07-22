@@ -8,7 +8,7 @@ import { todoQueries } from "@/features/todo/queries/todoQueries";
 import { useTodoToggle } from "@/features/todo/hooks/useTodoToggle";
 import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
 import { useQueryParams } from "@/hooks/useQueryParams";
-import { AppHeader } from "@/components/AppHeader";
+import { AppHeader } from "@/components/layout/AppHeader";
 import { TodoList } from "@/features/todo/components/TodoList";
 import { FILTERS } from "@/features/todo/hooks/useFilteredTodos";
 

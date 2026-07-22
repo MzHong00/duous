@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 
 import { ROUTES } from "@/constants/routes";
 import { cx } from "@/utils/cn";
-import { Skeleton } from "@/components/Skeleton";
+import { Skeleton } from "@/components/feedback/Skeleton";
 
 import { FILTERS, useFilteredTodos } from "@/features/todo/hooks/useFilteredTodos";
 import { TodoItem } from "@/features/todo/components/TodoItem";

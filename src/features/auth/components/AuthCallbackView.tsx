@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 
-import { Spinner } from "@/components/Spinner";
+import { Spinner } from "@/components/feedback/Spinner";
 import { useAuthCallback } from "@/features/auth/hooks/useAuthCallback";
 
 import styles from "./AuthCallbackView.module.scss";

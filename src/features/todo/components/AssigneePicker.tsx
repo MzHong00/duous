@@ -1,7 +1,7 @@
 "use client";
 import { Users, Check } from "lucide-react";
 
-import { ProfileImage } from "@/components/ProfileImage";
+import { ProfileImage } from "@/components/ui/ProfileImage";
 import { cx } from "@/utils/cn";
 
 import styles from "./AssigneePicker.module.scss";

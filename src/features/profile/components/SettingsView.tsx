@@ -2,9 +2,9 @@
 import { useRef } from "react";
 import { Bell, Lock, ChevronRight, LogOut, Camera, Pencil } from "lucide-react";
 
-import { AppHeader } from "@/components/AppHeader";
-import { Card } from "@/components/Card";
-import { ProfileImage } from "@/components/ProfileImage";
+import { AppHeader } from "@/components/layout/AppHeader";
+import { Card } from "@/components/ui/Card";
+import { ProfileImage } from "@/components/ui/ProfileImage";
 import { cx } from "@/utils/cn";
 
 import { useProfileUser } from "@/features/profile/hooks/useProfileUser";

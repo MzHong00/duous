@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ROUTES } from "@/constants/routes";
 import { modalActions } from "@/stores/useModalStore";
 import { toastActions } from "@/stores/useToastStore";
-import { AppHeader } from "@/components/AppHeader";
+import { AppHeader } from "@/components/layout/AppHeader";
 import { storyActions } from "@/features/stories/stores/useStoryStore";
 import { storyQueries } from "@/features/stories/queries/storyQueries";
 import { useDeleteStoryMutation } from "@/features/stories/queries/storyMutations";

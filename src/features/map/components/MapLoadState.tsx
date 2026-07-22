@@ -1,4 +1,4 @@
-import { Spinner } from "@/components/Spinner";
+import { Spinner } from "@/components/feedback/Spinner";
 import { cx } from "@/utils/cn";
 
 import styles from "./MapLoadState.module.scss";

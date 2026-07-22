@@ -2,7 +2,7 @@
 import { memo } from "react";
 import { CheckCircle2 } from "lucide-react";
 
-import { ProfileImage } from "@/components/ProfileImage";
+import { ProfileImage } from "@/components/ui/ProfileImage";
 import { COLORS } from "@/constants/theme";
 import { getRelativeDateLabel, isPastDate, isToday } from "@/utils/date";
 import { cx } from "@/utils/cn";

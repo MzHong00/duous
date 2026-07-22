@@ -1,7 +1,7 @@
 "use client";
 import { memo } from "react";
 
-import { ProfileImage } from "@/components/ProfileImage";
+import { ProfileImage } from "@/components/ui/ProfileImage";
 import { PARTNER_AVATAR_SIZE } from "@/features/chat/constants/chat";
 
 import styles from "./ChatHeader.module.scss";

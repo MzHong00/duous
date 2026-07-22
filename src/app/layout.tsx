@@ -1,9 +1,9 @@
 import "../styles/globals.scss";
 import { QueryProvider } from "@/lib/QueryProvider";
 import { SessionProvider } from "@/lib/SessionProvider";
-import { Modal } from "@/components/Modal";
-import { Toast } from "@/components/Toast";
-import { GlobalLoadingOverlay } from "@/components/GlobalLoadingOverlay";
+import { Modal } from "@/components/ui/Modal";
+import { Toast } from "@/components/feedback/Toast";
+import { GlobalLoadingOverlay } from "@/components/feedback/GlobalLoadingOverlay";
 import { NOINDEX_ROBOTS } from "@/constants/seo";
 import { APP_BRAND_NAME, SITE_URL } from "@/constants/config";
 

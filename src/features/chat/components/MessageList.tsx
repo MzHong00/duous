@@ -1,6 +1,6 @@
 import { memo, useMemo } from "react";
 
-import { Spinner } from "@/components/Spinner";
+import { Spinner } from "@/components/feedback/Spinner";
 import { MessageBubble } from "@/features/chat/components/MessageBubble";
 import { UNKNOWN_SENDER_NAME } from "@/features/chat/constants/chat";
 

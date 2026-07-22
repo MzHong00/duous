@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import { Heart, Users, ChevronRight } from "lucide-react";
 
-import { ProfileImage } from "@/components/ProfileImage";
+import { ProfileImage } from "@/components/ui/ProfileImage";
 import { ROUTES } from "@/constants/routes";
 import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
 

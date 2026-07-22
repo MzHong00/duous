@@ -6,8 +6,8 @@ import { GoogleMapView } from "@/features/map/components/GoogleMapView";
 import { MapEmptyState } from "@/features/map/components/MapEmptyState";
 import { MapPartnerInfo } from "@/features/map/components/MapPartnerInfo";
 import { MapStoryInfo } from "@/features/map/components/MapStoryInfo";
-import { ProfileImage } from "@/components/ProfileImage";
-import { BottomDrawer } from "@/components/BottomDrawer";
+import { ProfileImage } from "@/components/ui/ProfileImage";
+import { BottomDrawer } from "@/components/layout/BottomDrawer";
 
 import styles from "./MapView.module.scss";
 

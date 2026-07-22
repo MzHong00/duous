@@ -1,5 +1,6 @@
 "use client";
 import { useModalStore, modalActions } from "@/stores/useModalStore";
+
 import styles from "./Modal.module.scss";
 
 export const Modal = () => {

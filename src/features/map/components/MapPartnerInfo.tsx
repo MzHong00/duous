@@ -1,6 +1,6 @@
 import { MapPin, Navigation, ChevronRight } from "lucide-react";
 
-import { ProfileImage } from "@/components/ProfileImage";
+import { ProfileImage } from "@/components/ui/ProfileImage";
 
 import styles from "./MapPartnerInfo.module.scss";
 

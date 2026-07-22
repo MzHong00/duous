@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import { Settings } from "lucide-react";
 
-import { ProfileImage } from "@/components/ProfileImage";
+import { ProfileImage } from "@/components/ui/ProfileImage";
 import { ROUTES } from "@/constants/routes";
 
 import { useProfileUser } from "@/features/profile/hooks/useProfileUser";

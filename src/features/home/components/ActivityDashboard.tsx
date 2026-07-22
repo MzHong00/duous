@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
 import { useHomeStats } from "@/features/home/hooks/useHomeStats";
 import { formatDate } from "@/utils/date";
-import { Skeleton } from "@/components/Skeleton";
+import { Skeleton } from "@/components/feedback/Skeleton";
 
 import styles from "./ActivityDashboard.module.scss";
 

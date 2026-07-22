@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 
-import { Spinner } from "@/components/Spinner";
+import { Spinner } from "@/components/feedback/Spinner";
 import { AuthCallbackView } from "@/features/auth/components/AuthCallbackView";
 
 import styles from "./page.module.scss";
