@@ -6,7 +6,7 @@ import { ChevronRight, Trash2, User, UserPlus } from "lucide-react";
 import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
 import { useWorkspaceEditActions } from "@/features/workspace/hooks/useWorkspaceEditActions";
 import { WorkspaceThemePicker } from "@/features/workspace/components/WorkspaceThemePicker";
-import { WORKSPACE_THEME_ACCENT } from "@/features/workspace/utils/workspaceUtils";
+import { WORKSPACE_THEME_ACCENT } from "@/features/workspace/constants/theme";
 import { modalActions } from "@/stores/useModalStore";
 import { AppHeader } from "@/components/AppHeader";
 import { APP_WORKSPACE } from "@/constants/config";

@@ -5,7 +5,7 @@ import { Plus, Users, Heart, Settings } from "lucide-react";
 import { ROUTES } from "@/constants/routes";
 import { workspaceActions } from "@/features/workspace/stores/useWorkspaceStore";
 import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
-import { WORKSPACE_THEME_ACCENT } from "@/features/workspace/utils/workspaceUtils";
+import { WORKSPACE_THEME_ACCENT } from "@/features/workspace/constants/theme";
 import { toastActions } from "@/stores/useToastStore";
 import { AppHeader } from "@/components/AppHeader";
 import { Card } from "@/components/Card";
