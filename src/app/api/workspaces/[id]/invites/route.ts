@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
 
-import { createServerSupabase } from "@/server/db/supabase";
-import { jsonError } from "@/server/http/response";
-import { getSessionUser } from "@/server/auth/session";
+import { createServerSupabase, getSessionUser } from "@/server/common/utils/supabaseClient";
 
 import type { NextRequest } from "next/server";
-import type { RouteContext } from "@/server/http/types";
+import type { RouteContext } from "@/server/common/types/routeContext";
 
 const INVITE_CODE_LENGTH = 8; // 초대 코드 길이
 const INVITE_CODE_TTL_MS = 1000 * 60 * 60 * 24 * 7; // 초대 코드 유효 기간 (7일)
@@ -21,7 +19,7 @@ export async function POST(_request: NextRequest, context: RouteContext<{ id: st
 
   const supabase = await createServerSupabase();
   const sessionUser = await getSessionUser(supabase);
-  if (!sessionUser) return jsonError("로그인이 필요합니다.", 401);
+  if (!sessionUser) return NextResponse.json({ message: "로그인이 필요합니다." }, { status: 401 });
 
   const code = crypto.randomUUID().replace(/-/g, "").slice(0, INVITE_CODE_LENGTH);
   const expiresAt = new Date(Date.now() + INVITE_CODE_TTL_MS).toISOString();
@@ -32,6 +30,9 @@ export async function POST(_request: NextRequest, context: RouteContext<{ id: st
     created_by: sessionUser.id,
     expires_at: expiresAt,
   });
-  if (error) return jsonError("초대 코드 생성에 실패했습니다.", 500, error);
+  if (error) {
+    console.error("[api] 초대 코드 생성 실패", error);
+    return NextResponse.json({ message: "초대 코드 생성에 실패했습니다." }, { status: 500 });
+  }
   return NextResponse.json({ code } satisfies InviteCodeCreateResponse, { status: 201 });
 }

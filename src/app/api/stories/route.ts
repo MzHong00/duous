@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { createServerSupabase } from "@/server/db/supabase";
-import { jsonError } from "@/server/http/response";
-import { getSessionUser } from "@/server/auth/session";
+import { createServerSupabase, getSessionUser } from "@/server/common/utils/supabaseClient";
 import { rowToStory } from "@/features/stories/utils/storyUtils";
 
 import type { NextRequest } from "next/server";
@@ -15,18 +13,21 @@ type StoryCreateRequest = Omit<Story, "id">;
 /** GET /api/stories?workspaceId= — 워크스페이스의 스토리 목록 조회 */
 export async function GET(request: NextRequest) {
   const workspaceId = request.nextUrl.searchParams.get("workspaceId");
-  if (!workspaceId) return jsonError("workspaceId가 필요합니다.", 400);
+  if (!workspaceId) return NextResponse.json({ message: "workspaceId가 필요합니다." }, { status: 400 });
 
   const supabase = await createServerSupabase();
   const sessionUser = await getSessionUser(supabase);
-  if (!sessionUser) return jsonError("로그인이 필요합니다.", 401);
+  if (!sessionUser) return NextResponse.json({ message: "로그인이 필요합니다." }, { status: 401 });
 
   const { data, error } = await supabase
     .from("stories")
     .select("*")
     .eq("workspace_id", workspaceId)
     .order("date", { ascending: false });
-  if (error) return jsonError("스토리 목록 조회에 실패했습니다.", 500, error);
+  if (error) {
+    console.error("[api] 스토리 목록 조회 실패", error);
+    return NextResponse.json({ message: "스토리 목록 조회에 실패했습니다." }, { status: 500 });
+  }
   return NextResponse.json((data as StoryRow[]).map(rowToStory));
 }
 
@@ -34,12 +35,12 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const body = (await request.json()) as StoryCreateRequest;
   if (!body.workspaceId || !body.title || !body.date) {
-    return jsonError("workspaceId, title, date는 필수입니다.", 400);
+    return NextResponse.json({ message: "workspaceId, title, date는 필수입니다." }, { status: 400 });
   }
 
   const supabase = await createServerSupabase();
   const sessionUser = await getSessionUser(supabase);
-  if (!sessionUser) return jsonError("로그인이 필요합니다.", 401);
+  if (!sessionUser) return NextResponse.json({ message: "로그인이 필요합니다." }, { status: 401 });
 
   const { data, error } = await supabase
     .from("stories")
@@ -55,6 +56,9 @@ export async function POST(request: NextRequest) {
     })
     .select()
     .single();
-  if (error) return jsonError("스토리 생성에 실패했습니다.", 500, error);
+  if (error) {
+    console.error("[api] 스토리 생성 실패", error);
+    return NextResponse.json({ message: "스토리 생성에 실패했습니다." }, { status: 500 });
+  }
   return NextResponse.json(rowToStory(data as StoryRow), { status: 201 });
 }

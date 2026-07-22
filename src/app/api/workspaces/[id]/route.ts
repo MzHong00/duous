@@ -1,9 +1,9 @@
-import { createServerSupabase } from "@/server/db/supabase";
-import { jsonError, noContent } from "@/server/http/response";
-import { getSessionUser } from "@/server/auth/session";
+import { NextResponse } from "next/server";
+
+import { createServerSupabase, getSessionUser } from "@/server/common/utils/supabaseClient";
 
 import type { NextRequest } from "next/server";
-import type { RouteContext } from "@/server/http/routeContext";
+import type { RouteContext } from "@/server/common/types/routeContext";
 import type { ThemeColor } from "@/features/workspace/types/workspace";
 
 /** 워크스페이스 수정 요청 본문 (변경할 필드만 전달) */
@@ -20,16 +20,31 @@ export async function PATCH(request: NextRequest, context: RouteContext<{ id: st
 
   const supabase = await createServerSupabase();
   const sessionUser = await getSessionUser(supabase);
-  if (!sessionUser) return jsonError("로그인이 필요합니다.", 401);
+  if (!sessionUser) return NextResponse.json({ message: "로그인이 필요합니다." }, { status: 401 });
 
-  const { error } = await supabase
+  const today = new Date().toISOString().slice(0, 10); // 오늘 날짜 (YYYY-MM-DD)
+  if (body.startDate && body.startDate > today) {
+    return NextResponse.json(
+      { message: "함께한 날은 오늘 이후 날짜로 설정할 수 없습니다." },
+      { status: 400 }
+    );
+  }
+
+  // update는 매칭 행이 없어도 에러를 던지지 않으므로 select로 실제 수정 여부를 확인한다
+  const { data, error } = await supabase
     .from("workspaces")
     .update({
       name: body.name,
       start_date: body.startDate,
       theme_color: body.themeColor,
     })
-    .eq("id", id);
-  if (error) return jsonError("워크스페이스 수정에 실패했습니다.", 500, error);
-  return noContent();
+    .eq("id", id)
+    .select();
+  if (error) {
+    console.error("[api] 워크스페이스 수정 실패", error);
+    return NextResponse.json({ message: "워크스페이스 수정에 실패했습니다." }, { status: 500 });
+  }
+  if (!data || data.length === 0)
+    return NextResponse.json({ message: "워크스페이스를 찾을 수 없습니다." }, { status: 404 });
+  return new NextResponse(null, { status: 204 });
 }
