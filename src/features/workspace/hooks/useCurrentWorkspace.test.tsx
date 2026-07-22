@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { useWorkspaceStore } from "@/features/workspace/stores/useWorkspaceStore";
 import { workspaceQueries } from "@/features/workspace/queries/workspaceQueries";
+import { authQueries } from "@/features/auth/queries/authQueries";
 import { useCurrentWorkspace } from "./useCurrentWorkspace";
 
 import type { ReactNode } from "react";
@@ -15,6 +16,10 @@ vi.mock("@/features/workspace/stores/useWorkspaceStore", () => ({
 
 vi.mock("@/features/workspace/queries/workspaceQueries", () => ({
   workspaceQueries: { mine: vi.fn(() => ({ queryKey: ["workspaces", "mine"] })) },
+}));
+
+vi.mock("@/features/auth/queries/authQueries", () => ({
+  authQueries: { user: vi.fn(() => ({ queryKey: ["auth", "user"] })) },
 }));
 
 const createWrapper = () => {
@@ -60,5 +65,32 @@ describe("useCurrentWorkspace", () => {
 
     expect(result.current.currentWorkspace).toBeNull();
     expect(result.current.workspaces).toEqual([]);
+  });
+
+  it("멤버 목록의 '나' 항목은 사진만 전역 프로필로 덮어쓰고, 이름은 라이프룸별 설정을 그대로 유지한다", () => {
+    vi.mocked(useWorkspaceStore).mockReturnValue("ws-1");
+    const { Wrapper, queryClient } = createWrapper();
+    const workspacesWithMembers: Workspace[] = [
+      {
+        ...WORKSPACES[0],
+        members: [
+          { id: "user-1", name: "이 방에서 쓰는 이름", email: "me@test.com", avatar: "old.png" },
+          { id: "user-2", name: "파트너", email: "partner@test.com" },
+        ],
+      },
+    ];
+    queryClient.setQueryData(workspaceQueries.mine().queryKey, workspacesWithMembers);
+    queryClient.setQueryData(authQueries.user().queryKey, {
+      id: "user-1",
+      name: "최신 전역 이름",
+      profileImage: "new.png",
+    });
+
+    const { result } = renderHook(() => useCurrentWorkspace(), { wrapper: Wrapper });
+
+    expect(result.current.currentWorkspace?.members).toEqual([
+      { id: "user-1", name: "이 방에서 쓰는 이름", email: "me@test.com", avatar: "new.png" },
+      { id: "user-2", name: "파트너", email: "partner@test.com" },
+    ]);
   });
 });

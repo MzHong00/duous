@@ -74,7 +74,7 @@ export const useWorkspaceSetupWizard = () => {
     } catch {
       modalActions.showModal({
         type: "alert",
-        title: "오류",
+        title: "알림",
         message: "워크스페이스 생성 중 문제가 발생했습니다.",
       });
     }

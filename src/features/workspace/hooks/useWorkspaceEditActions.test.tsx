@@ -133,38 +133,38 @@ describe("useWorkspaceEditActions", () => {
     expect(modalActions.showModal).not.toHaveBeenCalled();
   });
 
-  it("changeName 실패 시 에러 알림 모달을 띄운다", async () => {
-    updateNameMutateAsync.mockRejectedValueOnce(new Error("fail"));
+  it("changeName 실패 시 에러 메시지를 담아 알림 모달을 띄운다", async () => {
+    updateNameMutateAsync.mockRejectedValueOnce(new Error("서버 에러"));
     const { result } = renderHook(() => useWorkspaceEditActions("workspace-1"));
 
     await result.current.changeName("새 이름");
 
     expect(modalActions.showModal).toHaveBeenCalledWith({
       type: "alert",
-      title: "오류",
-      message: "제목 수정에 실패했습니다.",
+      title: "알림",
+      message: "서버 에러",
     });
   });
 
-  it("changeStartDate 실패 시 에러 알림 모달을 띄운다", async () => {
-    updateStartDateMutateAsync.mockRejectedValueOnce(new Error("fail"));
+  it("changeStartDate 실패 시 에러 메시지를 담아 알림 모달을 띄운다", async () => {
+    updateStartDateMutateAsync.mockRejectedValueOnce(new Error("서버 에러"));
     const { result } = renderHook(() => useWorkspaceEditActions("workspace-1"));
 
     await result.current.changeStartDate("2026-01-01");
 
     expect(modalActions.showModal).toHaveBeenCalledWith(
-      expect.objectContaining({ message: "날짜 수정에 실패했습니다." })
+      expect.objectContaining({ message: "서버 에러" })
     );
   });
 
-  it("changeThemeColor 실패 시 에러 알림 모달을 띄운다", async () => {
-    updateThemeMutateAsync.mockRejectedValueOnce(new Error("fail"));
+  it("changeThemeColor 실패 시 에러 메시지를 담아 알림 모달을 띄운다", async () => {
+    updateThemeMutateAsync.mockRejectedValueOnce(new Error("서버 에러"));
     const { result } = renderHook(() => useWorkspaceEditActions("workspace-1"));
 
     await result.current.changeThemeColor("pink");
 
     expect(modalActions.showModal).toHaveBeenCalledWith(
-      expect.objectContaining({ message: "테마 수정에 실패했습니다." })
+      expect.objectContaining({ message: "서버 에러" })
     );
   });
 
@@ -244,14 +244,14 @@ describe("useWorkspaceEditActions", () => {
     expect(mockReplace).toHaveBeenCalledWith(ROUTES.WORKSPACE.LIST.path);
   });
 
-  it("leave 실패 시 에러 알림 모달을 띄운다", async () => {
-    leaveWorkspaceMutateAsync.mockRejectedValueOnce(new Error("fail"));
+  it("leave 실패 시 에러 메시지를 담아 알림 모달을 띄운다", async () => {
+    leaveWorkspaceMutateAsync.mockRejectedValueOnce(new Error("서버 에러"));
     const { result } = renderHook(() => useWorkspaceEditActions("workspace-1"));
 
     await result.current.leave();
 
     expect(modalActions.showModal).toHaveBeenCalledWith(
-      expect.objectContaining({ message: "나가기에 실패했습니다." })
+      expect.objectContaining({ message: "서버 에러" })
     );
     expect(mockReplace).not.toHaveBeenCalled();
   });

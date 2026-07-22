@@ -175,7 +175,7 @@ describe("useWorkspaceSetupWizard", () => {
 
     expect(modalActions.showModal).toHaveBeenCalledWith({
       type: "alert",
-      title: "오류",
+      title: "알림",
       message: "워크스페이스 생성 중 문제가 발생했습니다.",
     });
     expect(result.current.step).toBe("initial");

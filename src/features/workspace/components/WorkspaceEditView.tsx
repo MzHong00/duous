@@ -1,27 +1,53 @@
 "use client";
 import type { CSSProperties } from "react";
 import { useSearchParams } from "next/navigation";
-import { ChevronRight, Trash2, User, UserPlus } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { ChevronRight, Star, Trash2, User, UserPlus } from "lucide-react";
 
+import { authQueries } from "@/features/auth/queries/authQueries";
 import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
 import { useWorkspaceEditActions } from "@/features/workspace/hooks/useWorkspaceEditActions";
 import { WorkspaceThemePicker } from "@/features/workspace/components/WorkspaceThemePicker";
+import { StartDatePicker } from "@/features/workspace/components/StartDatePicker";
 import { WORKSPACE_THEME_ACCENT } from "@/features/workspace/constants/theme";
+import { workspaceActions } from "@/features/workspace/stores/useWorkspaceStore";
 import { modalActions } from "@/stores/useModalStore";
+import { toastActions } from "@/stores/useToastStore";
 import { AppHeader } from "@/components/AppHeader";
+import { ProfileImage } from "@/components/ProfileImage";
 import { APP_WORKSPACE } from "@/constants/config";
 import { cx } from "@/utils/cn";
 import styles from "./WorkspaceEditView.module.scss";
+
+const PROFILE_MODAL_AVATAR_SIZE = 72; // 프로필 수정 모달의 아바타 크기(px)
 
 export const WorkspaceEditView = () => {
   const searchParams = useSearchParams();
   const workspaceId = searchParams.get("workspaceId") || "";
 
-  const { workspaces } = useCurrentWorkspace();
+  const { data: user } = useQuery(authQueries.user());
+  const { workspaces, currentWorkspace } = useCurrentWorkspace();
   const workspace = workspaces.find((ws) => ws.id === workspaceId);
-  const actions = useWorkspaceEditActions(workspaceId);
+  const {
+    isInviting,
+    changeName,
+    changeStartDate,
+    changeThemeColor,
+    changeProfileName,
+    invite,
+    leave,
+  } = useWorkspaceEditActions(workspaceId);
+  const isMain = workspace?.id === currentWorkspace?.id;
 
   if (!workspace) return null;
+
+  const members = workspace.members ?? [];
+
+  /** 이 라이프룸을 메인으로 설정한다 */
+  const handleSetAsMain = () => {
+    workspaceActions.setCurrentWorkspaceId(workspace.id);
+    toastActions.showToast(`'${workspace.name}'이 메인 라이프룸으로 설정되었습니다`, "success");
+  };
 
   const handleLeaveWorkspace = () => {
     modalActions.showModal({
@@ -29,7 +55,7 @@ export const WorkspaceEditView = () => {
       title: `${APP_WORKSPACE.KR}에서 나가기`,
       message: `정말로 '${workspace.name}' ${APP_WORKSPACE.KR}에서 나갈까요?\n기존에 기록된 데이터는 삭제되지 않지만 목록에서 사라집니다.`,
       confirmText: "나가기",
-      onConfirm: actions.leave,
+      onConfirm: leave,
     });
   };
 
@@ -76,48 +102,73 @@ export const WorkspaceEditView = () => {
 
   const openNameEditModal = () =>
     openTextPromptModal({
-      title: "라이프룸 제목 수정",
+      title: "라이프룸 제목",
       helpText: "이 공간의 이름을 입력해주세요.",
       placeholder: "제목 입력",
       defaultValue: workspace.name,
-      onConfirm: actions.changeName,
+      onConfirm: changeName,
     });
 
   const openStartDateModal = () => {
     let selectedDate = workspace.startDate || "";
     modalActions.showModal({
       type: "confirm",
-      title: "날짜 선택",
+      title: "함께한 날",
       confirmText: "확인",
       content: (
         <div className={styles.modalContent}>
-          <input
-            type="date"
-            defaultValue={selectedDate}
-            autoFocus
-            onChange={(e) => {
-              selectedDate = e.target.value;
+          <p className={styles.modalHelp}>함께하기 시작한 날짜를 선택해주세요.</p>
+          <StartDatePicker
+            initialDate={selectedDate}
+            onChangeDate={(date) => {
+              selectedDate = date;
             }}
-            className={styles.modalInput}
           />
         </div>
       ),
       onConfirm: async () => {
         if (!selectedDate) return;
-        await actions.changeStartDate(selectedDate);
+        await changeStartDate(selectedDate);
       },
     });
   };
 
   const openProfileEditModal = () => {
-    if (!actions.user) return;
-    const myMember = workspace.members?.find((m) => m.id === actions.user?.id);
-    openTextPromptModal({
+    if (!user) return;
+    const myMember = workspace.members?.find((m) => m.id === user.id);
+    // 프로필 사진은 커스터마이징을 지원하지 않고 항상 전역 프로필(프로필 설정)의 사진을 그대로 보여준다
+    const defaultName = myMember?.name || user.name;
+    let name = defaultName;
+    modalActions.showModal({
+      type: "confirm",
       title: "내 활동 프로필 설정",
-      helpText: "이 공간에서 사용할 이름을 입력해주세요.",
-      placeholder: "이름 입력",
-      defaultValue: myMember?.name || "",
-      onConfirm: actions.changeProfileName,
+      confirmText: "수정하기",
+      content: (
+        <div className={styles.modalContent}>
+          <p className={styles.modalHelp}>이 공간에서 사용할 이름을 입력해주세요.</p>
+          <div className={styles.profileModalAvatarWrap}>
+            <ProfileImage
+              uri={user.profileImage}
+              name={user.name}
+              size={PROFILE_MODAL_AVATAR_SIZE}
+            />
+          </div>
+          <input
+            type="text"
+            defaultValue={name}
+            autoFocus
+            onChange={(e) => {
+              name = e.target.value;
+            }}
+            placeholder="이름 입력"
+            className={styles.modalInput}
+          />
+        </div>
+      ),
+      onConfirm: async () => {
+        if (!name.trim()) return;
+        await changeProfileName(name.trim());
+      },
     });
   };
 
@@ -143,6 +194,22 @@ export const WorkspaceEditView = () => {
         </div>
 
         <div>
+          <p className={styles.sectionLabel}>참여자</p>
+          <div className={styles.settingCard}>
+            {members.map((member, index) => (
+              <div key={member.id}>
+                <div className={styles.memberRow}>
+                  <ProfileImage uri={member.avatar} name={member.name} size={36} />
+                  <span className={styles.settingLabel}>{member.name}</span>
+                  {member.id === user?.id && <span className={styles.meBadge}>나</span>}
+                </div>
+                {index < members.length - 1 && <div className={styles.divider} />}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div>
           <p className={styles.sectionLabel}>기본 설정</p>
           <div className={styles.settingCard}>
             <button onClick={openNameEditModal} className={styles.settingRow}>
@@ -161,7 +228,7 @@ export const WorkspaceEditView = () => {
               <span className={styles.settingLabel}>테마</span>
               <WorkspaceThemePicker
                 value={workspace.themeColor}
-                onChange={actions.changeThemeColor}
+                onChange={changeThemeColor}
               />
             </div>
           </div>
@@ -179,9 +246,9 @@ export const WorkspaceEditView = () => {
             </button>
             <div className={styles.divider} />
             <button
-              onClick={actions.invite}
+              onClick={invite}
               className={styles.settingRow}
-              disabled={actions.isInviting}
+              disabled={isInviting}
             >
               <div className={cx(styles.settingIcon, styles.settingIconGreen)}>
                 <UserPlus size={18} />
@@ -213,6 +280,18 @@ export const WorkspaceEditView = () => {
         <p className={styles.footer}>
           각 공간의 설정은 해당 공간에 참여한 멤버들끼리만{"\n"}공유되며 안전하게 보호됩니다.
         </p>
+      </div>
+
+      <div className={styles.floatingActionWrap}>
+        <button
+          type="button"
+          onClick={handleSetAsMain}
+          disabled={isMain}
+          className={styles.setMainButton}
+        >
+          <Star size={18} fill={isMain ? "currentColor" : "none"} />
+          {isMain ? "이미 메인 라이프룸이에요" : "메인으로 설정"}
+        </button>
       </div>
     </div>
   );

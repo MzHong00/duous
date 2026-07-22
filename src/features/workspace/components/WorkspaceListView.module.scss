@@ -95,19 +95,6 @@
   color: var(--grey-400);
 }
 
-.cardIconActions {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  @include flex-row(6px);
-}
-
-.settingsButton {
-  @include icon-box(32px, 10px);
-  background-color: color-mix(in srgb, var(--item-accent) 14%, var(--white));
-  color: var(--item-accent);
-}
-
 .cardMembers {
   @include flex-row(8px);
   align-items: center;
