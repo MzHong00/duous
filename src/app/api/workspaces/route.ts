@@ -4,14 +4,7 @@ import { createServerSupabase, getSessionUser } from "@/server/common/utils/supa
 import { workspaceRepository } from "@/server/domain/workspace/repository";
 
 import type { NextRequest } from "next/server";
-import type { RoomType } from "@/features/workspace/types/workspace";
-
-/** 워크스페이스 생성 요청 본문 (생성자는 세션에서 확정) */
-interface WorkspaceCreateRequest {
-  name: string; // 워크스페이스 이름
-  type: RoomType; // 방 유형
-  startDate?: string; // 시작일 (ISO)
-}
+import type { WorkspaceCreateRequestDto } from "@/server/domain/workspace/dto";
 
 /** GET /api/workspaces — 내가 속한 워크스페이스 목록 (멤버 포함) */
 export async function GET() {
@@ -25,7 +18,10 @@ export async function GET() {
   );
   if (error) {
     console.error("[api] 워크스페이스 목록 조회 실패", error);
-    return NextResponse.json({ message: "워크스페이스 목록 조회에 실패했습니다." }, { status: 500 });
+    return NextResponse.json(
+      { message: "워크스페이스 목록 조회에 실패했습니다." },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json(workspaces);
@@ -33,8 +29,9 @@ export async function GET() {
 
 /** POST /api/workspaces — 워크스페이스 생성 + 생성자(세션 사용자) 멤버 추가 */
 export async function POST(request: NextRequest) {
-  const { name, type, startDate } = (await request.json()) as WorkspaceCreateRequest;
-  if (!name || !type) return NextResponse.json({ message: "name, type은 필수입니다." }, { status: 400 });
+  const { name, type, startDate } = (await request.json()) as WorkspaceCreateRequestDto;
+  if (!name || !type)
+    return NextResponse.json({ message: "name, type은 필수입니다." }, { status: 400 });
 
   const supabase = await createServerSupabase();
   const sessionUser = await getSessionUser(supabase);
@@ -69,10 +66,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: "워크스페이스 생성에 실패했습니다." }, { status: 500 });
   }
 
-  const { data: workspace, error: findError } = await workspaceRepository.findById(
-    supabase,
-    ws.id
-  );
+  const { data: workspace, error: findError } = await workspaceRepository.findById(supabase, ws.id);
   if (!workspace) {
     console.error("[api] 워크스페이스 생성 실패", findError);
     return NextResponse.json({ message: "워크스페이스 생성에 실패했습니다." }, { status: 500 });

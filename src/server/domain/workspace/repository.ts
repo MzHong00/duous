@@ -104,4 +104,18 @@ export const workspaceRepository = {
       email: member.email,
       avatar_url: member.avatarUrl,
     }),
+
+  /** 특정 사용자가 속한 모든 워크스페이스의 멤버 정보(이름·사진)를 동기화한다 */
+  updateMemberProfile: async (
+    supabase: SupabaseClient,
+    userId: string,
+    input: { name?: string; avatarUrl?: string }
+  ) =>
+    supabase
+      .from("workspace_members")
+      .update({
+        ...(input.name !== undefined && { display_name: input.name }),
+        ...(input.avatarUrl !== undefined && { avatar_url: input.avatarUrl }),
+      })
+      .eq("user_id", userId),
 };

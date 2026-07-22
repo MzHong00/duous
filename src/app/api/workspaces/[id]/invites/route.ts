@@ -4,14 +4,10 @@ import { createServerSupabase, getSessionUser } from "@/server/common/utils/supa
 
 import type { NextRequest } from "next/server";
 import type { RouteContext } from "@/server/common/types/routeContext";
+import type { InviteCodeCreateResponseDto } from "@/server/domain/workspace/dto";
 
 const INVITE_CODE_LENGTH = 8; // 초대 코드 길이
 const INVITE_CODE_TTL_MS = 1000 * 60 * 60 * 24 * 7; // 초대 코드 유효 기간 (7일)
-
-/** 초대 코드 생성 응답 */
-interface InviteCodeCreateResponse {
-  code: string; // 발급된 초대 코드
-}
 
 /** POST /api/workspaces/[id]/invites — 초대 코드 생성 (발급자는 세션 사용자로 확정) */
 export async function POST(_request: NextRequest, context: RouteContext<{ id: string }>) {
@@ -34,5 +30,5 @@ export async function POST(_request: NextRequest, context: RouteContext<{ id: st
     console.error("[api] 초대 코드 생성 실패", error);
     return NextResponse.json({ message: "초대 코드 생성에 실패했습니다." }, { status: 500 });
   }
-  return NextResponse.json({ code } satisfies InviteCodeCreateResponse, { status: 201 });
+  return NextResponse.json({ code } satisfies InviteCodeCreateResponseDto, { status: 201 });
 }

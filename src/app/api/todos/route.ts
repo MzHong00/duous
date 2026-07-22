@@ -1,37 +1,24 @@
 import { NextResponse } from "next/server";
 
 import { createServerSupabase, getSessionUser } from "@/server/common/utils/supabaseClient";
+import { todoRepository } from "@/server/domain/todo/repository";
 import { rowToTodo } from "@/features/todo/utils/todoUtils";
 
 import type { NextRequest } from "next/server";
 import type { TodoRow } from "@/features/todo/utils/todoUtils";
-
-/** 할 일 생성 요청 본문 */
-interface TodoCreateRequest {
-  workspaceId: string; // 소속 워크스페이스 ID
-  title: string; // 제목
-  description?: string; // 설명
-  isCompleted: boolean; // 완료 여부
-  assigneeId?: string; // 담당자 ID
-  startDate: string; // 시작일 (ISO)
-  endDate: string; // 종료일 (ISO)
-  color?: string; // 표시 색상
-}
+import type { TodoCreateRequestDto } from "@/server/domain/todo/dto";
 
 /** GET /api/todos?workspaceId= — 워크스페이스의 할 일 목록 조회 */
 export async function GET(request: NextRequest) {
   const workspaceId = request.nextUrl.searchParams.get("workspaceId");
-  if (!workspaceId) return NextResponse.json({ message: "workspaceId가 필요합니다." }, { status: 400 });
+  if (!workspaceId)
+    return NextResponse.json({ message: "workspaceId가 필요합니다." }, { status: 400 });
 
   const supabase = await createServerSupabase();
   const sessionUser = await getSessionUser(supabase);
   if (!sessionUser) return NextResponse.json({ message: "로그인이 필요합니다." }, { status: 401 });
 
-  const { data, error } = await supabase
-    .from("todos")
-    .select("*")
-    .eq("workspace_id", workspaceId)
-    .order("created_at", { ascending: false });
+  const { data, error } = await todoRepository.findManyByWorkspaceId(supabase, workspaceId);
   if (error) {
     console.error("[api] 할 일 목록 조회 실패", error);
     return NextResponse.json({ message: "할 일 목록 조회에 실패했습니다." }, { status: 500 });
@@ -41,29 +28,19 @@ export async function GET(request: NextRequest) {
 
 /** POST /api/todos — 할 일 생성 */
 export async function POST(request: NextRequest) {
-  const body = (await request.json()) as TodoCreateRequest;
+  const body = (await request.json()) as TodoCreateRequestDto;
   if (!body.workspaceId || !body.title || !body.startDate || !body.endDate) {
-    return NextResponse.json({ message: "workspaceId, title, startDate, endDate는 필수입니다." }, { status: 400 });
+    return NextResponse.json(
+      { message: "workspaceId, title, startDate, endDate는 필수입니다." },
+      { status: 400 }
+    );
   }
 
   const supabase = await createServerSupabase();
   const sessionUser = await getSessionUser(supabase);
   if (!sessionUser) return NextResponse.json({ message: "로그인이 필요합니다." }, { status: 401 });
 
-  const { data, error } = await supabase
-    .from("todos")
-    .insert({
-      workspace_id: body.workspaceId,
-      title: body.title,
-      description: body.description,
-      is_completed: body.isCompleted,
-      assignee_id: body.assigneeId,
-      start_date: body.startDate,
-      end_date: body.endDate,
-      color: body.color,
-    })
-    .select()
-    .single();
+  const { data, error } = await todoRepository.create(supabase, body);
   if (error) {
     console.error("[api] 할 일 생성 실패", error);
     return NextResponse.json({ message: "할 일 생성에 실패했습니다." }, { status: 500 });
