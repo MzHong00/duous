@@ -1,3 +1,4 @@
+import { Spinner } from "@/components/Spinner";
 import { cx } from "@/utils/cn";
 
 import styles from "./MapLoadState.module.scss";
@@ -32,7 +33,7 @@ export const MapLoadState = ({ status, errorMessage }: MapLoadStateProps) => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.spinner} />
+      <Spinner />
     </div>
   );
 };

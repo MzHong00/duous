@@ -1,4 +1,8 @@
+import { AlertCircle } from "lucide-react";
+
 import styles from "./ErrorFallback.module.scss";
+
+const ICON_SIZE = 48; // 중앙 아이콘 크기(px)
 
 interface ErrorFallbackProps {
   desc?: string; // 에러 메시지
@@ -9,6 +13,10 @@ interface ErrorFallbackProps {
 export const ErrorFallback = ({ desc, onRetry }: ErrorFallbackProps) => {
   return (
     <main className={styles.main}>
+      <div className={styles.iconBadge}>
+        <AlertCircle size={ICON_SIZE} />
+      </div>
+
       <h1 className={styles.title}>문제가 발생했습니다</h1>
       <p className={styles.desc}>
         {desc || "일시적인 오류가 발생했습니다.\n잠시 후 다시 시도해주세요."}

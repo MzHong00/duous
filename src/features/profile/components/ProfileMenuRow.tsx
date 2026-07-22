@@ -19,7 +19,10 @@ export const ProfileMenuRow = ({ item }: ProfileMenuRowProps) => {
   const router = useRouter();
 
   return (
-    <button onClick={() => router.push(item.route)} className={styles.listRow}>
+    <button
+      onClick={() => (item.onClick ? item.onClick() : router.push(item.route ?? ""))}
+      className={styles.listRow}
+    >
       <div className={styles.listLeft}>
         <div className={cx(styles.listIconWrap, styles[item.colorClass])}>{item.icon}</div>
         <span className={styles.listTitle}>{item.label}</span>

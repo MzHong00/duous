@@ -16,8 +16,6 @@ export const ROUTES = {
     query: (params: { date?: string }) => withQuery("/calendar", params),
   },
   ANNIVERSARY: { path: "/anniversary" },
-  NOTICES: { path: "/notices" },
-  SUPPORT: { path: "/support" },
 
   STORIES: {
     path: "/stories",

@@ -22,7 +22,7 @@ export const Modal = () => {
       <div className={styles.backdrop} onClick={handleCancel} />
       <div className={styles.container}>
         <div className={styles.body}>
-          <h3 className={styles.title}>{modal.title}</h3>
+          {modal.title && <h3 className={styles.title}>{modal.title}</h3>}
           {modal.message && <p className={styles.message}>{modal.message}</p>}
           {modal.content && <div className={styles.content}>{modal.content}</div>}
         </div>

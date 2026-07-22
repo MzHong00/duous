@@ -54,9 +54,11 @@ export const ChatView = () => {
               className={styles.messages}
             />
 
-            <div className={styles.inputArea}>
-              <ChatInput value={inputText} onChange={setInputText} onSend={handleSend} />
-            </div>
+            {!isLoading && (
+              <div className={styles.inputArea}>
+                <ChatInput value={inputText} onChange={setInputText} onSend={handleSend} />
+              </div>
+            )}
           </>
         )}
       </div>

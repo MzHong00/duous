@@ -8,7 +8,7 @@ import { ROUTES } from "@/constants/routes";
 import { useProfileUser } from "@/features/profile/hooks/useProfileUser";
 import { PROFILE_MENU_ITEMS } from "@/features/profile/constants/profileMenu";
 import { APP_VERSION } from "@/features/profile/constants/profile";
-import { ProfileQuickCards } from "./ProfileQuickCards";
+import { ProfileWorkspaceSection } from "./ProfileWorkspaceSection";
 import { ProfileMenuRow } from "./ProfileMenuRow";
 import { ProfileHeroSkeleton } from "./ProfileHeroSkeleton";
 import styles from "./ProfileView.module.scss";
@@ -48,7 +48,7 @@ export const ProfileView = () => {
         )}
       </header>
 
-      <ProfileQuickCards />
+      <ProfileWorkspaceSection />
 
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>알림 및 지원</h2>
