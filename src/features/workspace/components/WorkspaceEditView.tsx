@@ -8,12 +8,12 @@ import { authQueries } from "@/features/auth/queries/authQueries";
 import { useCurrentWorkspace } from "@/features/workspace/hooks/useCurrentWorkspace";
 import { useWorkspaceEditActions } from "@/features/workspace/hooks/useWorkspaceEditActions";
 import { WorkspaceThemePicker } from "@/features/workspace/components/WorkspaceThemePicker";
-import { StartDatePicker } from "@/features/workspace/components/StartDatePicker";
 import { WORKSPACE_THEME_ACCENT } from "@/features/workspace/constants/theme";
 import { workspaceActions } from "@/features/workspace/stores/useWorkspaceStore";
 import { modalActions } from "@/stores/useModalStore";
 import { toastActions } from "@/stores/useToastStore";
 import { AppHeader } from "@/components/AppHeader";
+import { DatePicker } from "@/components/DatePicker";
 import { ProfileImage } from "@/components/ProfileImage";
 import { APP_WORKSPACE } from "@/constants/config";
 import { cx } from "@/utils/cn";
@@ -118,7 +118,7 @@ export const WorkspaceEditView = () => {
       content: (
         <div className={styles.modalContent}>
           <p className={styles.modalHelp}>함께하기 시작한 날짜를 선택해주세요.</p>
-          <StartDatePicker
+          <DatePicker
             initialDate={selectedDate}
             onChangeDate={(date) => {
               selectedDate = date;
