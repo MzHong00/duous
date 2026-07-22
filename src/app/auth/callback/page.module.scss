@@ -8,23 +8,8 @@
   background-color: var(--white);
 }
 
-.spinner {
-  width: 36px;
-  height: 36px;
-  border: 3px solid var(--primary);
-  border-top-color: transparent;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
 .message {
   font-size: 14px;
   font-weight: 500;
   color: var(--grey-500);
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }

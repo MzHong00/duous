@@ -1,0 +1,93 @@
+@use "styles/mixins" as *;
+
+.section {
+  padding: 0 20px 24px;
+}
+
+.sectionHeader {
+  @include flex-between;
+  padding: 0 6px 10px;
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--grey-500);
+}
+
+.moreButton {
+  @include flex-row(2px);
+  align-items: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--grey-400);
+}
+
+.emptyText {
+  padding: 20px 6px;
+  font-size: 14px;
+  color: var(--grey-400);
+}
+
+.listCard {
+  background-color: var(--white);
+  border-radius: 20px;
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.listRow {
+  @include flex-between;
+  padding: 16px;
+  width: 100%;
+  @include ripple-effect;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--grey-100);
+  }
+}
+
+.listLeft {
+  @include flex-row(14px);
+  align-items: center;
+}
+
+.listIconWrap {
+  @include icon-box(38px, 12px);
+  background-color: var(--primary-light);
+  color: var(--primary);
+}
+
+.nameRow {
+  @include flex-row(8px);
+  align-items: center;
+}
+
+.listTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--grey-900);
+}
+
+.mainBadge {
+  font-size: 10px;
+  background-color: var(--primary-light);
+  color: var(--primary);
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.memberStack {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+.memberAvatar {
+  border: 2px solid var(--white);
+  border-radius: 9999px;
+
+  &:not(:last-child) {
+    margin-left: -8px;
+  }
+}

@@ -7,6 +7,7 @@ import { toastActions } from "@/stores/useToastStore";
 import { isSafeRedirectPath } from "@/utils/route";
 import { KakaoIcon } from "@/assets/icons/KakaoIcon";
 import { GoogleIcon } from "@/assets/icons/GoogleIcon";
+import { APP_BRAND_NAME } from "@/constants/config";
 import styles from "./LoginView.module.scss";
 
 const LOGO_ICON_SIZE = 40; // 로고 하트 아이콘 크기(px)
@@ -45,7 +46,7 @@ export const LoginView = () => {
           <div className={styles.logoWrap}>
             <Heart size={LOGO_ICON_SIZE} fill="var(--primary)" color="var(--primary)" />
           </div>
-          <h1 className={styles.appName}>라이프쉐어</h1>
+          <h1 className={styles.appName}>{APP_BRAND_NAME.KR}</h1>
           <p className={styles.appDesc}>우리의 소중한 일상을 함께 나누는 공간</p>
         </div>
 
@@ -65,7 +66,7 @@ export const LoginView = () => {
         </div>
 
         <p className={styles.terms}>
-          로그인 시 라이프쉐어의 이용약관 및{"\n"}개인정보 처리방침에 동의하게 됩니다.
+          로그인 시 {APP_BRAND_NAME.KR}의 이용약관 및{"\n"}개인정보 처리방침에 동의하게 됩니다.
         </p>
       </div>
     </main>

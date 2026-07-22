@@ -1,6 +1,7 @@
-import { ShieldCheck, Megaphone, Headphones } from "lucide-react";
+import { ShieldCheck, Megaphone } from "lucide-react";
 
 import { ROUTES } from "@/constants/routes";
+import { toastActions } from "@/stores/useToastStore";
 
 import type { ReactNode } from "react";
 
@@ -11,7 +12,8 @@ export interface ProfileMenuItem {
   id: string; // 항목 고유 키
   label: string; // 표시 라벨
   subText: string; // 우측 보조 텍스트
-  route: string; // 이동 경로
+  route?: string; // 이동 경로
+  onClick?: () => void; // route 대신 실행할 커스텀 동작
   icon: ReactNode; // 아이콘 노드
   colorClass: "blue" | "green" | "grey"; // 아이콘 박스 색상 클래스명
 }
@@ -29,16 +31,8 @@ export const PROFILE_MENU_ITEMS: ProfileMenuItem[] = [
     id: "notices",
     label: "공지사항",
     subText: "새로운 소식",
-    route: ROUTES.NOTICES.path,
+    onClick: () => toastActions.showToast("준비중입니다", "info"),
     icon: <Megaphone size={LIST_ICON_SIZE} color="var(--primary)" />,
     colorClass: "blue",
-  },
-  {
-    id: "support",
-    label: "고객센터",
-    subText: "도움말 · 문의",
-    route: ROUTES.SUPPORT.path,
-    icon: <Headphones size={LIST_ICON_SIZE} color="var(--success)" />,
-    colorClass: "green",
   },
 ];
