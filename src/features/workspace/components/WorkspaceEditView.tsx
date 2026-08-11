@@ -34,7 +34,8 @@ export const WorkspaceEditView = () => {
   const workspace = workspaces.find((ws) => ws.id === workspaceId);
   const { changeName, changeStartDate, changeThemeColor, changeProfileName, kickMember, leave } =
     useWorkspaceEditActions(workspaceId);
-  const { mutateAsync: setMainWorkspaceAsync } = useSetMainWorkspaceMutation();
+  const { mutateAsync: setMainWorkspaceAsync, isPending: isSetMainPending } =
+    useSetMainWorkspaceMutation();
   const isMain = workspace?.id === user?.mainWorkspaceId;
 
   if (!workspace) return null;
@@ -318,17 +319,19 @@ export const WorkspaceEditView = () => {
         </p>
       </div>
 
-      <div className={styles.floatingActionWrap}>
-        <button
-          type="button"
-          onClick={handleSetAsMain}
-          disabled={isMain}
-          className={styles.setMainButton}
-        >
-          <Star size={ICON_SIZE.lg} fill={isMain ? "currentColor" : "none"} />
-          {isMain ? "이미 메인 라이프룸이에요" : "메인으로 설정"}
-        </button>
-      </div>
+      {!isMain && (
+        <div className={styles.floatingActionWrap}>
+          <button
+            type="button"
+            onClick={handleSetAsMain}
+            disabled={isSetMainPending}
+            className={styles.setMainButton}
+          >
+            <Star size={ICON_SIZE.md} />
+            {isSetMainPending ? "설정 중..." : "메인으로 설정"}
+          </button>
+        </div>
+      )}
     </div>
   );
 };

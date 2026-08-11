@@ -314,11 +314,11 @@ describe("WorkspaceEditView", () => {
     expect(workspaceActions.setCurrentWorkspaceId).not.toHaveBeenCalled();
   });
 
-  it("이미 메인 라이프룸이면 설정 버튼을 비활성화한다", () => {
+  it("이미 메인 라이프룸이면 설정 버튼을 표시하지 않는다", () => {
     setup({ mainWorkspaceId: workspace.id });
 
     render(<WorkspaceEditView />);
 
-    expect(screen.getByText("이미 메인 라이프룸이에요")).toBeDisabled();
+    expect(screen.queryByText("메인으로 설정")).not.toBeInTheDocument();
   });
 });

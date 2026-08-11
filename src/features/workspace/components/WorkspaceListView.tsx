@@ -118,7 +118,7 @@ export const WorkspaceListView = () => {
           onClick={() => router.push(ROUTES.WORKSPACE.SETUP.path)}
           className={styles.addButton}
         >
-          <Plus size={ICON_SIZE.lg} />새 {APP_WORKSPACE.KR} 만들기
+          <Plus size={ICON_SIZE.md} />새 {APP_WORKSPACE.KR} 만들기
         </button>
 
         <button
@@ -126,7 +126,7 @@ export const WorkspaceListView = () => {
           onClick={() => router.push(ROUTES.WORKSPACE.JOIN.path)}
           className={styles.joinByCodeButton}
         >
-          <KeyRound size={ICON_SIZE.lg} />
+          <KeyRound size={ICON_SIZE.md} />
           초대 코드로 참여하기
         </button>
       </div>

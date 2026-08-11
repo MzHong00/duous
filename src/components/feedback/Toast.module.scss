@@ -2,7 +2,7 @@
 
 .container {
   position: fixed;
-  bottom: calc(24px + max(16px, env(safe-area-inset-bottom)));
+  top: calc(24px + max(16px, env(safe-area-inset-top)));
   left: 0;
   right: 0;
   z-index: 500;
@@ -20,7 +20,12 @@
   box-shadow: var(--shadow-toast);
   max-width: 384px;
   width: 100%;
-  animation: slideUp 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: auto;
+  animation: slideDown 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &[data-popping="true"] {
+    animation: pop 0.15s cubic-bezier(0.4, 0, 1, 1) forwards;
+  }
 }
 
 .iconWrap {
@@ -55,13 +60,24 @@
   color: var(--white);
 }
 
-@keyframes slideUp {
+@keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(-12px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.85);
   }
 }
