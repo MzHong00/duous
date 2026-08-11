@@ -1,11 +1,13 @@
 import "../styles/globals.scss";
+import { cookies } from "next/headers";
+
 import { QueryProvider } from "@/lib/QueryProvider";
 import { SessionProvider } from "@/lib/SessionProvider";
 import { Modal } from "@/components/ui/Modal";
 import { Toast } from "@/components/feedback/Toast";
 import { GlobalLoadingOverlay } from "@/components/feedback/GlobalLoadingOverlay";
 import { NOINDEX_ROBOTS } from "@/constants/seo";
-import { APP_BRAND_NAME, SITE_URL } from "@/constants/config";
+import { APP_BRAND_NAME, COOKIE_KEYS, SITE_URL } from "@/constants/config";
 
 import type { Metadata } from "next";
 
@@ -25,13 +27,19 @@ export const metadata: Metadata = {
   },
 };
 
-const RootLayout = ({
+/** 모든 페이지를 감싸는 루트 레이아웃 — 전역 프로바이더와 앱 단위 오버레이(모달·토스트·로딩)를 배치한다 */
+const RootLayout = async ({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
+  // 직전 방문에서 남긴 테마 쿠키로 첫 렌더부터 data-theme을 심어, 워크스페이스 API 응답까지 기본 테마가
+  // 보였다 바뀌는 깜빡임을 없앤다. 쿠키가 없거나 정의되지 않은 테마면 어떤 [data-theme] 규칙에도
+  // 걸리지 않아 :root의 기본 테마가 그대로 적용된다
+  const themeColor = (await cookies()).get(COOKIE_KEYS.THEME)?.value;
+
   return (
-    <html lang="ko">
+    <html lang="ko" data-theme={themeColor}>
       <body>
         <QueryProvider>
           <SessionProvider>{children}</SessionProvider>

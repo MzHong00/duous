@@ -14,6 +14,7 @@ export const ENV = {
 
 export const COOKIE_KEYS = {
   WORKSPACE_ID: "duous-workspace-id", // 루트 서버 컴포넌트(app/page.tsx)가 홈·랜딩 리다이렉트를 분기하기 위해 읽는 쿠키
+  THEME: "duous-theme", // 루트 레이아웃(app/layout.tsx)이 첫 렌더에 data-theme을 심어 테마 깜빡임을 막기 위해 읽는 쿠키
 };
 
 export const APP_BRAND_NAME = {
