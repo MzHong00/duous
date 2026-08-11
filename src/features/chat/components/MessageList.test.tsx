@@ -2,6 +2,8 @@ import { createRef } from "react";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { formatChatTime } from "@/utils/date";
+
 import { MessageList } from "./MessageList";
 
 import type { ChatMessage } from "@/features/chat/types/chat";
@@ -30,13 +32,16 @@ vi.mock("@tanstack/react-virtual", () => ({
   }),
 }));
 
+const CREATED_AT = "2026-07-01T06:04:00Z"; // 표시 문자열은 실행 타임존에 따라 달라지므로 formatChatTime으로 기대값을 계산한다
+const CREATED_AT_LATER = "2026-07-01T06:05:00Z";
+
 /** 채팅 메시지 목업을 만든다 */
 const createMessage = (overrides: Partial<ChatMessage> = {}): ChatMessage => ({
   id: "msg-1",
   text: "안녕",
   sender: "me",
   senderId: "user-1",
-  time: "오후 3:04",
+  createdAt: CREATED_AT,
   ...overrides,
 });
 
@@ -72,7 +77,7 @@ describe("MessageList", () => {
     renderList({
       messages: [
         createMessage({ id: "msg-1", text: "첫 메시지" }),
-        createMessage({ id: "msg-2", text: "두 번째 메시지", time: "오후 3:05" }),
+        createMessage({ id: "msg-2", text: "두 번째 메시지", createdAt: CREATED_AT_LATER }),
       ],
     });
 
@@ -119,19 +124,19 @@ describe("MessageList", () => {
       ],
     });
 
-    expect(screen.getAllByText("오후 3:04")).toHaveLength(1);
+    expect(screen.getAllByText(formatChatTime(CREATED_AT))).toHaveLength(1);
   });
 
   it("시간이 다른 메시지는 각각 시간을 표시한다", () => {
     renderList({
       messages: [
-        createMessage({ id: "msg-1", text: "첫 메시지", time: "오후 3:04" }),
-        createMessage({ id: "msg-2", text: "두 번째 메시지", time: "오후 3:05" }),
+        createMessage({ id: "msg-1", text: "첫 메시지", createdAt: CREATED_AT }),
+        createMessage({ id: "msg-2", text: "두 번째 메시지", createdAt: CREATED_AT_LATER }),
       ],
     });
 
-    expect(screen.getByText("오후 3:04")).toBeInTheDocument();
-    expect(screen.getByText("오후 3:05")).toBeInTheDocument();
+    expect(screen.getByText(formatChatTime(CREATED_AT))).toBeInTheDocument();
+    expect(screen.getByText(formatChatTime(CREATED_AT_LATER))).toBeInTheDocument();
   });
 
   it("하단 앵커에 bottomRef를 연결한다", () => {

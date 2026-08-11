@@ -69,7 +69,7 @@ const message: ChatMessage = {
   text: "안녕",
   sender: "me",
   senderId: "user-1",
-  time: "오후 3:04",
+  createdAt: "2026-07-01T06:04:00Z",
 };
 
 const sendMessage = vi.fn();

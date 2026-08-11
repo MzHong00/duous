@@ -2,12 +2,12 @@ import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/lib/supabase/client";
-import { rowToChatMessage } from "@/features/chat/api/chat";
+import { rowToChatMessage } from "@/features/chat/utils/chatUtils";
 import { chatQueries } from "@/features/chat/queries/chatQueries";
 import { useSendMessageMutation } from "@/features/chat/queries/chatMutations";
 import { toastActions } from "@/stores/useToastStore";
 
-import type { MessageRow } from "@/features/chat/api/chat";
+import type { MessageRow } from "@/features/chat/utils/chatUtils";
 import type { ChatMessage } from "@/features/chat/types/chat";
 
 interface UseChatMessagesResult {

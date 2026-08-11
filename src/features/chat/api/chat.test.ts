@@ -1,45 +1,21 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { chatApi, rowToChatMessage } from "@/features/chat/api/chat";
+import { chatApi } from "@/features/chat/api/chat";
 
 import { mockFetch } from "@/lib/api/mockFetch";
 
 import type { ChatMessage } from "@/features/chat/types/chat";
-
-const messageRow = {
-  id: "message-1",
-  workspace_id: "workspace-1",
-  sender_id: "user-1",
-  text: "안녕",
-  created_at: "2026-07-01T00:00:00Z",
-};
 
 const chatMessage: ChatMessage = {
   id: "message-1",
   text: "안녕",
   sender: "me",
   senderId: "user-1",
-  time: "오전 09:00",
+  createdAt: "2026-07-01T00:00:00Z",
 };
 
 afterEach(() => {
   vi.restoreAllMocks();
-});
-
-describe("rowToChatMessage", () => {
-  it("sender_id가 userId와 같으면 sender를 me로 변환한다", () => {
-    const result = rowToChatMessage(messageRow, "user-1");
-
-    expect(result).toEqual(
-      expect.objectContaining({ id: "message-1", text: "안녕", sender: "me", senderId: "user-1" })
-    );
-  });
-
-  it("sender_id가 userId와 다르면 sender를 partner로 변환한다", () => {
-    const result = rowToChatMessage(messageRow, "user-2");
-
-    expect(result.sender).toBe("partner");
-  });
 });
 
 describe("chatApi.list", () => {

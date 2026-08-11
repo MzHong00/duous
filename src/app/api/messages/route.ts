@@ -2,10 +2,10 @@ import { NextResponse } from "next/server";
 
 import { createServerSupabase, getSessionUser } from "@/server/common/utils/supabaseClient";
 import { messageRepository } from "@/server/domain/message/repository";
-import { rowToChatMessage } from "@/features/chat/api/chat";
+import { rowToChatMessage } from "@/features/chat/utils/chatUtils";
 
 import type { NextRequest } from "next/server";
-import type { MessageRow } from "@/features/chat/api/chat";
+import type { MessageRow } from "@/features/chat/utils/chatUtils";
 import type { MessageSendRequestDto } from "@/server/domain/message/dto";
 
 /** GET /api/messages?workspaceId= — 워크스페이스의 메시지 목록 (오래된 순, isMine은 세션 사용자 기준) */

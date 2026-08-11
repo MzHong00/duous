@@ -1,16 +1,21 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import { formatChatTime } from "@/utils/date";
+
 import { MessageBubble } from "./MessageBubble";
 
 import type { ChatMessage } from "@/features/chat/types/chat";
+
+const CREATED_AT = "2026-07-01T06:04:00Z"; // 표시 문자열은 실행 타임존에 따라 달라지므로 formatChatTime으로 기대값을 계산한다
+const CREATED_AT_LATER = "2026-07-01T06:05:00Z";
 
 /** 기본 props에 덮어쓰기를 적용해 렌더링한다 */
 const renderBubble = (
   overrides: Partial<{
     text: string;
     sender: ChatMessage["sender"];
-    time: string;
+    createdAt: string;
     avatar?: string;
     name?: string;
     isFirstInGroup: boolean;
@@ -21,7 +26,7 @@ const renderBubble = (
     <MessageBubble
       text="안녕"
       sender="me"
-      time="오후 3:04"
+      createdAt={CREATED_AT}
       isFirstInGroup
       isLastInGroup
       {...overrides}
@@ -70,20 +75,25 @@ describe("MessageBubble", () => {
   });
 
   it("그룹 마지막 메시지에는 시간을 표시한다", () => {
-    renderBubble({ time: "오후 3:04", isLastInGroup: true });
+    renderBubble({ createdAt: CREATED_AT, isLastInGroup: true });
 
-    expect(screen.getByText("오후 3:04")).toBeInTheDocument();
+    expect(screen.getByText(formatChatTime(CREATED_AT))).toBeInTheDocument();
   });
 
   it("그룹 마지막이 아니면 시간을 표시하지 않는다", () => {
-    renderBubble({ time: "오후 3:04", isLastInGroup: false });
+    renderBubble({ createdAt: CREATED_AT, isLastInGroup: false });
 
-    expect(screen.queryByText("오후 3:04")).not.toBeInTheDocument();
+    expect(screen.queryByText(formatChatTime(CREATED_AT))).not.toBeInTheDocument();
   });
 
   it("상대 메시지도 그룹 마지막이면 시간을 표시한다", () => {
-    renderBubble({ sender: "partner", name: "파트너", time: "오후 3:05", isLastInGroup: true });
+    renderBubble({
+      sender: "partner",
+      name: "파트너",
+      createdAt: CREATED_AT_LATER,
+      isLastInGroup: true,
+    });
 
-    expect(screen.getByText("오후 3:05")).toBeInTheDocument();
+    expect(screen.getByText(formatChatTime(CREATED_AT_LATER))).toBeInTheDocument();
   });
 });

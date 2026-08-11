@@ -101,7 +101,7 @@ describe("GET /api/messages", () => {
         text: "안녕",
         sender: "me",
         senderId: SESSION_USER.id,
-        time: expect.any(String),
+        createdAt: expect.any(String),
       },
     ]);
   });

@@ -17,6 +17,7 @@ import {
   getRelativeDateLabel,
   getTodayDateString,
   isPastDate,
+  isSameMinute,
   isPastTimestamp,
   isThisMonth,
   isToday,
@@ -218,6 +219,20 @@ describe("고정 시각 기반 날짜 유틸", () => {
 
     it("자정은 오전 12:00으로 표기한다", () => {
       expect(formatChatTime(new Date(2026, 1, 15, 0, 0, 0))).toBe("오전 12:00");
+    });
+  });
+
+  describe("isSameMinute", () => {
+    it("같은 분의 다른 초는 같은 분으로 판별한다", () => {
+      expect(isSameMinute("2026-02-15T12:30:10Z", "2026-02-15T12:30:59Z")).toBe(true);
+    });
+
+    it("분이 다르면 다른 분으로 판별한다", () => {
+      expect(isSameMinute("2026-02-15T12:30:59Z", "2026-02-15T12:31:00Z")).toBe(false);
+    });
+
+    it("시:분이 같아도 날짜가 다르면 다른 분으로 판별한다", () => {
+      expect(isSameMinute("2026-02-14T12:30:00Z", "2026-02-15T12:30:00Z")).toBe(false);
     });
   });
 

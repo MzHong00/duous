@@ -2,6 +2,7 @@ import { memo, useMemo, useRef } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 
 import { Spinner } from "@/components/feedback/Spinner";
+import { isSameMinute } from "@/utils/date";
 import { MessageBubble } from "@/features/chat/components/MessageBubble";
 import { UNKNOWN_SENDER_NAME } from "@/features/chat/constants/chat";
 
@@ -23,9 +24,9 @@ interface MessageListProps {
   className?: string;
 }
 
-/** 같은 발신자가 같은 분(time 문자열 동일)에 연속으로 보낸 메시지인지 판별(카카오톡 스타일 묶음 판단용) */
+/** 같은 발신자가 같은 분에 연속으로 보낸 메시지인지 판별(카카오톡 스타일 묶음 판단용) */
 const isSameGroup = (a: ChatMessage, b: ChatMessage) =>
-  a.senderId === b.senderId && a.time === b.time;
+  a.senderId === b.senderId && isSameMinute(a.createdAt, b.createdAt);
 
 // 입력바 텍스트 변경 등 부모(ChatView) 리렌더 시 messages 참조가 그대로면 메시지 목록 재계산을 건너뛴다
 const MessageListComponent = ({
@@ -90,7 +91,7 @@ const MessageListComponent = ({
               <MessageBubble
                 text={msg.text}
                 sender={msg.sender}
-                time={msg.time}
+                createdAt={msg.createdAt}
                 avatar={senderMember?.avatar}
                 name={isPartner ? (senderMember?.name ?? UNKNOWN_SENDER_NAME) : undefined}
                 isFirstInGroup={isFirstInGroup}

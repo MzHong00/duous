@@ -88,6 +88,11 @@ export const getIntermediateDates = (startDate: string, endDate: string): string
   return Array.from({ length: count }, (_, i) => start.add(i, "day").format("YYYY-MM-DD"));
 };
 
+/** 두 시각이 같은 분(minute)에 속하는지 판별한다 */
+export const isSameMinute = (a: string | Date, b: string | Date): boolean => {
+  return dayjs(a).isSame(b, "minute");
+};
+
 /** 채팅용 시각 포맷("오전/오후 h:mm")으로 변환한다 */
 export const formatChatTime = (date: string | Date = new Date()): string => {
   return dayjs(date).format("A h:mm").replace("AM", "오전").replace("PM", "오후");
