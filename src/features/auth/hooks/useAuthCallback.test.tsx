@@ -19,7 +19,7 @@ vi.mock("@/features/auth/api/auth", () => ({
 }));
 
 vi.mock("@/features/profile/api/profile", () => ({
-  profileApi: { createProfile: vi.fn() },
+  profileApi: { createProfile: vi.fn(), getProfile: vi.fn() },
 }));
 
 vi.mock("@/features/workspace/api/workspaces", () => ({
@@ -33,6 +33,8 @@ vi.mock("@/features/workspace/stores/useWorkspaceStore", () => ({
 describe("useAuthCallback", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // 기본은 메인 미지정 — 메인이 있는 경우만 개별 테스트에서 덮어쓴다
+    vi.mocked(profileApi.getProfile).mockResolvedValue(null);
   });
 
   it("세션이 없으면 로그인 페이지로 리다이렉트한다", async () => {
@@ -46,7 +48,7 @@ describe("useAuthCallback", () => {
     expect(workspacesApi.listMine).not.toHaveBeenCalled();
   });
 
-  it("워크스페이스가 있으면 첫 워크스페이스를 설정하고 홈으로 이동한다", async () => {
+  it("메인 라이프룸이 지정돼 있지 않으면 첫 워크스페이스를 설정하고 홈으로 이동한다", async () => {
     vi.mocked(authApi.getSession).mockResolvedValue({
       access_token: "token",
     } as unknown as Awaited<ReturnType<typeof authApi.getSession>>);
@@ -59,6 +61,24 @@ describe("useAuthCallback", () => {
 
     await waitFor(() => expect(replace).toHaveBeenCalledWith(ROUTES.HOME.path));
     expect(workspaceActions.setCurrentWorkspaceId).toHaveBeenCalledWith("ws-1");
+  });
+
+  it("서버에 저장된 메인 라이프룸이 있으면 목록 순서와 무관하게 그것을 설정한다", async () => {
+    vi.mocked(authApi.getSession).mockResolvedValue({
+      access_token: "token",
+    } as unknown as Awaited<ReturnType<typeof authApi.getSession>>);
+    vi.mocked(workspacesApi.listMine).mockResolvedValue([
+      { id: "ws-1" },
+      { id: "ws-2" },
+    ] as unknown as Awaited<ReturnType<typeof workspacesApi.listMine>>);
+    vi.mocked(profileApi.getProfile).mockResolvedValue({
+      mainWorkspaceId: "ws-2",
+    } as unknown as Awaited<ReturnType<typeof profileApi.getProfile>>);
+
+    renderHook(() => useAuthCallback(null));
+
+    await waitFor(() => expect(replace).toHaveBeenCalledWith(ROUTES.HOME.path));
+    expect(workspaceActions.setCurrentWorkspaceId).toHaveBeenCalledWith("ws-2");
   });
 
   it("세션 확보 후 profiles가 없으면 생성되도록 createProfile을 호출한다", async () => {

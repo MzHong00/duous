@@ -76,6 +76,7 @@ describe("useWorkspaceEditActions", () => {
         typeof useCurrentWorkspace
       >["currentWorkspace"],
       workspaces: [],
+      mainWorkspaceId: undefined,
       isPending: false,
       isError: false,
     });
@@ -201,6 +202,7 @@ describe("useWorkspaceEditActions", () => {
         typeof useCurrentWorkspace
       >["currentWorkspace"],
       workspaces: [],
+      mainWorkspaceId: undefined,
       isPending: false,
       isError: false,
     });

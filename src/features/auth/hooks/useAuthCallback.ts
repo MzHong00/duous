@@ -27,9 +27,15 @@ export const useAuthCallback = (redirectPath: string | null) => {
 
       // 워크스페이스 조회 후 분기
       try {
-        const workspaces = await workspacesApi.listMine();
+        // 메인 라이프룸은 profiles에 저장돼 기기가 바뀌어도 유지된다 — 새 기기·localStorage 초기화 후에도
+        // 사용자가 지정한 메인으로 복귀시키기 위해 프로필과 목록을 함께 조회한다
+        const [workspaces, profile] = await Promise.all([
+          workspacesApi.listMine(),
+          profileApi.getProfile(),
+        ]);
         if (workspaces.length > 0) {
-          workspaceActions.setCurrentWorkspaceId(workspaces[0].id);
+          const mainWorkspace = workspaces.find((ws) => ws.id === profile?.mainWorkspaceId);
+          workspaceActions.setCurrentWorkspaceId((mainWorkspace ?? workspaces[0]).id);
         }
         router.replace(
           safeRedirectPath ||

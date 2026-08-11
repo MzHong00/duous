@@ -10,6 +10,7 @@ import { WorkspaceThemePicker } from "@/features/workspace/components/WorkspaceT
 import { WorkspaceInviteShare } from "@/features/workspace/components/WorkspaceInviteShare";
 import { WORKSPACE_THEME_ACCENT } from "@/features/workspace/constants/theme";
 import { workspaceActions } from "@/features/workspace/stores/useWorkspaceStore";
+import { useSetMainWorkspaceMutation } from "@/features/workspace/queries/workspaceMutations";
 import { modalActions } from "@/stores/useModalStore";
 import { toastActions } from "@/stores/useToastStore";
 import { AppHeader } from "@/components/layout/AppHeader";
@@ -33,7 +34,8 @@ export const WorkspaceEditView = () => {
   const workspace = workspaces.find((ws) => ws.id === workspaceId);
   const { changeName, changeStartDate, changeThemeColor, changeProfileName, kickMember, leave } =
     useWorkspaceEditActions(workspaceId);
-  const isMain = workspace?.id === currentWorkspace?.id;
+  const { mutateAsync: setMainWorkspaceAsync } = useSetMainWorkspaceMutation();
+  const isMain = workspace?.id === user?.mainWorkspaceId;
 
   if (!workspace) return null;
 
@@ -41,10 +43,15 @@ export const WorkspaceEditView = () => {
   const isLastMember = members.length <= 1; // 나 혼자면 나가는 순간 라이프룸과 모든 기록이 삭제된다
   const isOwner = members.find((m) => m.id === user?.id)?.role === "owner"; // 초대 발급·내보내기 권한
 
-  /** 이 라이프룸을 메인으로 설정한다 */
-  const handleSetAsMain = () => {
-    workspaceActions.setCurrentWorkspaceId(workspace.id);
-    toastActions.showToast(`'${workspace.name}'이 메인 라이프룸으로 설정되었습니다`, "success");
+  /** 이 라이프룸을 메인으로 설정한다 (서버에 저장해 다른 기기에서도 유지되게 하고, 현재 선택도 함께 옮긴다) */
+  const handleSetAsMain = async () => {
+    try {
+      await setMainWorkspaceAsync({ workspaceId: workspace.id });
+      workspaceActions.setCurrentWorkspaceId(workspace.id);
+      toastActions.showToast(`'${workspace.name}'이 메인 라이프룸으로 설정되었습니다`, "success");
+    } catch {
+      toastActions.showToast("메인 라이프룸 설정에 실패했습니다. 다시 시도해주세요.", "error");
+    }
   };
 
   /** 라이프룸에서 나간다. 마지막 멤버면 라이프룸과 모든 기록이 함께 삭제되므로 확인 문구를 요구한다 */

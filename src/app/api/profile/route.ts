@@ -21,6 +21,7 @@ export async function GET() {
     name: profile?.name ?? "",
     email: sessionUser.email,
     profileImage: profile?.avatar_url,
+    mainWorkspaceId: profile?.main_workspace_id ?? undefined,
   };
   return NextResponse.json(user);
 }
@@ -56,10 +57,16 @@ export async function PATCH(request: NextRequest) {
   const { error: profileError } = await profileRepository.update(supabase, sessionUser.id, {
     name: body.name,
     avatarUrl: body.profileImage,
+    mainWorkspaceId: body.mainWorkspaceId,
   });
   if (profileError) {
     console.error("[api] 프로필 수정 실패", profileError);
     return NextResponse.json({ message: "프로필 수정에 실패했습니다." }, { status: 500 });
+  }
+
+  // 메인 라이프룸만 바뀐 요청은 멤버에 반영할 프로필 정보가 없으므로 동기화를 건너뛴다
+  if (body.name === undefined && body.profileImage === undefined) {
+    return new NextResponse(null, { status: 204 });
   }
 
   // 참여 중인 모든 라이프룸의 멤버 정보에도 최신 프로필을 그대로 반영한다 (워크스페이스별 개별 프로필은 지원하지 않음)

@@ -20,7 +20,7 @@ const SKELETON_CARD_KEYS = ["workspace-skeleton-1", "workspace-skeleton-2"]; // 
 
 export const WorkspaceListView = () => {
   const router = useRouter();
-  const { workspaces, currentWorkspace, isPending, isError } = useCurrentWorkspace();
+  const { workspaces, mainWorkspaceId, isPending, isError } = useCurrentWorkspace();
   const isEmpty = !isPending && !isError && workspaces.length === 0;
 
   /** 카드 탭 → 해당 워크스페이스 설정 페이지로 이동한다 (메인 설정은 설정 페이지 하단 버튼에서 처리) */
@@ -62,7 +62,7 @@ export const WorkspaceListView = () => {
         {!isPending &&
           !isError &&
           workspaces.map((ws) => {
-            const isMain = ws.id === currentWorkspace?.id;
+            const isMainWorkspace = ws.id === mainWorkspaceId;
             const days = ws.startDate ? calculateDDay(ws.startDate) : null;
 
             return (
@@ -83,7 +83,7 @@ export const WorkspaceListView = () => {
                   <div className={styles.wsInfo}>
                     <div className={styles.nameRow}>
                       <h3 className={styles.wsName}>{ws.name}</h3>
-                      {isMain && <span className={styles.mainBadge}>메인</span>}
+                      {isMainWorkspace && <span className={styles.mainBadge}>메인</span>}
                     </div>
                     {ws.startDate && (
                       <p className={styles.wsDate}>

@@ -14,6 +14,7 @@ import { useWorkspaceSetupWizard } from "./useWorkspaceSetupWizard";
 const mockBack = vi.fn();
 const mockReplace = vi.fn();
 const mockUser = { id: "user-1" };
+const mockSetMainWorkspaceAsync = vi.fn().mockResolvedValue(undefined); // 메인 라이프룸 지정 뮤테이션
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ back: mockBack, replace: mockReplace }),
@@ -46,6 +47,7 @@ vi.mock("@/features/workspace/stores/useWorkspaceStore", () => ({
 vi.mock("@/features/workspace/queries/workspaceMutations", () => ({
   useCreateWorkspaceMutation: vi.fn(),
   useCreateInviteCodeMutation: vi.fn(),
+  useSetMainWorkspaceMutation: () => ({ mutateAsync: mockSetMainWorkspaceAsync }),
 }));
 
 const mockUserRef = { current: mockUser as { id: string } | undefined };

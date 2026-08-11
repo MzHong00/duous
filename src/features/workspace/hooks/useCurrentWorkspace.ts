@@ -30,5 +30,12 @@ export const useCurrentWorkspace = () => {
 
   const currentWorkspace = list.find((ws) => ws.id === currentWorkspaceId) ?? list[0] ?? null;
 
-  return { currentWorkspace, workspaces: list, isPending, isError };
+  // 메인 라이프룸은 기기와 무관하게 유지되도록 서버(profiles)에 저장된다 — 현재 선택(currentWorkspaceId)과는 별개 값
+  return {
+    currentWorkspace,
+    workspaces: list,
+    mainWorkspaceId: user?.mainWorkspaceId,
+    isPending,
+    isError,
+  };
 };

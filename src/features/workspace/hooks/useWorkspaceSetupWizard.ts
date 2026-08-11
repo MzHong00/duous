@@ -12,6 +12,7 @@ import { workspaceActions } from "@/features/workspace/stores/useWorkspaceStore"
 import {
   useCreateWorkspaceMutation,
   useCreateInviteCodeMutation,
+  useSetMainWorkspaceMutation,
 } from "@/features/workspace/queries/workspaceMutations";
 import { toastActions } from "@/stores/useToastStore";
 import { useInviteShare } from "@/features/workspace/hooks/useInviteShare";
@@ -39,6 +40,7 @@ export const useWorkspaceSetupWizard = () => {
   const { data: user } = useQuery(authQueries.user());
   const createWorkspace = useCreateWorkspaceMutation();
   const createInviteCode = useCreateInviteCodeMutation();
+  const setMainWorkspace = useSetMainWorkspaceMutation();
   // 발급된 코드는 뮤테이션이 쿼리 캐시에 넣어두므로 공유 훅이 그대로 읽어 쓴다
   const inviteShare = useInviteShare(createdWorkspaceId ?? "");
 
@@ -68,7 +70,11 @@ export const useWorkspaceSetupWizard = () => {
         });
         workspaceId = workspace.id;
         setCreatedWorkspaceId(workspaceId);
-        if (isMain) workspaceActions.setCurrentWorkspaceId(workspaceId);
+        // 메인으로 지정하면 서버(profiles)에도 저장해 다른 기기에서도 유지되게 한다
+        if (isMain) {
+          workspaceActions.setCurrentWorkspaceId(workspaceId);
+          await setMainWorkspace.mutateAsync({ workspaceId });
+        }
       }
       await createInviteCode.mutateAsync({ workspaceId });
       setStep("invite");

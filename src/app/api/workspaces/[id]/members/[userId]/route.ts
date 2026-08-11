@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { createServerSupabase, getSessionUser } from "@/server/common/utils/supabaseClient";
 import { workspaceRepository } from "@/server/domain/workspace/repository";
+import { profileRepository } from "@/server/domain/profile/repository";
 
 import type { NextRequest } from "next/server";
 import type { RouteContext } from "@/server/common/types/routeContext";
@@ -127,5 +128,17 @@ export async function DELETE(
   }
   if (!data || data.length === 0)
     return NextResponse.json({ message: "멤버를 찾을 수 없습니다." }, { status: 404 });
+
+  // 나간 라이프룸이 본인의 메인이었다면 해제한다 (강퇴는 대상자의 profiles를 수정할 권한이 없어 건너뛰며,
+  // 이 경우 남는 값은 useCurrentWorkspace의 폴백이 흡수한다)
+  if (isSelf) {
+    const { error: clearError } = await profileRepository.clearMainWorkspaceIfMatches(
+      supabase,
+      userId,
+      workspaceId
+    );
+    if (clearError) console.error("[api] 메인 라이프룸 해제 실패", clearError);
+  }
+
   return new NextResponse(null, { status: 204 });
 }

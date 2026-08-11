@@ -37,10 +37,12 @@ const buildWorkspace = (id: string, overrides?: Partial<Workspace>): Workspace =
 const setWorkspaceState = (state: {
   workspaces?: Workspace[];
   currentWorkspace?: Workspace | null;
+  mainWorkspaceId?: string;
 }) => {
   mockUseCurrentWorkspace.mockReturnValue({
     workspaces: state.workspaces ?? [],
     currentWorkspace: state.currentWorkspace ?? null,
+    mainWorkspaceId: state.mainWorkspaceId,
     isPending: false,
     isError: false,
   } as unknown as ReturnType<typeof useCurrentWorkspace>);
@@ -86,7 +88,7 @@ describe("ProfileWorkspaceSection", () => {
     const main = buildWorkspace("본가");
     setWorkspaceState({
       workspaces: [buildWorkspace("우리집"), main],
-      currentWorkspace: main,
+      mainWorkspaceId: main.id,
     });
 
     render(<ProfileWorkspaceSection />);

@@ -27,9 +27,9 @@ const sortWithMainFirst = (workspaces: Workspace[], mainWorkspaceId?: string) =>
 /** 프로필 하단 "라이프룸" 섹션: 참여 중인 라이프룸 목록을 최대 3개 노출한다 */
 export const ProfileWorkspaceSection = () => {
   const router = useRouter();
-  const { workspaces, currentWorkspace, isPending } = useCurrentWorkspace();
+  const { workspaces, mainWorkspaceId, isPending } = useCurrentWorkspace();
 
-  const visibleWorkspaces = sortWithMainFirst(workspaces, currentWorkspace?.id).slice(
+  const visibleWorkspaces = sortWithMainFirst(workspaces, mainWorkspaceId).slice(
     0,
     VISIBLE_WORKSPACE_COUNT
   );
@@ -65,7 +65,7 @@ export const ProfileWorkspaceSection = () => {
       {!isPending && visibleWorkspaces.length > 0 && (
         <div className={styles.listCard}>
           {visibleWorkspaces.map((ws) => {
-            const isMain = ws.id === currentWorkspace?.id;
+            const isMain = ws.id === mainWorkspaceId;
             const members = ws.members ?? [];
 
             return (

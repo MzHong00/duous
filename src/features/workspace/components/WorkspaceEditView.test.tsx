@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { useSearchParams } from "next/navigation";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
@@ -12,7 +12,12 @@ import { WorkspaceEditView } from "./WorkspaceEditView";
 import type { ModalConfig } from "@/types/modal";
 import type { Workspace } from "@/features/workspace/types/workspace";
 
-const mockUser = { id: "user-1", name: "홍길동", profileImage: undefined }; // authQueries.user()가 내려주는 로그인 사용자
+const mockUser: { id: string; name: string; profileImage?: string; mainWorkspaceId?: string } = {
+  id: "user-1",
+  name: "홍길동",
+  profileImage: undefined,
+}; // authQueries.user()가 내려주는 로그인 사용자
+const mockSetMainWorkspaceAsync = vi.fn(); // 메인 라이프룸 지정 뮤테이션
 
 vi.mock("next/navigation", () => ({
   useSearchParams: vi.fn(),
@@ -28,6 +33,10 @@ vi.mock("@/features/auth/queries/authQueries", () => ({
 
 vi.mock("@/features/workspace/hooks/useCurrentWorkspace", () => ({
   useCurrentWorkspace: vi.fn(),
+}));
+
+vi.mock("@/features/workspace/queries/workspaceMutations", () => ({
+  useSetMainWorkspaceMutation: () => ({ mutateAsync: mockSetMainWorkspaceAsync }),
 }));
 
 vi.mock("@/features/workspace/hooks/useWorkspaceEditActions", () => ({
@@ -85,6 +94,7 @@ const setup = (options?: {
   workspaceId?: string;
   workspaces?: Workspace[];
   currentWorkspace?: Workspace | null;
+  mainWorkspaceId?: string;
 }) => {
   const workspaceId = options?.workspaceId ?? "workspace-1";
   mockUseSearchParams.mockReturnValue(
@@ -96,6 +106,7 @@ const setup = (options?: {
     isPending: false,
     isError: false,
   } as unknown as ReturnType<typeof useCurrentWorkspace>);
+  mockUser.mainWorkspaceId = options?.mainWorkspaceId;
 };
 
 /** showModal에 전달된 마지막 모달 설정을 꺼낸다 */
@@ -270,12 +281,16 @@ describe("WorkspaceEditView", () => {
     expect(config.message).toContain("삭제되지 않지만");
   });
 
-  it("메인으로 설정하면 스토어를 갱신하고 성공 토스트를 띄운다", () => {
+  it("메인으로 설정하면 서버에 저장하고 스토어를 갱신한 뒤 성공 토스트를 띄운다", async () => {
     setup();
+    mockSetMainWorkspaceAsync.mockResolvedValue(undefined);
 
     render(<WorkspaceEditView />);
     fireEvent.click(screen.getByText("메인으로 설정"));
 
+    await waitFor(() =>
+      expect(mockSetMainWorkspaceAsync).toHaveBeenCalledWith({ workspaceId: "workspace-1" })
+    );
     expect(workspaceActions.setCurrentWorkspaceId).toHaveBeenCalledWith("workspace-1");
     expect(toastActions.showToast).toHaveBeenCalledWith(
       "'우리집'이 메인 라이프룸으로 설정되었습니다",
@@ -283,8 +298,24 @@ describe("WorkspaceEditView", () => {
     );
   });
 
+  it("메인 설정이 실패하면 스토어를 갱신하지 않고 에러 토스트를 띄운다", async () => {
+    setup();
+    mockSetMainWorkspaceAsync.mockRejectedValue(new Error("실패"));
+
+    render(<WorkspaceEditView />);
+    fireEvent.click(screen.getByText("메인으로 설정"));
+
+    await waitFor(() =>
+      expect(toastActions.showToast).toHaveBeenCalledWith(
+        "메인 라이프룸 설정에 실패했습니다. 다시 시도해주세요.",
+        "error"
+      )
+    );
+    expect(workspaceActions.setCurrentWorkspaceId).not.toHaveBeenCalled();
+  });
+
   it("이미 메인 라이프룸이면 설정 버튼을 비활성화한다", () => {
-    setup({ currentWorkspace: workspace });
+    setup({ mainWorkspaceId: workspace.id });
 
     render(<WorkspaceEditView />);
 

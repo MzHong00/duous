@@ -39,12 +39,14 @@ const workspace = {
 const setWorkspaceState = (state: {
   workspaces?: Workspace[];
   currentWorkspace?: Workspace | null;
+  mainWorkspaceId?: string;
   isPending?: boolean;
   isError?: boolean;
 }) => {
   mockUseCurrentWorkspace.mockReturnValue({
     workspaces: state.workspaces ?? [],
     currentWorkspace: state.currentWorkspace ?? null,
+    mainWorkspaceId: state.mainWorkspaceId,
     isPending: state.isPending ?? false,
     isError: state.isError ?? false,
   } as unknown as ReturnType<typeof useCurrentWorkspace>);
@@ -93,7 +95,7 @@ describe("WorkspaceListView", () => {
   });
 
   it("현재 라이프룸에는 메인 배지를 붙인다", () => {
-    setWorkspaceState({ workspaces: [workspace], currentWorkspace: workspace });
+    setWorkspaceState({ workspaces: [workspace], mainWorkspaceId: workspace.id });
 
     render(<WorkspaceListView />);
 
@@ -103,7 +105,7 @@ describe("WorkspaceListView", () => {
   it("현재 라이프룸이 아니면 메인 배지를 붙이지 않는다", () => {
     setWorkspaceState({
       workspaces: [workspace],
-      currentWorkspace: { ...workspace, id: "workspace-2" },
+      mainWorkspaceId: "workspace-2",
     });
 
     render(<WorkspaceListView />);

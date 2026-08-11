@@ -2,6 +2,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { workspacesApi } from "@/features/workspace/api/workspaces";
 import { workspaceQueries } from "@/features/workspace/queries/workspaceQueries";
+import { profileApi } from "@/features/profile/api/profile";
+import { authQueries } from "@/features/auth/queries/authQueries";
 
 import type { RoomType, ThemeColor } from "@/features/workspace/types/workspace";
 
@@ -80,6 +82,19 @@ export const useCreateInviteCodeMutation = () => {
       workspacesApi.createInviteCode(workspaceId),
     onSuccess: (code, { workspaceId }) =>
       queryClient.setQueryData(workspaceQueries.inviteCode(workspaceId).queryKey, code),
+  });
+};
+
+/**
+ * 메인 라이프룸을 지정한다. 메인은 사용자별 값이라 profiles에 저장되므로,
+ * 워크스페이스 목록이 아니라 사용자 정보(authQueries.user) 캐시를 무효화한다.
+ */
+export const useSetMainWorkspaceMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ workspaceId }: { workspaceId: string }) =>
+      profileApi.updateProfile({ mainWorkspaceId: workspaceId }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: authQueries.user().queryKey }),
   });
 };
 
