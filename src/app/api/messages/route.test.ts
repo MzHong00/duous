@@ -99,7 +99,6 @@ describe("GET /api/messages", () => {
       {
         id: "message-1",
         text: "안녕",
-        sender: "me",
         senderId: SESSION_USER.id,
         createdAt: expect.any(String),
       },

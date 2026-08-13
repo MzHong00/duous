@@ -67,7 +67,6 @@ const workspace = {
 const message: ChatMessage = {
   id: "msg-1",
   text: "안녕",
-  sender: "me",
   senderId: "user-1",
   createdAt: "2026-07-01T06:04:00Z",
 };

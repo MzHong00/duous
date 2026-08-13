@@ -8,11 +8,9 @@ import { AVATAR_SIZE } from "@/constants/style";
 
 import styles from "./MessageBubble.module.scss";
 
-import type { ChatMessage } from "@/features/chat/types/chat";
-
 interface MessageBubbleProps {
   text: string;
-  sender: ChatMessage["sender"];
+  isMine: boolean; // 뷰어 자신이 보낸 메시지인지(말풍선 좌우 정렬·아바타 표시 기준)
   createdAt: string; // 생성 시각 ISO 문자열(뷰어 타임존 기준으로 이 컴포넌트에서 포맷)
   avatar?: string;
   name?: string;
@@ -23,16 +21,14 @@ interface MessageBubbleProps {
 // 새 메시지 도착 시 목록 배열 참조가 바뀌어도 기존 버블은 props 동일 시 리렌더를 건너뛴다
 const MessageBubbleComponent = ({
   text,
-  sender,
+  isMine,
   createdAt,
   avatar,
   name,
   isFirstInGroup,
   isLastInGroup,
 }: MessageBubbleProps) => {
-  const isMe = sender === "me";
-
-  if (isMe) {
+  if (isMine) {
     return (
       <div className={cx(styles.rowMe, !isFirstInGroup && styles.rowGrouped)}>
         <div className={styles.innerMe}>

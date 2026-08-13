@@ -8,7 +8,7 @@ import type { NextRequest } from "next/server";
 import type { MessageRow } from "@/features/chat/utils/chatUtils";
 import type { MessageSendRequestDto } from "@/server/domain/message/dto";
 
-/** GET /api/messages?workspaceId= — 워크스페이스의 메시지 목록 (오래된 순, isMine은 세션 사용자 기준) */
+/** GET /api/messages?workspaceId= — 워크스페이스의 메시지 목록 (오래된 순, 내 메시지 판별은 클라이언트가 수행) */
 export async function GET(request: NextRequest) {
   const workspaceId = request.nextUrl.searchParams.get("workspaceId");
   if (!workspaceId)
@@ -23,9 +23,7 @@ export async function GET(request: NextRequest) {
     console.error("[api] 메시지 목록 조회 실패", error);
     return NextResponse.json({ message: "메시지 목록 조회에 실패했습니다." }, { status: 500 });
   }
-  return NextResponse.json(
-    (data as MessageRow[]).map((row) => rowToChatMessage(row, sessionUser.id))
-  );
+  return NextResponse.json((data as MessageRow[]).map((row) => rowToChatMessage(row)));
 }
 
 /** POST /api/messages — 메시지 전송 (발신자는 세션 사용자로 확정, 실시간 반영은 클라이언트 구독이 담당) */

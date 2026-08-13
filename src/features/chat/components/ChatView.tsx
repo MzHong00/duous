@@ -47,6 +47,7 @@ export const ChatView = () => {
 
             <MessageList
               messages={messages}
+              userId={user?.id ?? ""}
               isLoading={isChatLoading}
               isError={isError}
               members={currentWorkspace?.members}

@@ -5,8 +5,6 @@ import { formatChatTime } from "@/utils/date";
 
 import { MessageBubble } from "./MessageBubble";
 
-import type { ChatMessage } from "@/features/chat/types/chat";
-
 const CREATED_AT = "2026-07-01T06:04:00Z"; // 표시 문자열은 실행 타임존에 따라 달라지므로 formatChatTime으로 기대값을 계산한다
 const CREATED_AT_LATER = "2026-07-01T06:05:00Z";
 
@@ -14,7 +12,7 @@ const CREATED_AT_LATER = "2026-07-01T06:05:00Z";
 const renderBubble = (
   overrides: Partial<{
     text: string;
-    sender: ChatMessage["sender"];
+    isMine: boolean;
     createdAt: string;
     avatar?: string;
     name?: string;
@@ -25,7 +23,7 @@ const renderBubble = (
   render(
     <MessageBubble
       text="안녕"
-      sender="me"
+      isMine
       createdAt={CREATED_AT}
       isFirstInGroup
       isLastInGroup
@@ -41,14 +39,14 @@ describe("MessageBubble", () => {
   });
 
   it("내 메시지는 상대 아바타 없이 렌더링한다", () => {
-    renderBubble({ sender: "me", name: "파트너", avatar: "https://cdn.test/a.png" });
+    renderBubble({ isMine: true, name: "파트너", avatar: "https://cdn.test/a.png" });
 
     expect(screen.queryByAltText("파트너")).not.toBeInTheDocument();
   });
 
   it("상대 메시지의 그룹 첫 메시지에는 아바타를 렌더링한다", () => {
     renderBubble({
-      sender: "partner",
+      isMine: false,
       name: "파트너",
       avatar: "https://cdn.test/a.png",
       isFirstInGroup: true,
@@ -59,7 +57,7 @@ describe("MessageBubble", () => {
 
   it("상대 메시지의 그룹 중간 메시지에는 아바타를 렌더링하지 않는다", () => {
     renderBubble({
-      sender: "partner",
+      isMine: false,
       name: "파트너",
       avatar: "https://cdn.test/a.png",
       isFirstInGroup: false,
@@ -69,7 +67,7 @@ describe("MessageBubble", () => {
   });
 
   it("상대 이름이 없으면 이니셜 폴백 문자를 표시한다", () => {
-    renderBubble({ sender: "partner", name: undefined, isFirstInGroup: true });
+    renderBubble({ isMine: false, name: undefined, isFirstInGroup: true });
 
     expect(screen.getByText("?")).toBeInTheDocument();
   });
@@ -88,7 +86,7 @@ describe("MessageBubble", () => {
 
   it("상대 메시지도 그룹 마지막이면 시간을 표시한다", () => {
     renderBubble({
-      sender: "partner",
+      isMine: false,
       name: "파트너",
       createdAt: CREATED_AT_LATER,
       isLastInGroup: true,

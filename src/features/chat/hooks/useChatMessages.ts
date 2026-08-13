@@ -43,7 +43,7 @@ export const useChatMessages = (workspaceId: string, userId: string): UseChatMes
           filter: `workspace_id=eq.${workspaceId}`,
         },
         (payload) => {
-          const message = rowToChatMessage(payload.new as MessageRow, userId);
+          const message = rowToChatMessage(payload.new as MessageRow);
           queryClient.setQueryData<ChatMessage[]>(listQuery.queryKey, (prev = []) =>
             prev.some((m) => m.id === message.id) ? prev : [...prev, message]
           );

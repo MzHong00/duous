@@ -9,7 +9,6 @@ import type { ChatMessage } from "@/features/chat/types/chat";
 const chatMessage: ChatMessage = {
   id: "message-1",
   text: "안녕",
-  sender: "me",
   senderId: "user-1",
   createdAt: "2026-07-01T00:00:00Z",
 };

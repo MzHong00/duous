@@ -32,6 +32,7 @@ vi.mock("@tanstack/react-virtual", () => ({
   }),
 }));
 
+const VIEWER_ID = "user-1"; // 목업 메시지의 기본 발신자와 동일 — 내 메시지로 판별된다
 const CREATED_AT = "2026-07-01T06:04:00Z"; // 표시 문자열은 실행 타임존에 따라 달라지므로 formatChatTime으로 기대값을 계산한다
 const CREATED_AT_LATER = "2026-07-01T06:05:00Z";
 
@@ -39,7 +40,6 @@ const CREATED_AT_LATER = "2026-07-01T06:05:00Z";
 const createMessage = (overrides: Partial<ChatMessage> = {}): ChatMessage => ({
   id: "msg-1",
   text: "안녕",
-  sender: "me",
   senderId: "user-1",
   createdAt: CREATED_AT,
   ...overrides,
@@ -51,7 +51,14 @@ const members = [
 
 /** 기본 props로 목록을 렌더링한다 */
 const renderList = (props: Partial<React.ComponentProps<typeof MessageList>> = {}) =>
-  render(<MessageList messages={[]} bottomRef={createRef<HTMLDivElement>()} {...props} />);
+  render(
+    <MessageList
+      messages={[]}
+      userId={VIEWER_ID}
+      bottomRef={createRef<HTMLDivElement>()}
+      {...props}
+    />
+  );
 
 describe("MessageList", () => {
   it("조회 실패 시 에러 안내를 렌더링한다", () => {
@@ -87,9 +94,7 @@ describe("MessageList", () => {
 
   it("상대 메시지는 발신자 멤버의 아바타로 렌더링한다", () => {
     renderList({
-      messages: [
-        createMessage({ id: "msg-1", text: "상대 메시지", sender: "partner", senderId: "user-2" }),
-      ],
+      messages: [createMessage({ id: "msg-1", text: "상대 메시지", senderId: "user-2" })],
       members,
     });
 
@@ -107,9 +112,7 @@ describe("MessageList", () => {
 
   it("멤버 목록에 없는 발신자는 알 수 없음으로 표시한다", () => {
     renderList({
-      messages: [
-        createMessage({ id: "msg-1", text: "탈퇴자 메시지", sender: "partner", senderId: "gone" }),
-      ],
+      messages: [createMessage({ id: "msg-1", text: "탈퇴자 메시지", senderId: "gone" })],
       members,
     });
 
