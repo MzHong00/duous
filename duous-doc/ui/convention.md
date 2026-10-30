@@ -10,7 +10,7 @@
 
 ### 구조
 
-- 각 폴더(constants, utils, hooks 등)는 자기 역할의 코드만 export한다.
+- 각 세그먼트(ui, api, model, lib, config)는 자기 역할의 코드만 export한다.
 
 ### 작성 규칙
 
@@ -23,11 +23,15 @@
 
 ## 프로젝트 규칙
 
+### 구조
+
+- 레이어·슬라이스·세그먼트 구조는 `ui/structure.md`(FSD)를 따른다.
+
 ### TanStack Query
 
-- `src/features/[feature]/queries/`에 쿼리는 `[feature]Queries.ts`(키 + `queryOptions`), 뮤테이션은 `[feature]Mutations.ts`로 둔다.
+- 쿼리는 `entities/[개체]/api/[개체]Queries.ts`(키 + `queryOptions`), 뮤테이션 훅은 쓰는 곳의 `api` 세그먼트에 둔다.
 - `useQuery(storyQueries.list(workspaceId))`처럼 정의된 옵션으로 쓰고, 키 배열을 직접 쓰지 않는다.
-- 키는 `all`에서 파생하는 계층으로 만들어 범위 단위로 무효화한다(예: `storyKeys.all → lists() → list(id)`).
+- 키는 `all`에서 파생하는 계층으로 만들어 범위 단위로 무효화한다(예: `storyQueries.all() → lists() → list(id)`).
 
 ### Zustand
 
@@ -38,4 +42,4 @@
 
 - 컴포넌트와 같은 폴더에 `[ComponentName].module.scss`를 둔다.
 - 스타일은 CSS Modules로 쓴다. 인라인 `style`은 CSS 변수나 런타임 계산값을 넘길 때만 쓴다.
-- 전역 스타일은 `src/styles/globals.scss`에만 쓴다.
+- 전역 스타일은 `app/`(루트 layout에서 import), 토큰·믹스인은 `shared/styles`에 둔다.

@@ -7,11 +7,11 @@
 ### 구조
 
 - 함수는 메서드, 파일은 클래스 단위로 본다.
-- 구현체가 하나뿐인 인터페이스는 만들지 않는다.
+- 구현체가 하나뿐인 인터페이스는 만들지 않는다(Spring Data Repository는 예외).
 
 ### 작성 규칙
 
-- null 대신 `Optional`을 반환하고, `Object`·raw 타입 대신 구체적인 타입을 쓴다.
+- null 대신 `Optional`을 반환하고(필드·파라미터에는 쓰지 않는다), `Object`·raw 타입 대신 구체적인 타입을 쓴다.
 
 ### 오류 처리
 
@@ -38,16 +38,28 @@
 
 ## 프로젝트 규칙
 
-### 패키지
+### 구조
 
-- 도메인별로 나눈다: `domain/[도메인]/`에 Controller·Service·Repository·Entity, `dto/`를 둔다.
-- 공통 설정·보안·예외 처리는 `global/`에 둔다.
+- 패키지 구조는 `api/structure.md`를 따른다.
 
-### 권한
+### 인증·인가
 
-- 사용자·워크스페이스 ID는 요청 값이 아니라 인증 정보에서 가져온다.
-- 워크스페이스 데이터 접근 전 멤버십을 반드시 확인한다. DB의 RLS가 적용되지 않으므로 서버가 유일한 방어선이다.
+- 인증은 Spring Security로 처리한다. 사용자 ID는 인증 정보에서만 가져온다.
+- 워크스페이스 데이터는 Service에서 `WorkspaceAccessChecker`로 멤버십을 확인한다. ID로 조회한 데이터는 그 데이터의 workspaceId로 확인한다.
+- 멤버가 아니면 `404`, 멤버지만 권한이 부족하면 `403`으로 응답한다.
+- DB에 접근 제어(RLS)가 없으므로 서버가 유일한 방어선이다.
 
 ### 예외
 
-- 예외는 `global/`의 `@RestControllerAdvice` 한 곳에서 응답으로 변환한다.
+- 비즈니스 예외는 `BusinessException(ErrorCode)`로 던진다.
+- 모든 오류 응답(Security 401·403 포함)은 `ProblemDetail` 형식으로 통일한다.
+
+### API·JPA
+
+- 경로는 복수 명사로 쓴다. 목록·생성은 `/api/workspaces/{id}/todos`, 단건은 `/api/todos/{id}`.
+- 시점은 `Instant`, 날짜는 `LocalDate`, 시각은 `LocalTime`을 쓴다.
+- `open-in-view: false`, `ddl-auto: validate`. 연관은 LAZY로 두고 필요하면 fetch join을 쓴다.
+
+### 테스트
+
+- 기능마다 "다른 워크스페이스 사용자는 접근할 수 없다" 테스트를 둔다.
