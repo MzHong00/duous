@@ -1,4 +1,4 @@
-package com.duous.duous_api;
+package com.duous.api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
