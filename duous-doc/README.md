@@ -8,6 +8,7 @@ duous-ui·duous-api가 참조하는 문서 저장소.
 | ------------------------ | -------------------------------- | ----------------------------- |
 | `common/convention.md`   | ui·api 공통 코드 규칙            | 공통 규칙 합의 시             |
 | `common/architecture.md` | ui·api·DB 시스템 구성            | 구성 요소 변경 시             |
+| `common/task.md`         | 작업 목록(백로그)                | 작업 추가·상태 변경 시        |
 | `common/workflow.md`     | ui·api 공통 코드 작업 워크플로우 | 작업 흐름 변경 시             |
 | `ui/convention.md`       | duous-ui(Next.js) 코드 규칙      | ui 규칙 합의 시               |
 | `ui/structure.md`        | duous-ui 폴더 구조(FSD)          | ui 구조 변경 시               |
