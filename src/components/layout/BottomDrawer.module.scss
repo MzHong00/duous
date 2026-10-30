@@ -20,6 +20,11 @@
   }
 }
 
+.drawerPeek {
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--grey-100);
+}
+
 .drawerContent {
   flex: 1;
   padding: 0 0 max(64px, calc(64px + env(safe-area-inset-bottom)));

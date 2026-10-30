@@ -60,18 +60,47 @@
   margin-top: var(--space-xs);
 }
 
-.pathMeta {
-  @include flex-row(6px);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--grey-400);
+// 경로 기록 요약 — 실제 경로 모양과 이동 지표를 한 블록으로 묶는다
+.pathSummary {
+  @include flex-row(var(--space-md));
+  margin-top: var(--space-2xs);
+  padding: var(--space-md) var(--space-lg) var(--space-md) var(--space-md);
+  border-radius: var(--radius-md);
+  background-color: var(--grey-50);
+  box-shadow: inset 3px 0 0 var(--path-color);
 }
 
-.pathDot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: var(--path-color);
+.pathSpark {
+  flex-shrink: 0;
+  width: 64px;
+  height: 34px;
+}
+
+.pathStats {
+  flex: 1;
+  display: flex;
+}
+
+.pathStat {
+  flex: 1;
+  @include flex-col-center(3px);
+
+  & + & {
+    box-shadow: inset 1px 0 0 var(--grey-200);
+  }
+}
+
+.pathStatValue {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--grey-900);
+  letter-spacing: -0.3px;
+  font-variant-numeric: tabular-nums;
+}
+
+.pathStatLabel {
+  font-size: 11px;
+  color: var(--grey-400);
 }
 
 .title {
@@ -91,35 +120,43 @@
   white-space: pre-wrap;
 }
 
+// ─── 지도 보기 액션 ───────────────────────────────────────────────────────────
+// 메인 컬러를 연하게 깐 슬림 바 — 브랜드 색으로 눈에 띄되, 사진·본문보다 앞서지 않는다
+
 .mapButton {
   width: 100%;
-  @include flex-row(16px);
-  background-color: var(--primary);
-  padding: var(--space-xl);
-  border-radius: var(--radius-xl);
-  margin-top: 18px;
-  box-shadow: 0 4px 16px rgba(var(--primary-rgb), 0.25);
+  @include flex-row(var(--space-md));
+  padding: 10px var(--space-lg) 10px 10px;
+  margin-top: var(--space-md);
+  border-radius: var(--radius-pill);
+  background-color: var(--primary-light);
+  transition:
+    transform 0.15s,
+    opacity 0.15s;
+
+  &:active {
+    transform: scale(0.99);
+    opacity: 0.92;
+  }
 }
 
 .mapIconWrap {
-  @include icon-box(48px, 14px);
-  background-color: rgba(255, 255, 255, 0.2);
-  color: var(--white);
+  @include icon-box(36px);
+  background-color: var(--white);
+  color: var(--primary);
 }
 
-.mapInfo {
+.mapLabel {
   flex: 1;
   text-align: left;
-}
-
-.mapTitle {
-  color: var(--white);
+  font-size: var(--font-size-md);
   font-weight: var(--font-weight-bold);
-  font-size: var(--font-size-xl);
+  color: var(--primary);
+  letter-spacing: -0.01em;
 }
 
-.mapDesc {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: var(--font-size-xs);
-  margin-top: var(--space-2xs);
+@media (prefers-reduced-motion: reduce) {
+  .mapButton {
+    transition: none;
+  }
 }

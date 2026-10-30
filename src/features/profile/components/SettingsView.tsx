@@ -1,6 +1,6 @@
 "use client";
 import { useRef } from "react";
-import { Bell, Lock, ChevronRight, LogOut, Camera, Pencil } from "lucide-react";
+import { Bell, ChevronRight, LogOut, Camera, Pencil } from "lucide-react";
 
 import { AppHeader } from "@/components/layout/AppHeader";
 import { Card } from "@/components/ui/Card";
@@ -30,15 +30,9 @@ const SETTING_ITEMS: SettingItem[] = [
     description: "푸시 알림 및 메시지 알림",
     icon: <Bell size={ICON_SIZE.lg} color="var(--grey-900)" />,
   },
-  {
-    id: "privacy",
-    label: "위치 공유 설정",
-    description: "파트너와 위치 공유 여부",
-    icon: <Lock size={ICON_SIZE.lg} color="var(--grey-900)" />,
-  },
 ];
 
-/** 프로필 설정 화면(사진·이름 수정, 알림/위치 설정, 로그아웃) */
+/** 프로필 설정 화면(사진·이름 수정, 알림 설정, 로그아웃) */
 export const SettingsView = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);

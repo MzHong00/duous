@@ -92,7 +92,6 @@ describe("SettingsView", () => {
     render(<SettingsView />);
 
     expect(screen.getByText("알림 설정")).toBeInTheDocument();
-    expect(screen.getByText("위치 공유 설정")).toBeInTheDocument();
     expect(screen.getByText("로그아웃")).toBeInTheDocument();
   });
 

@@ -1,30 +1,20 @@
 @use "styles/mixins" as *;
 
 .container {
-  padding: var(--space-lg) var(--space-xl);
+  @include flex-col;
 }
 
-.thumbnailWrap {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 3/2;
-  border-radius: var(--radius-xl);
-  margin-top: var(--space-sm);
-  background-color: var(--grey-100);
-  overflow: hidden;
-}
+.backButton {
+  align-self: flex-start;
+  @include flex-row(2px);
+  margin: var(--space-sm) var(--space-lg);
+  padding: var(--space-2xs) var(--space-sm) var(--space-2xs) var(--space-2xs);
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--grey-600);
 
-.thumbnail {
-  object-fit: cover;
-}
-
-.description {
-  background-color: var(--grey-100);
-  padding: var(--space-lg);
-  border-radius: var(--radius-xl);
-  margin-top: var(--space-lg);
-  margin-bottom: var(--space-sm);
-  font-size: var(--font-size-md);
-  line-height: 1.625;
-  color: var(--grey-500);
+  &:active {
+    background-color: var(--grey-50);
+  }
 }

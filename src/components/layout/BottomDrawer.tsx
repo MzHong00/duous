@@ -10,20 +10,29 @@ const SNAP_ANCHOR_GAP = 10; // 현재 높이와 앵커 간 최소 간격(px)
 
 interface BottomDrawerProps {
   children: React.ReactNode;
+  /** 접힌 상태에서도 항상 보이는 고정 영역 (핸들 바로 아래, 스크롤되지 않음) */
+  peek?: React.ReactNode;
   initialHeightRatio?: number;
   minHeight?: number;
   maxHeightRatio?: number;
   /** 드로어 하단 오프셋(CSS 값). 기본값은 BottomNav가 노출하는 --gnb-height 변수를 참조해 GNB에 밀착시킨다 */
   bottomOffset?: string;
+  /** 값이 바뀔 때마다 드로어를 중간 높이로 펼친다 (지도 마커 선택 등 외부 트리거용) */
+  expandKey?: string | null;
+  /** 스크롤 영역 참조 — 화면 전환 시 스크롤 위치를 제어해야 하는 사용처에서 넘긴다 */
+  contentRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 /** 드래그로 높이를 조절할 수 있는 하단 드로어. 앵커(최소/중간/최대) 스냅을 지원한다 */
 export const BottomDrawer = ({
   children,
+  peek,
   initialHeightRatio = 0.45,
   minHeight = 40,
   maxHeightRatio = 0.8,
   bottomOffset = "0px",
+  expandKey = null,
+  contentRef,
 }: BottomDrawerProps) => {
   // ref로 관리해서 클로저 이슈 방지
   const isDragging = useRef(false);
@@ -35,6 +44,16 @@ export const BottomDrawer = ({
   // 기본 상태는 접힘(minHeight) — 사용자가 핸들을 드래그해야 펼쳐짐
   const [drawerHeight, setDrawerHeight] = useState(minHeight);
   const [isDraggingState, setIsDraggingState] = useState(false);
+  const [prevExpandKey, setPrevExpandKey] = useState(expandKey); // expandKey 변화 감지용 이전 값
+
+  // expandKey가 채워진 값으로 바뀌면 렌더 중 드로어를 중간 높이까지 펼친다 (외부 트리거 열림).
+  // 이미 더 크게 펼쳐 둔 상태라면 사용자가 맞춰 둔 높이를 줄이지 않는다.
+  if (expandKey !== prevExpandKey) {
+    setPrevExpandKey(expandKey);
+    const midHeight = expandKey ? window.innerHeight * initialHeightRatio : 0;
+    // 이미 그보다 크게 펼쳐 둔 상태라면 사용자가 맞춰 둔 높이를 유지한다
+    setDrawerHeight((current) => Math.max(current, midHeight));
+  }
 
   /** 드래그 종료 시점의 높이·이동 방향을 바탕으로 가장 가까운 앵커 높이를 계산한다 */
   const snapHeight = useCallback(
@@ -165,7 +184,10 @@ export const BottomDrawer = ({
         }}
         aria-label="드로어 높이 조절"
       />
-      <div className={styles.drawerContent}>{children}</div>
+      {peek && <div className={styles.drawerPeek}>{peek}</div>}
+      <div ref={contentRef} className={styles.drawerContent}>
+        {children}
+      </div>
     </div>
   );
 };

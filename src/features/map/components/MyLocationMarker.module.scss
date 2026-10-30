@@ -3,22 +3,17 @@
 .marker {
   @include flex-col-center;
   transform: translate(-50%, -50%);
-  cursor: pointer;
 }
 
 .avatar {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  border: 2px solid var(--white);
+  border: 2px solid var(--primary);
   background-color: var(--white);
   @include flex-center;
   box-shadow: var(--shadow-md);
   overflow: hidden;
-}
-
-.avatarMe {
-  border-color: var(--primary);
 }
 
 .image {

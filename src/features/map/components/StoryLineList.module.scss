@@ -1,0 +1,78 @@
+@use "styles/mixins" as *;
+
+.list {
+  @include flex-col;
+  padding: 0 var(--space-md) var(--space-md);
+}
+
+.item {
+  width: 100%;
+  @include flex-row(var(--space-md));
+  align-items: stretch;
+  padding: var(--space-md) var(--space-sm);
+  border-radius: var(--radius-md);
+  text-align: left;
+  transition: background-color 0.15s;
+
+  &:active {
+    background-color: var(--grey-50);
+  }
+}
+
+// 지도 위 폴리라인의 색과 모양을 그대로 축소해, 목록 항목과 지도의 선을 잇는다
+.spark {
+  flex-shrink: 0;
+  align-self: center;
+  width: 48px;
+  height: 26px;
+  padding: 3px 0;
+  border-left: 3px solid var(--path-color);
+  padding-left: var(--space-sm);
+}
+
+.body {
+  flex: 1;
+  @include flex-col(4px);
+  min-width: 0;
+}
+
+.title {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--grey-900);
+  @include text-ellipsis;
+}
+
+.meta {
+  @include flex-row(var(--space-2xs));
+  font-size: var(--font-size-xs);
+  color: var(--grey-500);
+  font-variant-numeric: tabular-nums;
+}
+
+.metaSep {
+  color: var(--grey-300);
+}
+
+.chevron {
+  flex-shrink: 0;
+  align-self: center;
+  color: var(--grey-300);
+}
+
+.empty {
+  @include flex-col(var(--space-xs));
+  padding: var(--space-2xl) var(--space-xl) var(--space-3xl);
+  text-align: center;
+}
+
+.emptyTitle {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--grey-900);
+}
+
+.emptyDesc {
+  font-size: var(--font-size-sm);
+  color: var(--grey-500);
+}

@@ -1,4 +1,4 @@
-import { Image, Camera, MapPin, Gift } from "lucide-react";
+import { Image, Camera, Gift } from "lucide-react";
 
 import type { LucideIcon } from "lucide-react";
 
@@ -15,6 +15,5 @@ interface ChatActionItem {
 export const CHAT_ACTION_ITEMS: ChatActionItem[] = [
   { id: "gallery", Icon: Image, label: "갤러리" },
   { id: "camera", Icon: Camera, label: "카메라" },
-  { id: "location", Icon: MapPin, label: "위치" },
   { id: "gift", Icon: Gift, label: "선물" },
 ];

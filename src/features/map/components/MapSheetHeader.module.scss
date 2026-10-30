@@ -1,0 +1,100 @@
+@use "styles/mixins" as *;
+
+.header {
+  @include flex-between;
+  gap: var(--space-md);
+  padding: 0 var(--space-xl) var(--space-md);
+}
+
+.summary {
+  @include flex-col(4px);
+  min-width: 0;
+}
+
+// 아래 수치들이 "합계"임을 먼저 알리는 섹션 라벨
+.label {
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--grey-400);
+}
+
+.metrics {
+  @include flex-row(var(--space-lg));
+}
+
+.metric {
+  @include flex-col(1px);
+}
+
+.metricValue {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--grey-900);
+  letter-spacing: -0.4px;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.metricLabel {
+  font-size: 11px;
+  color: var(--grey-400);
+}
+
+.recordingValue {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--grey-900);
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+// 기록 중에는 거리 위에 상태 라벨이 올라와 시트가 지금 무엇을 하는지 스스로 말한다
+.recordingLabel {
+  @include flex-row(6px);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--error);
+}
+
+.pulseDot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background-color: var(--error);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+.recordButton {
+  flex-shrink: 0;
+  @include flex-row(6px);
+  padding: 12px 18px;
+  border-radius: var(--radius-pill);
+  background-color: var(--primary);
+  color: var(--white);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  transition:
+    background-color 0.15s,
+    transform 0.15s;
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.recordButtonActive {
+  background-color: var(--error);
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulseDot {
+    animation: none;
+  }
+}

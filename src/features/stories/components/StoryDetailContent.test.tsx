@@ -42,13 +42,15 @@ describe("StoryDetailContent", () => {
     mockUseRouter.mockReturnValue({ push: mockPush } as unknown as ReturnType<typeof useRouter>);
   });
 
-  it("제목·설명·날짜·경로 지점 수를 렌더링한다", () => {
+  it("제목·설명·날짜·경로 기록 요약을 렌더링한다", () => {
     render(<StoryDetailContent story={story} />);
 
     expect(screen.getByRole("heading", { name: "제주 여행" })).toBeInTheDocument();
     expect(screen.getByText("바다가 예뻤다")).toBeInTheDocument();
     expect(screen.getByText("2026.03.05")).toBeInTheDocument();
-    expect(screen.getByText(/경로 1개 지점/)).toBeInTheDocument();
+    expect(screen.getByText("이동 거리")).toBeInTheDocument();
+    expect(screen.getByText("소요 시간")).toBeInTheDocument();
+    expect(screen.getByText("1개")).toBeInTheDocument();
   });
 
   it("제목이 없으면 제목 없음으로 렌더링한다", () => {
@@ -75,10 +77,16 @@ describe("StoryDetailContent", () => {
     expect(screen.queryByTestId("hero-image")).not.toBeInTheDocument();
   });
 
-  it("경로가 없으면 지점 수를 렌더링하지 않는다", () => {
+  it("경로가 없으면 경로 기록 요약을 렌더링하지 않는다", () => {
     render(<StoryDetailContent story={{ ...story, path: [] }} />);
 
-    expect(screen.queryByText(/개 지점/)).not.toBeInTheDocument();
+    expect(screen.queryByText("이동 거리")).not.toBeInTheDocument();
+  });
+
+  it("지도 액션을 숨기면 지도로 이동하는 버튼을 렌더링하지 않는다", () => {
+    render(<StoryDetailContent story={story} shouldShowMapAction={false} />);
+
+    expect(screen.queryByText("지도에서 경로 보기")).not.toBeInTheDocument();
   });
 
   it("지도에서 보기를 클릭하면 스토리를 선택하고 지도로 이동한다", () => {
