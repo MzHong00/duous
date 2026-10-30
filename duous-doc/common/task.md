@@ -17,7 +17,6 @@
 
 | ID     | 작업                                                    | 영역   | 에픽         | 비고                                      |
 | ------ | ------------------------------------------------------- | ------ | ------------ | ----------------------------------------- |
-| DU-001 | 의존성 추가(data-jpa, validation, security, postgresql 등) | api    | Spring 기반  |                                           |
 | DU-002 | 예외 처리(ErrorCode, BusinessException, ProblemDetail)  | api    | Spring 기반  |                                           |
 | DU-003 | 공통 설정(CORS, JPA), 환경 변수                         | api    | Spring 기반  |                                           |
 | DU-004 | DB 스키마·RLS 정책 백업, 스키마 관리 방식 결정          | api    | Spring 기반  | Flyway 여부                               |
@@ -51,3 +50,4 @@
 
 | ID | 작업 | 영역 | 에픽 | 완료일 |
 | -- | ---- | ---- | ---- | ------ |
+| DU-001 | 의존성 추가(data-jpa, validation, security, postgresql 등) | api | Spring 기반 | 2026-10-30 |
